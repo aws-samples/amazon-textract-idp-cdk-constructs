@@ -1,0 +1,12 @@
+{
+    "manifest": {
+        "s3Path": "s3://schademcdkstackpaystuban-schademcdkidpstackpaystu-bt0j5wq0zftu/uploads/w2-example.png"
+    },
+    "mime": "image/png",
+    "classification": null,
+    "numberOfPages": 1,
+    "Random": "{\"randomNumber\": 60}",
+    "textract_result": {
+        "TextractTempOutputJsonPath": "s3://schademcdkstackpaystuban-schademcdkidpstackpaystu-bt0j5wq0zftu/textract-temp-output/a37c3b6dd0f3c55a3b05c84bd972a2395b15bda61c77850c54c29fd6b1f8bcf2"
+    }
+} 

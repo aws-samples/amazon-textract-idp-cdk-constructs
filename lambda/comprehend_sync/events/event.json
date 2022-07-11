@@ -1,0 +1,18 @@
+{
+    "Records": [{
+        "messageId": "0a4d510e-c7ee-4ad4-95ca-991bd68f7094",
+        "receiptHandle": "AQEBFAexgmSAITHX4YH6um/VgEB16q/pbqq6QY5yuOesYk6ieCpuWK1NAu4IQR8/r6gulmKreKJ5YZF940MGOvVkRYYfBNakTg7+cm5SOJzyxtIGYotZQrmj/YteauCsu+dLiWh4+4x0/qv71zbC3BMb5ed7WWf12IqgM7kuRPcO5ImPsR5x9XNfuQVAs0AlPBTsYADRxYyTT8dBWRCpKPjOSofxTk6z5zBFanax/cUEu2kl790Bor5HjkeCbfIeovA75g6QRf0llAk3YVzG1hS/cJqqdF51uSDWOV87/iB3C4Ef8dA6O9xmNkXroXgnTtLQBGme7nOnJ2HDvGjw09ZonvzChWmYHdFIC9YNUjV6sUsVFhG1GvfJ++31zMxbB9zFkogG7cH95wSrJSscjtMtb2uUeSHW33e+b5FprYa+YzFJd73fCNlFA+0er3PBmhmXi6dAqNOezIlAfu97YAqptnwm4Tn54l1JkLp1bt6ryOk=",
+        "body": "{\"Token\": \"AQCYAAAAKgAAAAMAAAAAAAAAAcCPkWoecuOS78QC0lLFx2yIR7vdIN/AfqV25jZoUWxPX5eJFrJ83w03ml16IYFZ7YiPh7WP3PZQcHI+b/LVU4L/1FYj5X3E4zFwPjuc0ZLc2XrwgaKAd3tyPyAaLV9WN2EBxlwa77MZlebDhjznzDLGru5DUDVekJpb/wyRajbqgJ2FC4SNg9Uw3NgRHLM31Pm81VxmIpq3QMRx5h5OaRuTNtrrAjWlsfOebkx5r1wqRgAR9r5Y4WtHUBOQQM2p8iNpHoXTXGLrYX3EXJh8bMCS8/QZejdMR6cttvV4s014p3QBvp3e8PcxDsFvFp80wyMM9kJj+T15yJi93r/scXDwGt3OJ5ADRhKqh5OIO1UIl9dhBJNR8+FCGOtd3B8/GpdF0kur8Aqhe+iWnM+W/B1nAtKVSz3L20DkhOSzZUZ9esmUYai31PS7MwxDZqHR7v4qKPSu5MVJpedCVoiBlUYLTwW3tl26e2iZGHP0tTsNJADSFZwB9b1H6Gr7j7Uhih3zOtlexC6HsbK7vvuPshSIySf0Dy1bKvLzDMSeJrMI6B8MW+TLqNP9JmjelMZGjpwTI7Q0Pf5NvKie7br5JrPSRFqEZuX1cVPJW/mgOyHCteE52KPaeMDiH9ZxZTJQxa4XpImH71kmjt1A8muXmbGw\", \"Payload\": {\"manifest\": {\"s3Path\": \"s3://schademcdkstackpaystubst-schademcdkidpstackpython-1fvi0dqoz24lj/uploads/w2-example.png\"}}, \"ExecutionId\": \"arn:aws:states:us-east-1:913165245630:execution:PaystubWorkflowPython6780DE1E-MbkSvRTQL8tZ:9f19f384-91cc-4c9c-ba0b-dfb987349df4\"}",
+        "attributes": {
+            "ApproximateReceiveCount": "7",
+            "SentTimestamp": "1654192484978",
+            "SenderId": "AROA5JHHD3S7C7EVBI2MB:SchademCdkStackPaystubSta-textractsynctaskPutOnSQS-pweSVBLajnrH",
+            "ApproximateFirstReceiveTimestamp": "1654192484978"
+        },
+        "messageAttributes": {},
+        "md5OfBody": "7b73daf59eafd8a4dea1945bae6914aa",
+        "eventSource": "aws:sqs",
+        "eventSourceARN": "arn:aws:sqs:us-east-1:913165245630:SchademCdkStackPaystubStack-textractsynctaskSyncRequestsBC26E72B-kID9dZUtmCZM",
+        "awsRegion": "us-east-1"
+    }]
+}

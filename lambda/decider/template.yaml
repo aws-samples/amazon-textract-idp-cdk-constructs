@@ -1,0 +1,27 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  python3.9
+
+  Sample SAM Template for sam-app
+
+Globals:
+  Function:
+    Timeout: 900
+
+Resources:
+  DeciderFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      PackageType: Image
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          S3_OUTPUT_PREFIX: textract-output
+          S3_OUTPUT_BUCKET: my-stack-dev-documentbucket04c71448-7en8gx904sk5
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: .
+      DockerTag: python3.9-v1
+

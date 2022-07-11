@@ -1,0 +1,19 @@
+{
+    "manifest": {
+        "s3Path": "s3://rm-schademcdkidpstackpaystubw2b23e1d7e-pb6eve1ca8yk/uploads/W2_1_reMars.png"
+    },
+    "mime": "image/png",
+    "classification": {
+        "documentType": "AWS_W2"
+    },
+    "numberOfPages": 1,
+    "Random": {
+        "randomNumber": 5
+    },
+    "textract_result": {
+        "TextractOutputJsonPath": "s3://rm-schademcdkidpstackpaystubw2b23e1d7e-pb6eve1ca8yk/textract-output/W2_1_reMars2022-06-21T00:46:07.656503/W2_1_reMars.json"
+    },
+    "txt_output_location": {
+        "TextractOutputCSVPath": "s3://rm-schademcdkidpstackpaystubw2b23e1d7e-pb6eve1ca8yk/txt_output/2022-06-21T00:46:09+00:00/W2_1_reMars.txt"
+    }
+}

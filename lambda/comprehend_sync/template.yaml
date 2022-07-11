@@ -1,0 +1,28 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  python3.9
+
+  Sample SAM Template for sam-app
+
+Globals:
+  Function:
+    Timeout: 900
+
+Resources:
+  SyncFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      PackageType: Image
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          S3_OUTPUT_PREFIX: textract-output
+          S3_OUTPUT_BUCKET: schademcdkstackpaystubst-schademcdkidpstackpython-1fvi0dqoz24lj 
+          SQS_QUEUE_URL: SchademCdkStackPaystubStack-textractsynctaskSyncRequestsBC26E72B-kID9dZUtmCZM
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: .
+      DockerTag: python3.9-v1
+

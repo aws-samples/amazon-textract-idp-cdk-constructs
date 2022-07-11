@@ -1,0 +1,52 @@
+{
+    "Token": "AQCYAAAAKgAAAAMAAAAAAAAAAYr5arqMuyfHoY6pmbwpOw9LP3sGWJ2722fNgxa5PpUj4B4OFjoNo1BDJRiX6FZb3RwD1qQxtAIeDFGGg+yiXZZIxDb4mbLPXNY3+4yZEmV+xzIMT+lbUMl5yPHGR5VdaGuSHda6IUHNDJRiJZXcfcLk51tHp5/YFPgvzFc2zA4FYcvJSPsAPWYXjujp0+6tr+YL8cYKUdX3ogg+NkGugLSpb2CshBv1diH32OixFOFrsl1wgvWqewL+ZhpZRbPDvGNX2m+78z6GcBqHjMqS6WWbl8+uKgLqOZoFr3dAYWAUEcSoKMWgQn1XhRJSuHvmlngBLyAXn5lwgLUdAvwpq/rAT56tHAigRp4Xh5qNUE8o9jX1dsHsyzcx/fk6ztEtyZr46KZkheUpLrYHVAfB0bOCMx5ebBwMl8dC5bjaGxpOZY4yXL+5S1xq0+KuhydQrZ3hCZ7CA91G4prmGfXfxcrrr0frTTUQc3U+lBzUYhyu/Gex317Gs/qXg4YgqgoGKfJAY6AcdCxzM+2xRiD5zzYc/FZIsK8Eb2YO0q/g8RD0K+Jfd8SvYgxf3QbEZscEe9PuTuCcRvIGpDAAam70gTBAzQnEuSUOlLfznEma3aGIq9QLqz4NLR0zVj0rmzBAQaEMxN+zMXOptri734BDpbf+",
+    "Payload": {
+        "manifest": {
+            "queriesConfig": [
+                {
+                    "alias": "PAYSTUB_PAY_PERIOD_START_DATE",
+                    "text": "What is the Pay Period Start Date?"
+                },
+                {
+                    "alias": "PAYSTUB_PAY_PERIOD_END",
+                    "text": "What is the Pay Period End Date?"
+                },
+                {
+                    "alias": "PAYSTUB_PAY_DATE",
+                    "text": "What is the Pay Date?"
+                },
+                {
+                    "alias": "PAYSTUB_EMPLOYEE_NAME",
+                    "text": "What is the Employee Name?"
+                }, {
+                    "alias": "PAYSTUB_EMPLOYEE_ADDRESS",
+                    "text": "What is the Employee Address?"
+                }, {
+                    "alias": "PAYSTUB_COMPANY_NAME",
+                    "text": "What is the company Name?"
+                }, {
+                    "alias": "PAYSTUB_CURRENT_GROSS",
+                    "text": "What is the Current Gross Pay?"
+                }, {
+                    "alias": "PAYSTUB_YTD_GROSS",
+                    "text": "What is the YTD Gross Pay?"
+                }, {
+                    "alias": "PAYSTUB_REGULAR_HOURLY_RATE",
+                    "text": "What is the regular hourly rate?"
+                }, {
+                    "alias": "PAYSTUB_HOLIDAY_RATE",
+                    "text": "What is the holiday rate?"
+                }
+            ],
+            "s3Path": "s3://schademcdkstackpaystubst-schademcdkidpstackpython-1fvi0dqoz24lj/uploads/w2-example.png",
+            "textractFeatures": ["QUERIES"]
+        },
+        "mime": "image/png",
+        "classification": null,
+        "numberOfPages": 1,
+        "textract_result": {
+            "TextractOutputJsonPath": "s3://schademcdkstackpaystubst-schademcdkidpstackpython-1fvi0dqoz24lj/textract-output/w2-example2022-06-09T18:01:06.973523/w2-example.json"
+        }
+    },
+    "ExecutionId": "arn:aws:states:us-east-1:913165245630:execution:PaystubWorkflowPython6780DE1E-MbkSvRTQL8tZ:f62e1132-6e31-4310-9d56-975245267b1c"
+}

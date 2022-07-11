@@ -1,0 +1,31 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  python3.9
+
+  Sample SAM Template for sam-app
+
+Globals:
+  Function:
+    Timeout: 900
+
+Resources:
+  SyncFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      PackageType: Image
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          S3_OUTPUT_PREFIX: textract-output
+          S3_OUTPUT_BUCKET: my-stack-dev-documentbucket04c71448-7en8gx904sk5
+          NOTIFICATION_ROLE_ARN: arn:aws:iam::913165245630:role/my-stack-dev-textracttaskTextractAsyncSNSRole9C109-1U9GNG425CDEO
+          NOTIFICATION_SNS: arn:aws:sns:us-east-1:913165245630:my-stack-dev-textracttaskTextractAsyncSNS3C29E077-16AORMCCGLOEV
+          TOKEN_STORE_DDB: my-stack-dev-textracttaskTextractTaskTokenTableC181A801-DTM6Z7GOJH28
+          S3_TEMP_OUTPUT_PREFIX: textract-temp-output
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: .
+      DockerTag: python3.9-v1
+

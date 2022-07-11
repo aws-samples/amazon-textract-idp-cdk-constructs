@@ -1,0 +1,12 @@
+{
+  "Token": "AQCUAAAAKgAAAAMAAAAAAAAAAScySGVHlgFmBDVYD6a8ltN6T9sIC2E2c+pzSZMimkamYs7yQqUgz3QBGHVmaWxPE19esi6AhnOy9VAoyLPlY8Mp41xuEOE790EpAnGOpD/dytQLwUiYvRrQ3xc39l4=3OtkLO6CRweuCEt3aL8aLSYaOaBdxzIUP5TXmZcAqZkFrW7v8hrHCmJnfVqyqQnWH+gDmhCG6chzGSt+2TkPmiT7Pzol6bkvzWYjpuytO9drcJMJne58Vd6oLqQ3jUxqd9t01WeTndbHwyV6wE1vp1AuQuSL/3I6PpuQpuoMvJOd82QlQ9rpR8DaY4T4FIH50fyHF6mMARsteDcTzNSuriyKRIFjPhYFNw5MnGPbc5eYvHIxikRzq+fiYCr6bYlXjn5XrG3uz8hYz48EWcHScdNvc3IraqVwf+oXsGO/74x0E+a6StVrP1DmCk0Siof8hCPSehdomEt0+ivXW0mD+GcsfjOOnlDIZ9E2EYrNjl1aCMe7225AgwsqFb48cbh5ekHQMtZhy3VUPhmaygyqMTujGT7kU4JlFRumtPs9D6FW+NkNiE6VjCCNz4Q0/6uH3jtwRkEon4ozbnxkJLQsXujSA52Iig7/0H9vL7ZNe3oeKFIyD0OGQeryetRwkC68xKtbZc626ZLEhXRRSR0Z",
+  "Payload": {
+    "manifest": {
+      "S3Path": "s3://idp-stack-python-sample-schademcdkidpstackpython-pha5ty3i0jbi/uploads/98.blabla"
+    },
+    "mime": "image/jpeg",
+    "classification": null,
+    "numberOfPages": 1
+  },
+  "ExecutionId": "arn:aws:states:us-east-1:913165245630:execution:IDPWorkflowPython85B937F9-Pnw2MyHSOXR8:1992869c-cc18-4b3c-91ca-d15fcebdcc14"
+}
