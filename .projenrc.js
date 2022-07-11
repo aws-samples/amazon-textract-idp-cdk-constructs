@@ -3,7 +3,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
   author: 'Martin Schade',
   authorAddress: '45048633+schadem@users.noreply.github.com',
   cdkVersion: '2.1.0',
-  defaultReleaseBranch: 'mainline',
+  defaultReleaseBranch: 'main',
   name: 'amazon-textract-idp-cdk-constructs',
   repositoryUrl: 'https://github.com/aws-samples/amazon-textract-idp-cdk-constructs.git',
   gitignore: ['test/__snapshots__/', '__pycache__', '.python-version', '.aws-sam', '.nvmrc'],
