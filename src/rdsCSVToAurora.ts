@@ -87,6 +87,26 @@ export interface CSVToAuroraTaskProps extends sfn.TaskStateBaseProps {
  * At the moment it also creates the Aurora Serverless RDS DB, initializes a table structure the matches the output of the GenerateCSV construct.
  * The Step Functions flow expect a pointer to a CSV at "csv_output_location"."TextractOutputCSVPath" and uses that to execute a batch insert statement command.
  *
+ * Example:
+ * ```python
+*  csv_to_aurora_task = tcdk.CSVToAuroraTask(
+        self,
+        "CsvToAurora",
+        vpc=vpc,
+        integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+        lambda_log_level="DEBUG",
+        timeout=Duration.hours(24),
+        input=sfn.TaskInput.from_object({
+            "Token":
+            sfn.JsonPath.task_token,
+            "ExecutionId":
+            sfn.JsonPath.string_at('$$.Execution.Id'),
+            "Payload":
+            sfn.JsonPath.entire_payload
+        }),
+        result_path="$.textract_result")
+  ```
+ *
  * Input: "csv_output_location"."TextractOutputCSVPath"
  * Output: CSV in Aurora Serverless DB, table name 'textractcsvimport"
  */

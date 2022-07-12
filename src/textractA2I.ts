@@ -73,27 +73,37 @@ export interface TextractA2ISfnTaskProps extends sfn.TaskStateBaseProps {
 /**
  * Calls and A2I endpoint arn with a task_token and waits for the A2I job to finish in order to continue the workflow.
  *
- * Very basic implementation atm.
+ * Basic implementation
  *
- * Example::
- *         textract_a2i_task = tcdk.TextractA2ISfnTask(
-            self,
-            "TextractA2I",
-            a2i_flow_definition_arn=
-            "arn:aws:sagemaker:us-east-1:913165245630:flow-definition/textract-classifiction",
-            integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
-            lambda_log_level="DEBUG",
-            timeout=Duration.hours(24),
-            input=sfn.TaskInput.from_object({
-                "Token":
-                sfn.JsonPath.task_token,
-                "ExecutionId":
-                sfn.JsonPath.string_at('$$.Execution.Id'),
-                "Payload":
-                sfn.JsonPath.entire_payload,
-            }),
-            result_path="$.a2i_result")
-
+ * Input: "Payload"."a2iInputPath"
+ * Output:
+ * ```json
+ * {
+        'humanLoopStatus': human_loop_status,
+        'humanLoopResultPath': human_loop_result,
+        'humanLoopCreationTime': human_loop_creation_time,
+    }
+    ```
+ *
+   ```python
+   textract_a2i_task = tcdk.TextractA2ISfnTask(
+        self,
+        "TextractA2I",
+        a2i_flow_definition_arn=
+        "arn:aws:sagemaker:us-east-1:913165245630:flow-definition/textract-classifiction",
+        integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+        lambda_log_level="DEBUG",
+        timeout=Duration.hours(24),
+        input=sfn.TaskInput.from_object({
+            "Token":
+            sfn.JsonPath.task_token,
+            "ExecutionId":
+            sfn.JsonPath.string_at('$$.Execution.Id'),
+            "Payload":
+            sfn.JsonPath.entire_payload,
+        }),
+        result_path="$.a2i_result")
+  ```
  */
 export class TextractA2ISfnTask extends sfn.TaskStateBase {
   private static readonly SUPPORTED_INTEGRATION_PATTERNS = [

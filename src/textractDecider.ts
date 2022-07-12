@@ -21,11 +21,13 @@ export interface TextractDPPOCDeciderProps {
  * Then it generated the numberOfPages attribute and the mime on the context.
  * The mime types checked against the supported mime types for Textract and if fails, will raise an Exception failing the workflow.
  *
- * Example::
- *         decider_task_id = tcdk.TextractPOCDecider(
-            self,
-            f"InsuranceDecider",
-        )
+ * Example (Python)
+ * ```python
+   decider_task_id = tcdk.TextractPOCDecider(
+        self,
+        f"InsuranceDecider",
+   )
+  ```
 
  *
  */

@@ -14,7 +14,7 @@ import json
 import textractmanifest as tm
 
 logger = logging.getLogger(__name__)
-version = "0.0.13"
+version = "0.0.14"
 s3_client = boto3.client('s3')
 
 # TODO: add file size check and page limit check, resize if file size too large
@@ -127,9 +127,14 @@ def lambda_handler(event, _):
         raise Exception(f"not supported Mime type: {mime}")
     logger.info(f"return: {manifest}")
 
-    return {
+    result_value = {
         "manifest": tm.IDPManifestSchema().dump(manifest),
         "mime": mime,
         "classification": manifest.classification,
         "numberOfPages": numberOfPages
     }
+
+    if manifest and manifest.queries_config:
+        result_value['numberOfQueries'] = len(manifest.queries_config)
+
+    return result_value

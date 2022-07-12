@@ -113,24 +113,26 @@ export interface TextractGenericAsyncSfnTaskProps extends sfn.TaskStateBaseProps
  *
  * Works together with TextractAsyncToJSON, which takes the s3_output_bucket/s3_temp_output_prefix location as input
  *
- * Example (Python)::
-        textract_async_task = tcdk.TextractGenericAsyncSfnTask(
-            self,
-            "TextractAsync",
-            s3_output_bucket=s3_output_bucket,
-            s3_temp_output_prefix=s3_temp_output_prefix,
-            integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
-            lambda_log_level="DEBUG",
-            timeout=Duration.hours(24),
-            input=sfn.TaskInput.from_object({
-                "Token":
-                sfn.JsonPath.task_token,
-                "ExecutionId":
-                sfn.JsonPath.string_at('$$.Execution.Id'),
-                "Payload":
-                sfn.JsonPath.entire_payload,
-            }),
-            result_path="$.textract_result")
+ * Example (Python)
+ * ```python
+    textract_async_task = tcdk.TextractGenericAsyncSfnTask(
+        self,
+        "TextractAsync",
+        s3_output_bucket=s3_output_bucket,
+        s3_temp_output_prefix=s3_temp_output_prefix,
+        integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+        lambda_log_level="DEBUG",
+        timeout=Duration.hours(24),
+        input=sfn.TaskInput.from_object({
+            "Token":
+            sfn.JsonPath.task_token,
+            "ExecutionId":
+            sfn.JsonPath.string_at('$$.Execution.Id'),
+            "Payload":
+            sfn.JsonPath.entire_payload,
+        }),
+        result_path="$.textract_result")
+    ```
 
  */
 export class TextractGenericAsyncSfnTask extends sfn.TaskStateBase {

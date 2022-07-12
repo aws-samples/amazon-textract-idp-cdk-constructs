@@ -80,7 +80,8 @@ export interface TextractGenerateCSVProps extends sfn.TaskStateBaseProps{
  *
  *
  * Output as LINES
- * Example::
+ * Example (Python)
+ * ```python
  *         generate_text = tcdk.TextractGenerateCSV(
             self,
             "GenerateText",
@@ -98,7 +99,7 @@ export interface TextractGenerateCSVProps extends sfn.TaskStateBaseProps{
                 sfn.JsonPath.entire_payload,
             }),
             result_path="$.txt_output_location")
-
+   ```
  */
 export class TextractGenerateCSV extends sfn.TaskStateBase {
   private static readonly SUPPORTED_INTEGRATION_PATTERNS = [

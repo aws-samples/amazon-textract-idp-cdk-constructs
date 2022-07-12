@@ -27,8 +27,15 @@ export interface TextractClassificationConfiguratorProps {
  * then it will set the queriesConfig in the manifest for the subsequent Textract Calls in the Step Function flow
  *
  * Input: "classification"."documentType"
-  },
  * Output: config set to manifest
+ *
+ * Example (Python)
+ * ```
+    configurator_task = tcdk.TextractClassificationConfigurator(
+        self, f"{workflow_name}-Configurator",
+    )
+
+ * ```
  */
 export class TextractClassificationConfigurator extends sfn.StateMachineFragment {
   public readonly startState: sfn.State;

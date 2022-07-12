@@ -30,13 +30,14 @@ export interface TextractAsyncToJSONProps {
  * Input: "textract_result"."TextractTempOutputJsonPath"
  * Output: "TextractOutputJsonPath"
  *
- * Example (Python)::
- *         textract_async_to_json = tcdk.TextractAsyncToJSON(
-            self,
-            "TextractAsyncToJSON2",
-            s3_output_prefix=s3_output_prefix,
-            s3_output_bucket=s3_output_bucket)
-
+ * Example (Python)
+ * ```python
+    textract_async_to_json = tcdk.TextractAsyncToJSON(
+        self,
+        "TextractAsyncToJSON2",
+        s3_output_prefix=s3_output_prefix,
+        s3_output_bucket=s3_output_bucket)
+  ```
  */
 export class TextractAsyncToJSON extends sfn.StateMachineFragment {
   public readonly startState : sfn.State;

@@ -30,7 +30,7 @@ def lambda_handler(event, _):
         raise ValueError(
             f'no [classification][documentType] given in event: {event}')
 
-    table = dynamodb.Table(table_name)
+    table = dynamodb.Table(table_name)  #pyright: ignore
 
     ddb_response = table.get_item(Key={"DOCUMENT_TYPE": document_type})
     logger.debug(f"ddb_response: {ddb_response}")
@@ -42,7 +42,8 @@ def lambda_handler(event, _):
             ddb_response['Item']['CONFIG'])  #type: ignore
         input_manifest.merge(configuration_manifest)
         if configuration_manifest and configuration_manifest.queries_config:
-            event['numberOfQueries']=len(configuration_manifest.queries_config)
+            event['numberOfQueries'] = len(
+                configuration_manifest.queries_config)
         logger.debug(f"merged manifest: {input_manifest}")
         event['manifest'] = tm.IDPManifestSchema().dump(input_manifest)
     else:

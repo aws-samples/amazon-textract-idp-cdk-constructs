@@ -106,7 +106,8 @@ export interface TextractGenericSyncSfnTaskProps extends sfn.TaskStateBaseProps 
  * Input: "Payload"."manifest"
  * Output: Textract JSON Schema at  s3_output_bucket/s3_output_prefix
  *
- * Example::
+ * Example (Python)
+ * ```python
  *         textract_sync_task = tcdk.TextractGenericSyncSfnTask(
             self,
             "TextractSync",
@@ -124,7 +125,7 @@ export interface TextractGenericSyncSfnTaskProps extends sfn.TaskStateBaseProps 
                 sfn.JsonPath.entire_payload,
             }),
             result_path="$.textract_result")
-
+  ```
  */
 export class TextractGenericSyncSfnTask extends sfn.TaskStateBase {
   private static readonly SUPPORTED_INTEGRATION_PATTERNS = [

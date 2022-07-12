@@ -9,24 +9,26 @@ Calls a Comprehend Classification endpoint and parses the result, filters on > 5
 Input: "textract_result"."txt_output_location"
 Output:  { "documentType": "AWS_PAYSTUBS" } (example will be at "classification"."documentType")
 
-Example (Python)::
-      comprehend_sync_task = tcdk.ComprehendGenericSyncSfnTask(
-          self,
-          "Classification",
-          comprehend_classifier_arn=
-          '<your comprehend classifier arn>',
-          integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
-          lambda_log_level="DEBUG",
-          timeout=Duration.hours(24),
-          input=sfn.TaskInput.from_object({
-              "Token":
-              sfn.JsonPath.task_token,
-              "ExecutionId":
-              sfn.JsonPath.string_at('$$.Execution.Id'),
-              "Payload":
-              sfn.JsonPath.entire_payload,
-          }),
-          result_path="$.classification")
+Example (Python)
+```python
+  comprehend_sync_task = tcdk.ComprehendGenericSyncSfnTask(
+      self,
+      "Classification",
+      comprehend_classifier_arn=
+      '<your comprehend classifier arn>',
+      integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+      lambda_log_level="DEBUG",
+      timeout=Duration.hours(24),
+      input=sfn.TaskInput.from_object({
+          "Token":
+          sfn.JsonPath.task_token,
+          "ExecutionId":
+          sfn.JsonPath.string_at('$$.Execution.Id'),
+          "Payload":
+          sfn.JsonPath.entire_payload,
+      }),
+      result_path="$.classification")
+  ```
 
 #### Initializers <a name="Initializers" id="amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTask.Initializer"></a>
 
@@ -604,6 +606,26 @@ CSVToAuroraTask is a demo construct to show import into a serverless Aurora DB.
 At the moment it also creates the Aurora Serverless RDS DB, initializes a table structure the matches the output of the GenerateCSV construct.
 The Step Functions flow expect a pointer to a CSV at "csv_output_location"."TextractOutputCSVPath" and uses that to execute a batch insert statement command.
 
+Example:
+```python
+csv_to_aurora_task = tcdk.CSVToAuroraTask(
+      self,
+      "CsvToAurora",
+      vpc=vpc,
+      integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+      lambda_log_level="DEBUG",
+      timeout=Duration.hours(24),
+      input=sfn.TaskInput.from_object({
+          "Token":
+          sfn.JsonPath.task_token,
+          "ExecutionId":
+          sfn.JsonPath.string_at('$$.Execution.Id'),
+          "Payload":
+          sfn.JsonPath.entire_payload
+      }),
+      result_path="$.textract_result")
+```
+
 Input: "csv_output_location"."TextractOutputCSVPath"
 Output: CSV in Aurora Serverless DB, table name 'textractcsvimport"
 
@@ -1172,22 +1194,24 @@ Deploys a Lambda Container with a Spacy NLP model to call textcat.
 Input: "textract_result"."txt_output_location"
 Output:  { "documentType": "AWS_PAYSTUBS" } (example will be at "classification"."documentType")
 
-Example (Python)::
-      spacy_classification_task = tcdk.SpacySfnTask(
-          self,
-          "Classification",
-          integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
-          lambda_log_level="DEBUG",
-          timeout=Duration.hours(24),
-          input=sfn.TaskInput.from_object({
-              "Token":
-              sfn.JsonPath.task_token,
-              "ExecutionId":
-              sfn.JsonPath.string_at('$$.Execution.Id'),
-              "Payload":
-              sfn.JsonPath.entire_payload,
-          }),
-          result_path="$.classification")
+Example (Python)
+```python
+  spacy_classification_task = tcdk.SpacySfnTask(
+      self,
+      "Classification",
+      integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+      lambda_log_level="DEBUG",
+      timeout=Duration.hours(24),
+      input=sfn.TaskInput.from_object({
+          "Token":
+          sfn.JsonPath.task_token,
+          "ExecutionId":
+          sfn.JsonPath.string_at('$$.Execution.Id'),
+          "Payload":
+          sfn.JsonPath.entire_payload,
+      }),
+      result_path="$.classification")
+  ```
 
 #### Initializers <a name="Initializers" id="amazon-textract-idp-cdk-constructs.SpacySfnTask.Initializer"></a>
 
@@ -1729,26 +1753,37 @@ public readonly version: string;
 
 Calls and A2I endpoint arn with a task_token and waits for the A2I job to finish in order to continue the workflow.
 
-Very basic implementation atm.
+Basic implementation
 
-Example::
-         textract_a2i_task = tcdk.TextractA2ISfnTask(
-          self,
-          "TextractA2I",
-          a2i_flow_definition_arn=
-          "arn:aws:sagemaker:us-east-1:913165245630:flow-definition/textract-classifiction",
-          integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
-          lambda_log_level="DEBUG",
-          timeout=Duration.hours(24),
-          input=sfn.TaskInput.from_object({
-              "Token":
-              sfn.JsonPath.task_token,
-              "ExecutionId":
-              sfn.JsonPath.string_at('$$.Execution.Id'),
-              "Payload":
-              sfn.JsonPath.entire_payload,
-          }),
-          result_path="$.a2i_result")
+Input: "Payload"."a2iInputPath"
+Output:
+```json
+{
+      'humanLoopStatus': human_loop_status,
+      'humanLoopResultPath': human_loop_result,
+      'humanLoopCreationTime': human_loop_creation_time,
+  }
+  ```
+
+```python
+textract_a2i_task = tcdk.TextractA2ISfnTask(
+      self,
+      "TextractA2I",
+      a2i_flow_definition_arn=
+      "arn:aws:sagemaker:us-east-1:913165245630:flow-definition/textract-classifiction",
+      integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+      lambda_log_level="DEBUG",
+      timeout=Duration.hours(24),
+      input=sfn.TaskInput.from_object({
+          "Token":
+          sfn.JsonPath.task_token,
+          "ExecutionId":
+          sfn.JsonPath.string_at('$$.Execution.Id'),
+          "Payload":
+          sfn.JsonPath.entire_payload,
+      }),
+      result_path="$.a2i_result")
+```
 
 #### Initializers <a name="Initializers" id="amazon-textract-idp-cdk-constructs.TextractA2ISfnTask.Initializer"></a>
 
@@ -2288,12 +2323,14 @@ Reduce the memory size to your needs if your processing does not yield large res
 Input: "textract_result"."TextractTempOutputJsonPath"
 Output: "TextractOutputJsonPath"
 
-Example (Python)::
-         textract_async_to_json = tcdk.TextractAsyncToJSON(
-          self,
-          "TextractAsyncToJSON2",
-          s3_output_prefix=s3_output_prefix,
-          s3_output_bucket=s3_output_bucket)
+Example (Python)
+```python
+  textract_async_to_json = tcdk.TextractAsyncToJSON(
+      self,
+      "TextractAsyncToJSON2",
+      s3_output_prefix=s3_output_prefix,
+      s3_output_bucket=s3_output_bucket)
+```
 
 #### Initializers <a name="Initializers" id="amazon-textract-idp-cdk-constructs.TextractAsyncToJSON.Initializer"></a>
 
@@ -2502,8 +2539,15 @@ So, if the "classification"."documentType" in the Step Function Input is AWS_PAY
 then it will set the queriesConfig in the manifest for the subsequent Textract Calls in the Step Function flow
 
 Input: "classification"."documentType"
-},
 Output: config set to manifest
+
+Example (Python)
+```
+  configurator_task = tcdk.TextractClassificationConfigurator(
+      self, f"{workflow_name}-Configurator",
+  )
+
+```
 
 #### Initializers <a name="Initializers" id="amazon-textract-idp-cdk-constructs.TextractClassificationConfigurator.Initializer"></a>
 
@@ -2743,7 +2787,8 @@ Output: "TextractOutputCSVPath" TODO: rename
 
 
 Output as LINES
-Example::
+Example (Python)
+```python
          generate_text = tcdk.TextractGenerateCSV(
           self,
           "GenerateText",
@@ -2761,6 +2806,7 @@ Example::
               sfn.JsonPath.entire_payload,
           }),
           result_path="$.txt_output_location")
+```
 
 #### Initializers <a name="Initializers" id="amazon-textract-idp-cdk-constructs.TextractGenerateCSV.Initializer"></a>
 
@@ -3305,24 +3351,26 @@ Output: potentially paginated Textract JSON Schema output at "TextractTempOutput
 
 Works together with TextractAsyncToJSON, which takes the s3_output_bucket/s3_temp_output_prefix location as input
 
-Example (Python)::
-      textract_async_task = tcdk.TextractGenericAsyncSfnTask(
-          self,
-          "TextractAsync",
-          s3_output_bucket=s3_output_bucket,
-          s3_temp_output_prefix=s3_temp_output_prefix,
-          integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
-          lambda_log_level="DEBUG",
-          timeout=Duration.hours(24),
-          input=sfn.TaskInput.from_object({
-              "Token":
-              sfn.JsonPath.task_token,
-              "ExecutionId":
-              sfn.JsonPath.string_at('$$.Execution.Id'),
-              "Payload":
-              sfn.JsonPath.entire_payload,
-          }),
-          result_path="$.textract_result")
+Example (Python)
+```python
+  textract_async_task = tcdk.TextractGenericAsyncSfnTask(
+      self,
+      "TextractAsync",
+      s3_output_bucket=s3_output_bucket,
+      s3_temp_output_prefix=s3_temp_output_prefix,
+      integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+      lambda_log_level="DEBUG",
+      timeout=Duration.hours(24),
+      input=sfn.TaskInput.from_object({
+          "Token":
+          sfn.JsonPath.task_token,
+          "ExecutionId":
+          sfn.JsonPath.string_at('$$.Execution.Id'),
+          "Payload":
+          sfn.JsonPath.entire_payload,
+      }),
+      result_path="$.textract_result")
+  ```
 
 #### Initializers <a name="Initializers" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.Initializer"></a>
 
@@ -3983,7 +4031,8 @@ errors for retry: ['ThrottlingException', 'LimitExceededException', 'InternalSer
 Input: "Payload"."manifest"
 Output: Textract JSON Schema at  s3_output_bucket/s3_output_prefix
 
-Example::
+Example (Python)
+```python
          textract_sync_task = tcdk.TextractGenericSyncSfnTask(
           self,
           "TextractSync",
@@ -4001,6 +4050,7 @@ Example::
               sfn.JsonPath.entire_payload,
           }),
           result_path="$.textract_result")
+```
 
 #### Initializers <a name="Initializers" id="amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.Initializer"></a>
 
@@ -4593,11 +4643,13 @@ example s3Path:
 Then it generated the numberOfPages attribute and the mime on the context.
 The mime types checked against the supported mime types for Textract and if fails, will raise an Exception failing the workflow.
 
-Example::
-         decider_task_id = tcdk.TextractPOCDecider(
-          self,
-          f"InsuranceDecider",
-      )
+Example (Python)
+```python
+decider_task_id = tcdk.TextractPOCDecider(
+      self,
+      f"InsuranceDecider",
+)
+```
 
 #### Initializers <a name="Initializers" id="amazon-textract-idp-cdk-constructs.TextractPOCDecider.Initializer"></a>
 

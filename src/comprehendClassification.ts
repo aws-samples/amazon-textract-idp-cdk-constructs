@@ -81,25 +81,26 @@ export interface ComprehendGenericSyncSfnTaskProps extends sfn.TaskStateBaseProp
  * Input: "textract_result"."txt_output_location"
  * Output:  { "documentType": "AWS_PAYSTUBS" } (example will be at "classification"."documentType")
  *
- * Example (Python)::
-        comprehend_sync_task = tcdk.ComprehendGenericSyncSfnTask(
-            self,
-            "Classification",
-            comprehend_classifier_arn=
-            '<your comprehend classifier arn>',
-            integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
-            lambda_log_level="DEBUG",
-            timeout=Duration.hours(24),
-            input=sfn.TaskInput.from_object({
-                "Token":
-                sfn.JsonPath.task_token,
-                "ExecutionId":
-                sfn.JsonPath.string_at('$$.Execution.Id'),
-                "Payload":
-                sfn.JsonPath.entire_payload,
-            }),
-            result_path="$.classification")
-
+ * Example (Python)
+ * ```python
+    comprehend_sync_task = tcdk.ComprehendGenericSyncSfnTask(
+        self,
+        "Classification",
+        comprehend_classifier_arn=
+        '<your comprehend classifier arn>',
+        integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+        lambda_log_level="DEBUG",
+        timeout=Duration.hours(24),
+        input=sfn.TaskInput.from_object({
+            "Token":
+            sfn.JsonPath.task_token,
+            "ExecutionId":
+            sfn.JsonPath.string_at('$$.Execution.Id'),
+            "Payload":
+            sfn.JsonPath.entire_payload,
+        }),
+        result_path="$.classification")
+    ```
  */
 
 export class ComprehendGenericSyncSfnTask extends sfn.TaskStateBase {

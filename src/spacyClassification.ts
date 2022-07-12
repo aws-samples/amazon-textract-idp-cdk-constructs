@@ -81,24 +81,24 @@ export interface SpacySfnTaskProps extends sfn.TaskStateBaseProps {
  * Input: "textract_result"."txt_output_location"
  * Output:  { "documentType": "AWS_PAYSTUBS" } (example will be at "classification"."documentType")
  *
- * Example (Python)::
-        spacy_classification_task = tcdk.SpacySfnTask(
-            self,
-            "Classification",
-            integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
-            lambda_log_level="DEBUG",
-            timeout=Duration.hours(24),
-            input=sfn.TaskInput.from_object({
-                "Token":
-                sfn.JsonPath.task_token,
-                "ExecutionId":
-                sfn.JsonPath.string_at('$$.Execution.Id'),
-                "Payload":
-                sfn.JsonPath.entire_payload,
-            }),
-            result_path="$.classification")
-
-
+ * Example (Python)
+ * ```python
+    spacy_classification_task = tcdk.SpacySfnTask(
+        self,
+        "Classification",
+        integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+        lambda_log_level="DEBUG",
+        timeout=Duration.hours(24),
+        input=sfn.TaskInput.from_object({
+            "Token":
+            sfn.JsonPath.task_token,
+            "ExecutionId":
+            sfn.JsonPath.string_at('$$.Execution.Id'),
+            "Payload":
+            sfn.JsonPath.entire_payload,
+        }),
+        result_path="$.classification")
+    ```
  */
 
 export class SpacySfnTask extends sfn.TaskStateBase {

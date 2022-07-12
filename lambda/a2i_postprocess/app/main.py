@@ -25,7 +25,7 @@ def lambda_handler(event, _):
         f"LOG_LEVEL: {log_level} \n TOKEN_STORE_DDB: {token_store_ddb} \n ")
 
     human_loop_name = event['detail']['humanLoopName']
-    human_loop_result = event['detail']["humanLoopOutput"]["outputS3Uri"]
+    human_loop_result_path = event['detail']["humanLoopOutput"]["outputS3Uri"]
     human_loop_creation_time = event['detail']["creationTime"]
     human_loop_status = event['detail']["humanLoopStatus"]
     human_loop_failure_reason = ""
@@ -51,7 +51,7 @@ def lambda_handler(event, _):
 
     response = {
         'humanLoopStatus': human_loop_status,
-        'humanLoopResult': human_loop_result,
+        'humanLoopResultPath': human_loop_result_path,
         'humanLoopCreationTime': human_loop_creation_time,
     }
     if human_loop_status == 'Failed':
