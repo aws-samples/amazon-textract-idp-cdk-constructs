@@ -52,6 +52,10 @@ export interface CSVToAuroraTaskProps extends sfn.TaskStateBaseProps {
   readonly csvToAuroraBackoffRate?: number;
   /**default is 1 */
   readonly csvToAuroraInterval?: number;
+  /** enable CloudWatch Metrics and Dashboard
+   * @default - false
+   */
+  readonly enableCloudWatchMetricsAndDashboard? : boolean;
   /**
        * The JSON input for the execution, same as that of StartExecution.
        *
@@ -126,7 +130,7 @@ export class CSVToAuroraTask extends sfn.TaskStateBase {
   public version:string;
   public csvToAuroraFunction:lambda.IFunction;
   public dbCluster:rds.IServerlessCluster;
-  public csvToAuroraNumberRowsInsertedMetric:cloudwatch.IMetric;
+  public csvToAuroraNumberRowsInsertedMetric?:cloudwatch.IMetric;
 
   constructor(scope : Construct, id : string, private readonly props : CSVToAuroraTaskProps) {
     super(scope, id, props);
@@ -142,6 +146,8 @@ export class CSVToAuroraTask extends sfn.TaskStateBase {
     if (this.props.associateWithParent && props.input && props.input.type !== sfn.InputType.OBJECT) {
       throw new Error('Could not enable `associateWithParent` because `input` is taken directly from a JSON path. Use `sfn.TaskInput.fromObject` instead.');
     }
+    var enableCloudWatchMetricsAndDashboard = props.enableCloudWatchMetricsAndDashboard === undefined ? false :
+      props.enableCloudWatchMetricsAndDashboard;
 
     var textractStateMachineTimeoutMinutes = props.textractStateMachineTimeoutMinutes === undefined ? 2880 : props.textractStateMachineTimeoutMinutes;
     var lambdaLogLevel = props.lambdaLogLevel === undefined ? 'DEBUG' : props.lambdaLogLevel;
@@ -165,6 +171,7 @@ export class CSVToAuroraTask extends sfn.TaskStateBase {
       securityGroups: [auroraSg],
       enableDataApi: true,
     });
+    (<rds.ServerlessCluster> this.dbCluster).node.addDependency(props.vpc);
 
     const rdsServerlessInit = new RdsServerlessInit(this, 'RdsServerlessInit', {
       dbClusterSecretARN: (<rds.ServerlessCluster> this.dbCluster).secret!.secretArn,
@@ -226,20 +233,23 @@ export class CSVToAuroraTask extends sfn.TaskStateBase {
     this.csvToAuroraFunction.role?.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonRDSDataFullAccess'));
     // START DASHBOARD
 
-    const appName = this.node.tryGetContext('appName');
+    if (enableCloudWatchMetricsAndDashboard) {
+      const appName = this.node.tryGetContext('appName');
 
-    const customMetricNamespace = 'TextractIDPCSVToAurora';
+      const customMetricNamespace = 'TextractIDPCSVToAurora';
 
-    const csvToAuroraNumberRowsInsertedFilter = new MetricFilter(this, `${appName}-NumberOfRowsFilter`, {
-      logGroup: (<lambda.Function> this.csvToAuroraFunction).logGroup,
-      metricNamespace: customMetricNamespace,
-      metricName: 'NumberOfRows',
-      filterPattern: FilterPattern.spaceDelimited('INFO', 'timestamp', 'id', 'message', 'numberOfRows')
-        .whereString('message', '=', 'csv_to_aurora_insert_rows:'),
-      metricValue: '$numberOfRows',
-    });
-    this.csvToAuroraNumberRowsInsertedMetric = csvToAuroraNumberRowsInsertedFilter.metric({ statistic: 'sum' });
+      const csvToAuroraNumberRowsInsertedFilter = new MetricFilter(this, `${appName}-NumberOfRowsFilter`, {
+        logGroup: (<lambda.Function> this.csvToAuroraFunction).logGroup,
+        metricNamespace: customMetricNamespace,
+        metricName: 'NumberOfRows',
+        filterPattern: FilterPattern.spaceDelimited('INFO', 'timestamp', 'id', 'message', 'numberOfRows')
+          .whereString('message', '=', 'csv_to_aurora_insert_rows:'),
+        metricValue: '$numberOfRows',
+      });
+      this.csvToAuroraNumberRowsInsertedMetric = csvToAuroraNumberRowsInsertedFilter.metric({ statistic: 'sum' });
+    }
     // END DASHBOARD
+
     this.taskPolicies = this.createScopedAccessPolicy();
   }
   /**

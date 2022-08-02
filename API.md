@@ -1059,10 +1059,10 @@ Add a prefix to the stateId of all States found in a construct tree.
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTask.property.stateId">stateId</a></code> | <code>string</code> | Tokenized string that evaluates to the state's ID. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTask.property.csvToAuroraFunction">csvToAuroraFunction</a></code> | <code>aws-cdk-lib.aws_lambda.IFunction</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTask.property.csvToAuroraLambdaLogGroup">csvToAuroraLambdaLogGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | *No description.* |
-| <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTask.property.csvToAuroraNumberRowsInsertedMetric">csvToAuroraNumberRowsInsertedMetric</a></code> | <code>aws-cdk-lib.aws_cloudwatch.IMetric</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTask.property.dbCluster">dbCluster</a></code> | <code>aws-cdk-lib.aws_rds.IServerlessCluster</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTask.property.stateMachine">stateMachine</a></code> | <code>aws-cdk-lib.aws_stepfunctions.IStateMachine</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTask.property.version">version</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTask.property.csvToAuroraNumberRowsInsertedMetric">csvToAuroraNumberRowsInsertedMetric</a></code> | <code>aws-cdk-lib.aws_cloudwatch.IMetric</code> | *No description.* |
 
 ---
 
@@ -1146,16 +1146,6 @@ public readonly csvToAuroraLambdaLogGroup: ILogGroup;
 
 ---
 
-##### `csvToAuroraNumberRowsInsertedMetric`<sup>Required</sup> <a name="csvToAuroraNumberRowsInsertedMetric" id="amazon-textract-idp-cdk-constructs.CSVToAuroraTask.property.csvToAuroraNumberRowsInsertedMetric"></a>
-
-```typescript
-public readonly csvToAuroraNumberRowsInsertedMetric: IMetric;
-```
-
-- *Type:* aws-cdk-lib.aws_cloudwatch.IMetric
-
----
-
 ##### `dbCluster`<sup>Required</sup> <a name="dbCluster" id="amazon-textract-idp-cdk-constructs.CSVToAuroraTask.property.dbCluster"></a>
 
 ```typescript
@@ -1183,6 +1173,16 @@ public readonly version: string;
 ```
 
 - *Type:* string
+
+---
+
+##### `csvToAuroraNumberRowsInsertedMetric`<sup>Optional</sup> <a name="csvToAuroraNumberRowsInsertedMetric" id="amazon-textract-idp-cdk-constructs.CSVToAuroraTask.property.csvToAuroraNumberRowsInsertedMetric"></a>
+
+```typescript
+public readonly csvToAuroraNumberRowsInsertedMetric: IMetric;
+```
+
+- *Type:* aws-cdk-lib.aws_cloudwatch.IMetric
 
 ---
 
@@ -3335,19 +3335,25 @@ public readonly stateMachine: StateMachine;
 
 ### TextractGenericAsyncSfnTask <a name="TextractGenericAsyncSfnTask" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask"></a>
 
-Calls Textract asynchronous API.
+This Task calls the Textract through the asynchronous API.
 
-Supports the Textract APIs:  'GENERIC' |  'EXPENSE'
+Which API to call is defined in
+
 When GENERIC is called with features in the manifest definition, will call the AnalzyeDocument API.
+
 Takes the configuration from "Payload"."manifest"
+
 Will retry on recoverable errors based on textractAsyncCallMaxRetries
 errors for retry: ['ThrottlingException', 'LimitExceededException', 'InternalServerError', 'ProvisionedThroughputExceededException'],
 
 Internally calls Start* calls with OutputConfig and SNSNotification.
 Another Lambda functions waits for SNS Notification event and notifies the Step Function flow with the task token.
 
-Input: "Payload"."manifest"
-Output: potentially paginated Textract JSON Schema output at "TextractTempOutputJsonPath" (with the example will be at: "textract_result"."TextractTempOutputJsonPath")
+Step Function JSON input requirements
+
+**Input**: "Payload"."manifest"
+
+**Output**: "TextractTempOutputJsonPath" points to potentially paginated Textract JSON Schema output at "TextractTempOutputJsonPath" (using the example code it will be at: "textract_result"."TextractTempOutputJsonPath")
 
 Works together with TextractAsyncToJSON, which takes the s3_output_bucket/s3_temp_output_prefix location as input
 
@@ -3800,11 +3806,6 @@ Add a prefix to the stateId of all States found in a construct tree.
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.id">id</a></code> | <code>string</code> | Descriptive identifier for this chainable. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.startState">startState</a></code> | <code>aws-cdk-lib.aws_stepfunctions.State</code> | First state of this Chainable. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.stateId">stateId</a></code> | <code>string</code> | Tokenized string that evaluates to the state's ID. |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.asyncDurationMetric">asyncDurationMetric</a></code> | <code>aws-cdk-lib.aws_cloudwatch.IMetric</code> | *No description.* |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.asyncJobFinshedMetric">asyncJobFinshedMetric</a></code> | <code>aws-cdk-lib.aws_cloudwatch.IMetric</code> | *No description.* |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.asyncJobStartedMetric">asyncJobStartedMetric</a></code> | <code>aws-cdk-lib.aws_cloudwatch.IMetric</code> | *No description.* |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.asyncNumberPagesMetric">asyncNumberPagesMetric</a></code> | <code>aws-cdk-lib.aws_cloudwatch.IMetric</code> | *No description.* |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.asyncNumberPagesSendMetric">asyncNumberPagesSendMetric</a></code> | <code>aws-cdk-lib.aws_cloudwatch.IMetric</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.receiveStartSNSLambdaLogGroup">receiveStartSNSLambdaLogGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.startTextractLambdaLogGroup">startTextractLambdaLogGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.stateMachine">stateMachine</a></code> | <code>aws-cdk-lib.aws_stepfunctions.IStateMachine</code> | *No description.* |
@@ -3813,7 +3814,11 @@ Add a prefix to the stateId of all States found in a construct tree.
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.textractAsyncReceiveSNSFunction">textractAsyncReceiveSNSFunction</a></code> | <code>aws-cdk-lib.aws_lambda.IFunction</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.textractAsyncSNS">textractAsyncSNS</a></code> | <code>aws-cdk-lib.aws_sns.ITopic</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.textractAsyncSNSRole">textractAsyncSNSRole</a></code> | <code>aws-cdk-lib.aws_iam.IRole</code> | *No description.* |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.version">version</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.asyncDurationMetric">asyncDurationMetric</a></code> | <code>aws-cdk-lib.aws_cloudwatch.IMetric</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.asyncJobFinshedMetric">asyncJobFinshedMetric</a></code> | <code>aws-cdk-lib.aws_cloudwatch.IMetric</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.asyncJobStartedMetric">asyncJobStartedMetric</a></code> | <code>aws-cdk-lib.aws_cloudwatch.IMetric</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.asyncNumberPagesMetric">asyncNumberPagesMetric</a></code> | <code>aws-cdk-lib.aws_cloudwatch.IMetric</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.asyncNumberPagesSendMetric">asyncNumberPagesSendMetric</a></code> | <code>aws-cdk-lib.aws_cloudwatch.IMetric</code> | *No description.* |
 
 ---
 
@@ -3874,56 +3879,6 @@ public readonly stateId: string;
 - *Type:* string
 
 Tokenized string that evaluates to the state's ID.
-
----
-
-##### `asyncDurationMetric`<sup>Required</sup> <a name="asyncDurationMetric" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.asyncDurationMetric"></a>
-
-```typescript
-public readonly asyncDurationMetric: IMetric;
-```
-
-- *Type:* aws-cdk-lib.aws_cloudwatch.IMetric
-
----
-
-##### `asyncJobFinshedMetric`<sup>Required</sup> <a name="asyncJobFinshedMetric" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.asyncJobFinshedMetric"></a>
-
-```typescript
-public readonly asyncJobFinshedMetric: IMetric;
-```
-
-- *Type:* aws-cdk-lib.aws_cloudwatch.IMetric
-
----
-
-##### `asyncJobStartedMetric`<sup>Required</sup> <a name="asyncJobStartedMetric" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.asyncJobStartedMetric"></a>
-
-```typescript
-public readonly asyncJobStartedMetric: IMetric;
-```
-
-- *Type:* aws-cdk-lib.aws_cloudwatch.IMetric
-
----
-
-##### `asyncNumberPagesMetric`<sup>Required</sup> <a name="asyncNumberPagesMetric" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.asyncNumberPagesMetric"></a>
-
-```typescript
-public readonly asyncNumberPagesMetric: IMetric;
-```
-
-- *Type:* aws-cdk-lib.aws_cloudwatch.IMetric
-
----
-
-##### `asyncNumberPagesSendMetric`<sup>Required</sup> <a name="asyncNumberPagesSendMetric" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.asyncNumberPagesSendMetric"></a>
-
-```typescript
-public readonly asyncNumberPagesSendMetric: IMetric;
-```
-
-- *Type:* aws-cdk-lib.aws_cloudwatch.IMetric
 
 ---
 
@@ -4007,13 +3962,53 @@ public readonly textractAsyncSNSRole: IRole;
 
 ---
 
-##### `version`<sup>Required</sup> <a name="version" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.version"></a>
+##### `asyncDurationMetric`<sup>Optional</sup> <a name="asyncDurationMetric" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.asyncDurationMetric"></a>
 
 ```typescript
-public readonly version: string;
+public readonly asyncDurationMetric: IMetric;
 ```
 
-- *Type:* string
+- *Type:* aws-cdk-lib.aws_cloudwatch.IMetric
+
+---
+
+##### `asyncJobFinshedMetric`<sup>Optional</sup> <a name="asyncJobFinshedMetric" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.asyncJobFinshedMetric"></a>
+
+```typescript
+public readonly asyncJobFinshedMetric: IMetric;
+```
+
+- *Type:* aws-cdk-lib.aws_cloudwatch.IMetric
+
+---
+
+##### `asyncJobStartedMetric`<sup>Optional</sup> <a name="asyncJobStartedMetric" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.asyncJobStartedMetric"></a>
+
+```typescript
+public readonly asyncJobStartedMetric: IMetric;
+```
+
+- *Type:* aws-cdk-lib.aws_cloudwatch.IMetric
+
+---
+
+##### `asyncNumberPagesMetric`<sup>Optional</sup> <a name="asyncNumberPagesMetric" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.asyncNumberPagesMetric"></a>
+
+```typescript
+public readonly asyncNumberPagesMetric: IMetric;
+```
+
+- *Type:* aws-cdk-lib.aws_cloudwatch.IMetric
+
+---
+
+##### `asyncNumberPagesSendMetric`<sup>Optional</sup> <a name="asyncNumberPagesSendMetric" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.asyncNumberPagesSendMetric"></a>
+
+```typescript
+public readonly asyncNumberPagesSendMetric: IMetric;
+```
+
+- *Type:* aws-cdk-lib.aws_cloudwatch.IMetric
 
 ---
 
@@ -4481,13 +4476,13 @@ Add a prefix to the stateId of all States found in a construct tree.
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.property.startState">startState</a></code> | <code>aws-cdk-lib.aws_stepfunctions.State</code> | First state of this Chainable. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.property.stateId">stateId</a></code> | <code>string</code> | Tokenized string that evaluates to the state's ID. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.property.stateMachine">stateMachine</a></code> | <code>aws-cdk-lib.aws_stepfunctions.IStateMachine</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.property.textractSyncCallFunction">textractSyncCallFunction</a></code> | <code>aws-cdk-lib.aws_lambda.IFunction</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.property.textractSyncLambdaLogGroup">textractSyncLambdaLogGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.property.version">version</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.property.syncDurationMetric">syncDurationMetric</a></code> | <code>aws-cdk-lib.aws_cloudwatch.IMetric</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.property.syncNumberPagesMetric">syncNumberPagesMetric</a></code> | <code>aws-cdk-lib.aws_cloudwatch.IMetric</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.property.syncNumberPagesSendMetric">syncNumberPagesSendMetric</a></code> | <code>aws-cdk-lib.aws_cloudwatch.IMetric</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.property.syncTimedOutMetric">syncTimedOutMetric</a></code> | <code>aws-cdk-lib.aws_cloudwatch.IMetric</code> | *No description.* |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.property.textractSyncCallFunction">textractSyncCallFunction</a></code> | <code>aws-cdk-lib.aws_lambda.IFunction</code> | *No description.* |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.property.textractSyncLambdaLogGroup">textractSyncLambdaLogGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | *No description.* |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.property.version">version</a></code> | <code>string</code> | *No description.* |
 
 ---
 
@@ -4561,46 +4556,6 @@ public readonly stateMachine: IStateMachine;
 
 ---
 
-##### `syncDurationMetric`<sup>Required</sup> <a name="syncDurationMetric" id="amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.property.syncDurationMetric"></a>
-
-```typescript
-public readonly syncDurationMetric: IMetric;
-```
-
-- *Type:* aws-cdk-lib.aws_cloudwatch.IMetric
-
----
-
-##### `syncNumberPagesMetric`<sup>Required</sup> <a name="syncNumberPagesMetric" id="amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.property.syncNumberPagesMetric"></a>
-
-```typescript
-public readonly syncNumberPagesMetric: IMetric;
-```
-
-- *Type:* aws-cdk-lib.aws_cloudwatch.IMetric
-
----
-
-##### `syncNumberPagesSendMetric`<sup>Required</sup> <a name="syncNumberPagesSendMetric" id="amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.property.syncNumberPagesSendMetric"></a>
-
-```typescript
-public readonly syncNumberPagesSendMetric: IMetric;
-```
-
-- *Type:* aws-cdk-lib.aws_cloudwatch.IMetric
-
----
-
-##### `syncTimedOutMetric`<sup>Required</sup> <a name="syncTimedOutMetric" id="amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.property.syncTimedOutMetric"></a>
-
-```typescript
-public readonly syncTimedOutMetric: IMetric;
-```
-
-- *Type:* aws-cdk-lib.aws_cloudwatch.IMetric
-
----
-
 ##### `textractSyncCallFunction`<sup>Required</sup> <a name="textractSyncCallFunction" id="amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.property.textractSyncCallFunction"></a>
 
 ```typescript
@@ -4628,6 +4583,46 @@ public readonly version: string;
 ```
 
 - *Type:* string
+
+---
+
+##### `syncDurationMetric`<sup>Optional</sup> <a name="syncDurationMetric" id="amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.property.syncDurationMetric"></a>
+
+```typescript
+public readonly syncDurationMetric: IMetric;
+```
+
+- *Type:* aws-cdk-lib.aws_cloudwatch.IMetric
+
+---
+
+##### `syncNumberPagesMetric`<sup>Optional</sup> <a name="syncNumberPagesMetric" id="amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.property.syncNumberPagesMetric"></a>
+
+```typescript
+public readonly syncNumberPagesMetric: IMetric;
+```
+
+- *Type:* aws-cdk-lib.aws_cloudwatch.IMetric
+
+---
+
+##### `syncNumberPagesSendMetric`<sup>Optional</sup> <a name="syncNumberPagesSendMetric" id="amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.property.syncNumberPagesSendMetric"></a>
+
+```typescript
+public readonly syncNumberPagesSendMetric: IMetric;
+```
+
+- *Type:* aws-cdk-lib.aws_cloudwatch.IMetric
+
+---
+
+##### `syncTimedOutMetric`<sup>Optional</sup> <a name="syncTimedOutMetric" id="amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.property.syncTimedOutMetric"></a>
+
+```typescript
+public readonly syncTimedOutMetric: IMetric;
+```
+
+- *Type:* aws-cdk-lib.aws_cloudwatch.IMetric
 
 ---
 
@@ -5147,6 +5142,7 @@ const cSVToAuroraTaskProps: CSVToAuroraTaskProps = { ... }
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.csvToAuroraBackoffRate">csvToAuroraBackoffRate</a></code> | <code>number</code> | default is 1.1. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.csvToAuroraInterval">csvToAuroraInterval</a></code> | <code>number</code> | default is 1. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.csvToAuroraMaxRetries">csvToAuroraMaxRetries</a></code> | <code>number</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.enableCloudWatchMetricsAndDashboard">enableCloudWatchMetricsAndDashboard</a></code> | <code>boolean</code> | enable CloudWatch Metrics and Dashboard. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.input">input</a></code> | <code>aws-cdk-lib.aws_stepfunctions.TaskInput</code> | The JSON input for the execution, same as that of StartExecution. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.lambdaLogLevel">lambdaLogLevel</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.lambdaMemory">lambdaMemory</a></code> | <code>number</code> | Memory allocated to Lambda function, default 512. |
@@ -5340,6 +5336,19 @@ public readonly csvToAuroraMaxRetries: number;
 ```
 
 - *Type:* number
+
+---
+
+##### `enableCloudWatchMetricsAndDashboard`<sup>Optional</sup> <a name="enableCloudWatchMetricsAndDashboard" id="amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.enableCloudWatchMetricsAndDashboard"></a>
+
+```typescript
+public readonly enableCloudWatchMetricsAndDashboard: boolean;
+```
+
+- *Type:* boolean
+- *Default:* false
+
+enable CloudWatch Metrics and Dashboard.
 
 ---
 
@@ -6378,14 +6387,15 @@ const textractGenericAsyncSfnTaskProps: TextractGenericAsyncSfnTaskProps = { ...
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.s3OutputBucket">s3OutputBucket</a></code> | <code>string</code> | Bucketname to output data to. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.s3TempOutputPrefix">s3TempOutputPrefix</a></code> | <code>string</code> | The prefix to use for the temporary output files (e. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.associateWithParent">associateWithParent</a></code> | <code>boolean</code> | Pass the execution ID from the context object to the execution input. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.enableCloudWatchMetricsAndDashboard">enableCloudWatchMetricsAndDashboard</a></code> | <code>boolean</code> | enable CloudWatch Metrics and Dashboard. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.input">input</a></code> | <code>aws-cdk-lib.aws_stepfunctions.TaskInput</code> | The JSON input for the execution, same as that of StartExecution. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.lambdaLogLevel">lambdaLogLevel</a></code> | <code>string</code> | log level for Lambda function, supports DEBUG\|INFO\|WARNING\|ERROR\|FATAL. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.name">name</a></code> | <code>string</code> | The name of the execution, same as that of StartExecution. |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.textractAPI">textractAPI</a></code> | <code>string</code> | Which API to call - atm only GENERIC and EXPENSE are called. |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.textractAsyncCallBackoffRate">textractAsyncCallBackoffRate</a></code> | <code>number</code> | retyr backoff rate, default is 1.1. |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.textractAsyncCallInterval">textractAsyncCallInterval</a></code> | <code>number</code> | time to wait before next retry, default is 1. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.textractAPI">textractAPI</a></code> | <code>string</code> | Which Textract API to call GENERIC and EXPENSE are supported. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.textractAsyncCallBackoffRate">textractAsyncCallBackoffRate</a></code> | <code>number</code> | retyr backoff rate. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.textractAsyncCallInterval">textractAsyncCallInterval</a></code> | <code>number</code> | time in seconds to wait before next retry. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.textractAsyncCallMaxRetries">textractAsyncCallMaxRetries</a></code> | <code>number</code> | number of retries in Step Function flow. |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.textractStateMachineTimeoutMinutes">textractStateMachineTimeoutMinutes</a></code> | <code>number</code> | how long can we wait for the process (default is 48 hours (60*48=2880)). |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.textractStateMachineTimeoutMinutes">textractStateMachineTimeoutMinutes</a></code> | <code>number</code> | how long can we wait for the process. |
 
 ---
 
@@ -6556,6 +6566,19 @@ If you set this property to `true`, the `input` property must be an object (prov
 
 ---
 
+##### `enableCloudWatchMetricsAndDashboard`<sup>Optional</sup> <a name="enableCloudWatchMetricsAndDashboard" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.enableCloudWatchMetricsAndDashboard"></a>
+
+```typescript
+public readonly enableCloudWatchMetricsAndDashboard: boolean;
+```
+
+- *Type:* boolean
+- *Default:* false
+
+enable CloudWatch Metrics and Dashboard.
+
+---
+
 ##### `input`<sup>Optional</sup> <a name="input" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.input"></a>
 
 ```typescript
@@ -6578,6 +6601,7 @@ public readonly lambdaLogLevel: string;
 ```
 
 - *Type:* string
+- *Default:* = DEBUG
 
 log level for Lambda function, supports DEBUG|INFO|WARNING|ERROR|FATAL.
 
@@ -6605,10 +6629,12 @@ public readonly textractAPI: string;
 ```
 
 - *Type:* string
+- *Default:* GENERIC
 
-Which API to call - atm only GENERIC and EXPENSE are called.
+Which Textract API to call GENERIC and EXPENSE are supported.
 
-When called without features, StartDetectText is called, when called with features StartAnalyzeDocument is called
+For GENERIC, when called without features (e. g. FORMS, TABLES, QUERIES), StartDetectText is called.
+For GENERIC, when called with a feature (e. g. FORMS, TABLES, QUERIES),  StartAnalyzeDocument is called.
 
 ---
 
@@ -6619,8 +6645,9 @@ public readonly textractAsyncCallBackoffRate: number;
 ```
 
 - *Type:* number
+- *Default:* is 1.1
 
-retyr backoff rate, default is 1.1.
+retyr backoff rate.
 
 ---
 
@@ -6631,8 +6658,9 @@ public readonly textractAsyncCallInterval: number;
 ```
 
 - *Type:* number
+- *Default:* is 1
 
-time to wait before next retry, default is 1.
+time in seconds to wait before next retry.
 
 ---
 
@@ -6643,10 +6671,9 @@ public readonly textractAsyncCallMaxRetries: number;
 ```
 
 - *Type:* number
+- *Default:* is 100
 
 number of retries in Step Function flow.
-
-Default is 100
 
 ---
 
@@ -6657,8 +6684,9 @@ public readonly textractStateMachineTimeoutMinutes: number;
 ```
 
 - *Type:* number
+- *Default:* 2880 (48 hours (60 min * 48 hours = 2880))
 
-how long can we wait for the process (default is 48 hours (60*48=2880)).
+how long can we wait for the process.
 
 ---
 
@@ -6688,6 +6716,7 @@ const textractGenericSyncSfnTaskProps: TextractGenericSyncSfnTaskProps = { ... }
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.s3OutputPrefix">s3OutputPrefix</a></code> | <code>string</code> | The prefix to use for the output files. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.associateWithParent">associateWithParent</a></code> | <code>boolean</code> | Pass the execution ID from the context object to the execution input. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.customFunction">customFunction</a></code> | <code>aws-cdk-lib.aws_stepfunctions_tasks.LambdaInvoke</code> | not implemented yet. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.enableCloudWatchMetricsAndDashboard">enableCloudWatchMetricsAndDashboard</a></code> | <code>boolean</code> | enable CloudWatch Metrics and Dashboard. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.enableDashboard">enableDashboard</a></code> | <code>boolean</code> | not implemented yet. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.enableMonitoring">enableMonitoring</a></code> | <code>boolean</code> | not implemented yet. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.input">input</a></code> | <code>aws-cdk-lib.aws_stepfunctions.TaskInput</code> | The JSON input for the execution, same as that of StartExecution. |
@@ -6878,6 +6907,19 @@ public readonly customFunction: LambdaInvoke;
 - *Type:* aws-cdk-lib.aws_stepfunctions_tasks.LambdaInvoke
 
 not implemented yet.
+
+---
+
+##### `enableCloudWatchMetricsAndDashboard`<sup>Optional</sup> <a name="enableCloudWatchMetricsAndDashboard" id="amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.enableCloudWatchMetricsAndDashboard"></a>
+
+```typescript
+public readonly enableCloudWatchMetricsAndDashboard: boolean;
+```
+
+- *Type:* boolean
+- *Default:* false
+
+enable CloudWatch Metrics and Dashboard.
 
 ---
 
