@@ -14,7 +14,7 @@ import { Construct } from 'constructs';
 import { RdsServerlessInit } from './rdsServerlessInit';
 
 export function validatePatternSupported(integrationPattern: sfn.IntegrationPattern, supportedPatterns: sfn.IntegrationPattern[]) {
-  if (! supportedPatterns.includes(integrationPattern)) {
+  if (!supportedPatterns.includes(integrationPattern)) {
     throw new Error(`Unsupported service integration pattern. Supported Patterns: ${supportedPatterns}. Received: ${integrationPattern}`);
   }
 }
@@ -30,32 +30,31 @@ const resourceArnSuffix: Record<sfn.IntegrationPattern, string> = {
   [sfn.IntegrationPattern.RUN_JOB]: '.sync',
   [sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN]: '.waitForTaskToken',
 };
-export function integrationResourceArn(service: string, api: string, integrationPattern ?:sfn.IntegrationPattern): string {
-  if (! service || ! api) {
+export function integrationResourceArn(service: string, api: string, integrationPattern?: sfn.IntegrationPattern): string {
+  if (!service || !api) {
     throw new Error("Both 'service' and 'api' must be provided to build the resource ARN.");
   }
-  return `arn:${
-    Aws.PARTITION
+  return `arn:${Aws.PARTITION
   }:states:::${service}:${api}` + (integrationPattern ? resourceArnSuffix[integrationPattern] : '');
 }
 export interface CSVToAuroraTaskProps extends sfn.TaskStateBaseProps {
   /** VPC to install the database into */
-  readonly vpc:ec2.IVpc;
+  readonly vpc: ec2.IVpc;
   readonly textractStateMachineTimeoutMinutes?: number;
-  readonly lambdaLogLevel? : 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR' | 'FATAL';
+  readonly lambdaLogLevel?: 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR' | 'FATAL';
   /** Lambda Function Timeout in seconds, default 300 */
-  readonly lambdaTimeout? : number;
+  readonly lambdaTimeout?: number;
   /** Memory allocated to Lambda function, default 512 */
-  readonly lambdaMemory? : number;
+  readonly lambdaMemory?: number;
   readonly csvToAuroraMaxRetries?: number;
   /**default is 1.1 */
   readonly csvToAuroraBackoffRate?: number;
   /**default is 1 */
   readonly csvToAuroraInterval?: number;
   /** enable CloudWatch Metrics and Dashboard
-   * @default - false
-   */
-  readonly enableCloudWatchMetricsAndDashboard? : boolean;
+     * @default - false
+     */
+  readonly enableCloudWatchMetricsAndDashboard?: boolean;
   /**
        * The JSON input for the execution, same as that of StartExecution.
        *
@@ -63,28 +62,28 @@ export interface CSVToAuroraTaskProps extends sfn.TaskStateBaseProps {
        *
        * @default - The state input (JSON path '$')
        */
-  readonly input? : sfn.TaskInput;
+  readonly input?: sfn.TaskInput;
 
   /**
-          * The name of the execution, same as that of StartExecution.
-          *
-          * @see https://docs.aws.amazon.com/step-functions/latest/apireference/API_StartExecution.html
-          *
-          * @default - None
-          */
-  readonly name? : string;
+        * The name of the execution, same as that of StartExecution.
+        *
+        * @see https://docs.aws.amazon.com/step-functions/latest/apireference/API_StartExecution.html
+        *
+        * @default - None
+        */
+  readonly name?: string;
 
   /**
-          * Pass the execution ID from the context object to the execution input.
-          * This allows the Step Functions UI to link child executions from parent executions, making it easier to trace execution flow across state machines.
-          *
-          * If you set this property to `true`, the `input` property must be an object (provided by `sfn.TaskInput.fromObject`) or omitted entirely.
-          *
-          * @see https://docs.aws.amazon.com/step-functions/latest/dg/concepts-nested-workflows.html#nested-execution-startid
-          *
-          * @default - false
-          */
-  readonly associateWithParent? : boolean;
+        * Pass the execution ID from the context object to the execution input.
+        * This allows the Step Functions UI to link child executions from parent executions, making it easier to trace execution flow across state machines.
+        *
+        * If you set this property to `true`, the `input` property must be an object (provided by `sfn.TaskInput.fromObject`) or omitted entirely.
+        *
+        * @see https://docs.aws.amazon.com/step-functions/latest/dg/concepts-nested-workflows.html#nested-execution-startid
+        *
+        * @default - false
+        */
+  readonly associateWithParent?: boolean;
 }
 /**
  * CSVToAuroraTask is a demo construct to show import into a serverless Aurora DB.
@@ -94,21 +93,21 @@ export interface CSVToAuroraTaskProps extends sfn.TaskStateBaseProps {
  * Example:
  * ```python
 *  csv_to_aurora_task = tcdk.CSVToAuroraTask(
-        self,
-        "CsvToAurora",
-        vpc=vpc,
-        integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
-        lambda_log_level="DEBUG",
-        timeout=Duration.hours(24),
-        input=sfn.TaskInput.from_object({
-            "Token":
-            sfn.JsonPath.task_token,
-            "ExecutionId":
-            sfn.JsonPath.string_at('$$.Execution.Id'),
-            "Payload":
-            sfn.JsonPath.entire_payload
-        }),
-        result_path="$.textract_result")
+    self,
+    "CsvToAurora",
+    vpc=vpc,
+    integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+    lambda_log_level="DEBUG",
+    timeout=Duration.hours(24),
+    input=sfn.TaskInput.from_object({
+      "Token":
+      sfn.JsonPath.task_token,
+      "ExecutionId":
+      sfn.JsonPath.string_at('$$.Execution.Id'),
+      "Payload":
+      sfn.JsonPath.entire_payload
+    }),
+    result_path="$.textract_result")
   ```
  *
  * Input: "csv_output_location"."TextractOutputCSVPath"
@@ -124,15 +123,15 @@ export class CSVToAuroraTask extends sfn.TaskStateBase {
   protected readonly taskMetrics?: sfn.TaskMetricsConfig;
   protected readonly taskPolicies?: iam.PolicyStatement[];
 
-  private readonly integrationPattern : sfn.IntegrationPattern;
-  public stateMachine : sfn.IStateMachine;
-  public csvToAuroraLambdaLogGroup:ILogGroup;
-  public version:string;
-  public csvToAuroraFunction:lambda.IFunction;
-  public dbCluster:rds.IServerlessCluster;
-  public csvToAuroraNumberRowsInsertedMetric?:cloudwatch.IMetric;
+  private readonly integrationPattern: sfn.IntegrationPattern;
+  public stateMachine: sfn.IStateMachine;
+  public csvToAuroraLambdaLogGroup: ILogGroup;
+  public version: string;
+  public csvToAuroraFunction: lambda.IFunction;
+  public dbCluster: rds.IServerlessCluster;
+  public csvToAuroraNumberRowsInsertedMetric?: cloudwatch.IMetric;
 
-  constructor(scope : Construct, id : string, private readonly props : CSVToAuroraTaskProps) {
+  constructor(scope: Construct, id: string, private readonly props: CSVToAuroraTaskProps) {
     super(scope, id, props);
 
     this.version = '0.0.1';
@@ -156,22 +155,21 @@ export class CSVToAuroraTask extends sfn.TaskStateBase {
     var csvToAuroraMaxRetries = props.csvToAuroraMaxRetries === undefined ? 100 : props.csvToAuroraMaxRetries;
     var csvToAuroraBackoffRate = props.csvToAuroraBackoffRate === undefined ? 1.1 : props.csvToAuroraBackoffRate;
     var csvToAuroraInterval = props.csvToAuroraInterval === undefined ? 1 : props.csvToAuroraInterval;
-    const lambdaSG:ec2.ISecurityGroup = new ec2.SecurityGroup(this, 'LambdaSG', { allowAllOutbound: true, vpc: props.vpc });
-    const auroraSg:ec2.ISecurityGroup = new ec2.SecurityGroup(this, 'Aurora', { allowAllOutbound: true, vpc: props.vpc });
+    const lambdaSG: ec2.ISecurityGroup = new ec2.SecurityGroup(this, 'LambdaSG', { allowAllOutbound: true, vpc: props.vpc });
+    const auroraSg: ec2.ISecurityGroup = new ec2.SecurityGroup(this, 'Aurora', { allowAllOutbound: true, vpc: props.vpc });
     auroraSg.addIngressRule(auroraSg, ec2.Port.tcp(5432), 'fromSameSG');
     auroraSg.addIngressRule(auroraSg, ec2.Port.tcp(443), 'fromSameSG');
     auroraSg.addIngressRule(lambdaSG, ec2.Port.tcp(5432), 'LambdaIngreess');
     auroraSg.addIngressRule(lambdaSG, ec2.Port.tcp(443), 'LambdaIngreess');
 
     // AURORA
-    this.dbCluster = new rds.ServerlessCluster(this, id+'AuroraPSQL', {
+    this.dbCluster = new rds.ServerlessCluster(this, id + 'AuroraPSQL', {
       engine: rds.DatabaseClusterEngine.AURORA_POSTGRESQL,
       parameterGroup: rds.ParameterGroup.fromParameterGroupName(this, 'ParameterGroup', 'default.aurora-postgresql10'),
       vpc: props.vpc,
       securityGroups: [auroraSg],
       enableDataApi: true,
     });
-    (<rds.ServerlessCluster> this.dbCluster).node.addDependency(props.vpc);
 
     const rdsServerlessInit = new RdsServerlessInit(this, 'RdsServerlessInit', {
       dbClusterSecretARN: (<rds.ServerlessCluster> this.dbCluster).secret!.secretArn,
@@ -206,7 +204,7 @@ export class CSVToAuroraTask extends sfn.TaskStateBase {
     // WORKFLOW
     const workflow_chain = sfn.Chain.start(csvToAuroraTask);
 
-    this.stateMachine = new sfn.StateMachine(this, id+'-SFN', {
+    this.stateMachine = new sfn.StateMachine(this, id + '-SFN', {
       definition: workflow_chain,
       timeout: Duration.hours(textractStateMachineTimeoutMinutes),
       tracingEnabled: true,
@@ -267,7 +265,7 @@ export class CSVToAuroraTask extends sfn.TaskStateBase {
       };
       input = this.props.input ? {
         ...this.props.input.value,
-        ... associateWithParentEntry,
+        ...associateWithParentEntry,
       } : associateWithParentEntry;
     } else {
       input = this.props.input ? this.props.input.value : sfn.TaskInput.fromJsonPathAt('$').value;
@@ -275,8 +273,7 @@ export class CSVToAuroraTask extends sfn.TaskStateBase {
 
 
     return {
-      Resource: `${
-        integrationResourceArn('states', 'startExecution', this.integrationPattern)
+      Resource: `${integrationResourceArn('states', 'startExecution', this.integrationPattern)
       }${suffix}`,
       Parameters: sfn.FieldUtils.renderObject(
         {
@@ -319,8 +316,7 @@ export class CSVToAuroraTask extends sfn.TaskStateBase {
               service: 'states',
               resource: 'execution',
               arnFormat: ArnFormat.COLON_RESOURCE_NAME,
-              resourceName: `${
-                stack.splitArn(this.stateMachine.stateMachineArn, ArnFormat.COLON_RESOURCE_NAME).resourceName
+              resourceName: `${stack.splitArn(this.stateMachine.stateMachineArn, ArnFormat.COLON_RESOURCE_NAME).resourceName
               }*`,
             },
           ),
