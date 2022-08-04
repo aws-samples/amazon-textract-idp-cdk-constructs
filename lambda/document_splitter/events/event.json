@@ -1,0 +1,7 @@
+{
+    "manifest": {
+        "S3Path": "s3://sdx-textract-us-east-1/employeeapp20210510.png"
+    },
+    "mime": "image/png",
+    "numberOfPages": 1
+}

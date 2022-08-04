@@ -1,10 +1,10 @@
 import trp.trp2 as t2
-from textractprettyprinter.t_pretty_print import convert_queries_to_list_trp2, convert_form_to_list_trp2
+from textractprettyprinter.t_pretty_print import convert_queries_to_list_trp2
 import os
 import json
 
 
-def test_queries(caplog):
+def test_queries_generate_list(caplog):
     SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
     input_filename = os.path.join(SCRIPT_DIR, '../Paystub_1_reMars.json')
 
