@@ -52,37 +52,37 @@ export interface CSVToAuroraTaskProps extends sfn.TaskStateBaseProps {
   /**default is 1 */
   readonly csvToAuroraInterval?: number;
   /** enable CloudWatch Metrics and Dashboard
-     * @default - false
-     */
+       * @default - false
+       */
   readonly enableCloudWatchMetricsAndDashboard?: boolean;
   /**
-       * The JSON input for the execution, same as that of StartExecution.
-       *
-       * @see https://docs.aws.amazon.com/step-functions/latest/apireference/API_StartExecution.html
-       *
-       * @default - The state input (JSON path '$')
-       */
+         * The JSON input for the execution, same as that of StartExecution.
+         *
+         * @see https://docs.aws.amazon.com/step-functions/latest/apireference/API_StartExecution.html
+         *
+         * @default - The state input (JSON path '$')
+         */
   readonly input?: sfn.TaskInput;
 
   /**
-        * The name of the execution, same as that of StartExecution.
-        *
-        * @see https://docs.aws.amazon.com/step-functions/latest/apireference/API_StartExecution.html
-        *
-        * @default - None
-        */
+          * The name of the execution, same as that of StartExecution.
+          *
+          * @see https://docs.aws.amazon.com/step-functions/latest/apireference/API_StartExecution.html
+          *
+          * @default - None
+          */
   readonly name?: string;
 
   /**
-        * Pass the execution ID from the context object to the execution input.
-        * This allows the Step Functions UI to link child executions from parent executions, making it easier to trace execution flow across state machines.
-        *
-        * If you set this property to `true`, the `input` property must be an object (provided by `sfn.TaskInput.fromObject`) or omitted entirely.
-        *
-        * @see https://docs.aws.amazon.com/step-functions/latest/dg/concepts-nested-workflows.html#nested-execution-startid
-        *
-        * @default - false
-        */
+          * Pass the execution ID from the context object to the execution input.
+          * This allows the Step Functions UI to link child executions from parent executions, making it easier to trace execution flow across state machines.
+          *
+          * If you set this property to `true`, the `input` property must be an object (provided by `sfn.TaskInput.fromObject`) or omitted entirely.
+          *
+          * @see https://docs.aws.amazon.com/step-functions/latest/dg/concepts-nested-workflows.html#nested-execution-startid
+          *
+          * @default - false
+          */
   readonly associateWithParent?: boolean;
 }
 /**
@@ -170,6 +170,7 @@ export class CSVToAuroraTask extends sfn.TaskStateBase {
       securityGroups: [auroraSg],
       enableDataApi: true,
     });
+    (<rds.ServerlessCluster> this.dbCluster).node.addDependency(props.vpc);
 
     const rdsServerlessInit = new RdsServerlessInit(this, 'RdsServerlessInit', {
       dbClusterSecretARN: (<rds.ServerlessCluster> this.dbCluster).secret!.secretArn,
@@ -251,8 +252,8 @@ export class CSVToAuroraTask extends sfn.TaskStateBase {
     this.taskPolicies = this.createScopedAccessPolicy();
   }
   /**
-       * @internal
-       */
+         * @internal
+         */
   protected _renderTask(): any {
     // suffix of ':2' indicates that the output of the nested state machine should be JSON
     // suffix is only applicable when waiting for a nested state machine to complete (RUN_JOB)
@@ -285,12 +286,12 @@ export class CSVToAuroraTask extends sfn.TaskStateBase {
     };
   }
   /**
-       * As StateMachineArn is extracted automatically from the state machine object included in the constructor,
-       *
-       * the scoped access policy should be generated accordingly.
-       *
-       * This means the action of StartExecution should be restricted on the given state machine, instead of being granted to all the resources (*).
-       */
+         * As StateMachineArn is extracted automatically from the state machine object included in the constructor,
+         *
+         * the scoped access policy should be generated accordingly.
+         *
+         * This means the action of StartExecution should be restricted on the given state machine, instead of being granted to all the resources (*).
+         */
   private createScopedAccessPolicy(): iam.PolicyStatement[] {
     const stack = Stack.of(this);
 
