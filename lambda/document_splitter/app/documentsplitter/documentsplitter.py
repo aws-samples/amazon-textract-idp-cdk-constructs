@@ -33,7 +33,7 @@ def get_file_from_s3(s3_path: str, range=None) -> bytes:
 
 def split_and_save_pages(s3_path: str, mime: str, s3_output_bucket: str,
                          s3_output_prefix: str) -> List[str]:
-    """returns files saved on S3"""
+    """takes a document ('application/pdf', 'image/tiff', 'image/png', 'image/jpeg') then stores single page files to s3_output_bucket under the s3_output_prefix with a _<page_number> and returns the list of file names """
     output_file_list: List[str] = list()
     if mime == 'application/pdf':
         file_bytes = get_file_from_s3(s3_path=s3_path)
