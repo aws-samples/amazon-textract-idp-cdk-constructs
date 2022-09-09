@@ -23,6 +23,18 @@ def test_splitter_multi_page_pdf(caplog):
     assert page_list
     assert len(page_list) == 51
 
+def test_splitter_201_page_pdf(caplog):
+    caplog.set_level(logging.DEBUG)
+    caplog.set_level(logging.WARNING, logger='botocore')
+    caplog.set_level(logging.WARNING, logger='boto3')
+
+    s3_path = 's3://sdx-textract-us-east-1/210-page-book.pdf'
+    page_list = split_and_save_pages(s3_path=s3_path,
+                                     mime='application/pdf',
+                                     s3_output_bucket='sdx-textract-us-east-1',
+                                     s3_output_prefix='document_splitter_test_210')
+    assert page_list
+    assert len(page_list) == 226
 
 def test_splitter_multi_page_tiff(caplog):
     caplog.set_level(logging.DEBUG)

@@ -20,6 +20,7 @@ export { TextractA2ISfnTask, TextractA2ISfnTaskProps } from './textractA2I';
 export { CSVToAuroraTask, CSVToAuroraTaskProps } from './rdsCSVToAurora';
 export { ComprehendGenericSyncSfnTask, ComprehendGenericSyncSfnTaskProps } from './comprehendClassification';
 export { SpacySfnTask, SpacySfnTaskProps } from './spacyClassification';
+export { DocumentSplitter, DocumentSplitterProps } from './documentSplitter';
 
 
 export function validatePatternSupported(integrationPattern: sfn.IntegrationPattern, supportedPatterns: sfn.IntegrationPattern[]) {

@@ -44,7 +44,7 @@ export class DocumentSplitter extends sfn.StateMachineFragment {
     var lambdaTimeout = props.lambdaTimeout === undefined ? 900 : props.lambdaTimeout;
     var lambdaLogLevel = props.lambdaLogLevel === undefined ? 'DEBUG' : props.lambdaLogLevel;
 
-    const splitterFunction = new lambda.DockerImageFunction(this, 'DocumentSplitter', {
+    const splitterFunction = new lambda.DockerImageFunction(this, 'DocumentSplitterFunction', {
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/document_splitter/')),
       memorySize: lambdaMemoryMB,
       timeout: Duration.seconds(lambdaTimeout),

@@ -6,4 +6,4 @@ RUN python -m pip install PyPDF2 Pillow filetype schadem-tidp-manifest==0.0.8 ma
 COPY app/* ${LAMBDA_TASK_ROOT}/
 
 # Set the CMD to your handler (could also be done as a parameter override outside of the Dockerfile)
-CMD [ "decider_main.lambda_handler" ]
+CMD [ "main.lambda_handler" ]

@@ -1,3 +1,4 @@
 filetype
 PyPDF2
 Pillow
+schadem-tidp-manifest

@@ -1,5 +1,5 @@
 from typing import Tuple, List
-from PyPDF2 import PdfFileReader, PdfFileWriter
+from PyPDF2 import PdfReader, PdfWriter
 from PIL import Image, ImageSequence
 import io
 import boto3
@@ -38,11 +38,11 @@ def split_and_save_pages(s3_path: str, mime: str, s3_output_bucket: str,
     if mime == 'application/pdf':
         file_bytes = get_file_from_s3(s3_path=s3_path)
         with io.BytesIO(file_bytes) as input_pdf_file:
-            pdf_reader = PdfFileReader(input_pdf_file)
-            for page_number in range(0, pdf_reader.numPages):
+            pdf_reader = PdfReader(input_pdf_file)
+            for page_number in range(0, len(pdf_reader.pages)):
                 page_in_mem = io.BytesIO()
-                writer = PdfFileWriter()
-                writer.addPage(pdf_reader.getPage(pageNumber=page_number))
+                writer = PdfWriter()
+                writer.add_page(pdf_reader.pages[page_number])
                 writer.write(page_in_mem)
                 logger.debug(f"len page_in_mem: {sys.getsizeof(page_in_mem)}")
                 s3_source_filename, _ = os.path.splitext(

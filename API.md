@@ -1187,6 +1187,217 @@ public readonly csvToAuroraNumberRowsInsertedMetric: IMetric;
 ---
 
 
+### DocumentSplitter <a name="DocumentSplitter" id="amazon-textract-idp-cdk-constructs.DocumentSplitter"></a>
+
+This construct takes in a manifest definition with just the s3Path:.
+
+example s3Path:
+{"s3Path": "s3://bucketname/prefix/image.png"}
+
+
+then it generated single page versions of the multi-page file.
+For PDF the output are single PDF files, for TIFF the output are single TIFF files.
+
+Example (Python)
+```python
+```
+
+#### Initializers <a name="Initializers" id="amazon-textract-idp-cdk-constructs.DocumentSplitter.Initializer"></a>
+
+```typescript
+import { DocumentSplitter } from 'amazon-textract-idp-cdk-constructs'
+
+new DocumentSplitter(parent: Construct, id: string, props: DocumentSplitterProps)
+```
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitter.Initializer.parameter.parent">parent</a></code> | <code>constructs.Construct</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitter.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitter.Initializer.parameter.props">props</a></code> | <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitterProps">DocumentSplitterProps</a></code> | *No description.* |
+
+---
+
+##### `parent`<sup>Required</sup> <a name="parent" id="amazon-textract-idp-cdk-constructs.DocumentSplitter.Initializer.parameter.parent"></a>
+
+- *Type:* constructs.Construct
+
+---
+
+##### `id`<sup>Required</sup> <a name="id" id="amazon-textract-idp-cdk-constructs.DocumentSplitter.Initializer.parameter.id"></a>
+
+- *Type:* string
+
+---
+
+##### `props`<sup>Required</sup> <a name="props" id="amazon-textract-idp-cdk-constructs.DocumentSplitter.Initializer.parameter.props"></a>
+
+- *Type:* <a href="#amazon-textract-idp-cdk-constructs.DocumentSplitterProps">DocumentSplitterProps</a>
+
+---
+
+#### Methods <a name="Methods" id="Methods"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitter.toString">toString</a></code> | Returns a string representation of this construct. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitter.next">next</a></code> | Continue normal execution with the given state. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitter.prefixStates">prefixStates</a></code> | Prefix the IDs of all states in this state machine fragment. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitter.toSingleState">toSingleState</a></code> | Wrap all states in this state machine fragment up into a single state. |
+
+---
+
+##### `toString` <a name="toString" id="amazon-textract-idp-cdk-constructs.DocumentSplitter.toString"></a>
+
+```typescript
+public toString(): string
+```
+
+Returns a string representation of this construct.
+
+##### `next` <a name="next" id="amazon-textract-idp-cdk-constructs.DocumentSplitter.next"></a>
+
+```typescript
+public next(next: IChainable): Chain
+```
+
+Continue normal execution with the given state.
+
+###### `next`<sup>Required</sup> <a name="next" id="amazon-textract-idp-cdk-constructs.DocumentSplitter.next.parameter.next"></a>
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.IChainable
+
+---
+
+##### `prefixStates` <a name="prefixStates" id="amazon-textract-idp-cdk-constructs.DocumentSplitter.prefixStates"></a>
+
+```typescript
+public prefixStates(prefix?: string): StateMachineFragment
+```
+
+Prefix the IDs of all states in this state machine fragment.
+
+Use this to avoid multiple copies of the state machine all having the
+same state IDs.
+
+###### `prefix`<sup>Optional</sup> <a name="prefix" id="amazon-textract-idp-cdk-constructs.DocumentSplitter.prefixStates.parameter.prefix"></a>
+
+- *Type:* string
+
+The prefix to add.
+
+Will use construct ID by default.
+
+---
+
+##### `toSingleState` <a name="toSingleState" id="amazon-textract-idp-cdk-constructs.DocumentSplitter.toSingleState"></a>
+
+```typescript
+public toSingleState(options?: SingleStateOptions): Parallel
+```
+
+Wrap all states in this state machine fragment up into a single state.
+
+This can be used to add retry or error handling onto this state
+machine fragment.
+
+Be aware that this changes the result of the inner state machine
+to be an array with the result of the state machine in it. Adjust
+your paths accordingly. For example, change 'outputPath' to
+'$[0]'.
+
+###### `options`<sup>Optional</sup> <a name="options" id="amazon-textract-idp-cdk-constructs.DocumentSplitter.toSingleState.parameter.options"></a>
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.SingleStateOptions
+
+---
+
+#### Static Functions <a name="Static Functions" id="Static Functions"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitter.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
+
+---
+
+##### ~~`isConstruct`~~ <a name="isConstruct" id="amazon-textract-idp-cdk-constructs.DocumentSplitter.isConstruct"></a>
+
+```typescript
+import { DocumentSplitter } from 'amazon-textract-idp-cdk-constructs'
+
+DocumentSplitter.isConstruct(x: any)
+```
+
+Checks if `x` is a construct.
+
+###### `x`<sup>Required</sup> <a name="x" id="amazon-textract-idp-cdk-constructs.DocumentSplitter.isConstruct.parameter.x"></a>
+
+- *Type:* any
+
+Any object.
+
+---
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitter.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitter.property.endStates">endStates</a></code> | <code>aws-cdk-lib.aws_stepfunctions.INextable[]</code> | The states to chain onto if this fragment is used. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitter.property.id">id</a></code> | <code>string</code> | Descriptive identifier for this chainable. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitter.property.startState">startState</a></code> | <code>aws-cdk-lib.aws_stepfunctions.State</code> | The start state of this state machine fragment. |
+
+---
+
+##### `node`<sup>Required</sup> <a name="node" id="amazon-textract-idp-cdk-constructs.DocumentSplitter.property.node"></a>
+
+```typescript
+public readonly node: Node;
+```
+
+- *Type:* constructs.Node
+
+The tree node.
+
+---
+
+##### `endStates`<sup>Required</sup> <a name="endStates" id="amazon-textract-idp-cdk-constructs.DocumentSplitter.property.endStates"></a>
+
+```typescript
+public readonly endStates: INextable[];
+```
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.INextable[]
+
+The states to chain onto if this fragment is used.
+
+---
+
+##### `id`<sup>Required</sup> <a name="id" id="amazon-textract-idp-cdk-constructs.DocumentSplitter.property.id"></a>
+
+```typescript
+public readonly id: string;
+```
+
+- *Type:* string
+
+Descriptive identifier for this chainable.
+
+---
+
+##### `startState`<sup>Required</sup> <a name="startState" id="amazon-textract-idp-cdk-constructs.DocumentSplitter.property.startState"></a>
+
+```typescript
+public readonly startState: State;
+```
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.State
+
+The start state of this state machine fragment.
+
+---
+
+
 ### SpacySfnTask <a name="SpacySfnTask" id="amazon-textract-idp-cdk-constructs.SpacySfnTask"></a>
 
 Deploys a Lambda Container with a Spacy NLP model to call textcat.
@@ -5423,6 +5634,88 @@ public readonly textractStateMachineTimeoutMinutes: number;
 ```
 
 - *Type:* number
+
+---
+
+### DocumentSplitterProps <a name="DocumentSplitterProps" id="amazon-textract-idp-cdk-constructs.DocumentSplitterProps"></a>
+
+#### Initializer <a name="Initializer" id="amazon-textract-idp-cdk-constructs.DocumentSplitterProps.Initializer"></a>
+
+```typescript
+import { DocumentSplitterProps } from 'amazon-textract-idp-cdk-constructs'
+
+const documentSplitterProps: DocumentSplitterProps = { ... }
+```
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.s3OutputBucket">s3OutputBucket</a></code> | <code>string</code> | Bucketname to output data to. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.s3OutputPrefix">s3OutputPrefix</a></code> | <code>string</code> | The prefix to use to output files to. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.lambdaLogLevel">lambdaLogLevel</a></code> | <code>string</code> | Lambda log level. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.lambdaMemoryMB">lambdaMemoryMB</a></code> | <code>number</code> | Lambda function memory configuration (may need to increase for larger documents). |
+| <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.lambdaTimeout">lambdaTimeout</a></code> | <code>number</code> | Lambda function timeout (may need to increase for larger documents). |
+
+---
+
+##### `s3OutputBucket`<sup>Required</sup> <a name="s3OutputBucket" id="amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.s3OutputBucket"></a>
+
+```typescript
+public readonly s3OutputBucket: string;
+```
+
+- *Type:* string
+
+Bucketname to output data to.
+
+---
+
+##### `s3OutputPrefix`<sup>Required</sup> <a name="s3OutputPrefix" id="amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.s3OutputPrefix"></a>
+
+```typescript
+public readonly s3OutputPrefix: string;
+```
+
+- *Type:* string
+
+The prefix to use to output files to.
+
+---
+
+##### `lambdaLogLevel`<sup>Optional</sup> <a name="lambdaLogLevel" id="amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.lambdaLogLevel"></a>
+
+```typescript
+public readonly lambdaLogLevel: string;
+```
+
+- *Type:* string
+
+Lambda log level.
+
+---
+
+##### `lambdaMemoryMB`<sup>Optional</sup> <a name="lambdaMemoryMB" id="amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.lambdaMemoryMB"></a>
+
+```typescript
+public readonly lambdaMemoryMB: number;
+```
+
+- *Type:* number
+
+Lambda function memory configuration (may need to increase for larger documents).
+
+---
+
+##### `lambdaTimeout`<sup>Optional</sup> <a name="lambdaTimeout" id="amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.lambdaTimeout"></a>
+
+```typescript
+public readonly lambdaTimeout: number;
+```
+
+- *Type:* number
+
+Lambda function timeout (may need to increase for larger documents).
 
 ---
 
