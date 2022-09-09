@@ -22,6 +22,7 @@ export class RdsServerlessInit extends Construct {
     this.rdsServerlessInit = new lambda.DockerImageFunction(this, id+'ServerlessInit', {
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/rds_serverless_init/')),
       memorySize: 128,
+      architecture: lambda.Architecture.X86_64,
       timeout: cdk.Duration.seconds(600),
       // securityGroups: props.securityGroups,
       environment: {

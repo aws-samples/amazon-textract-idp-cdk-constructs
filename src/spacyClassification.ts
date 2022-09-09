@@ -141,6 +141,7 @@ export class SpacySfnTask extends sfn.TaskStateBase {
       this.spacyCallFunction = new lambda.DockerImageFunction(this, 'SpacyCall', {
         code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/classification_spacy_image/')),
         memorySize: spacyLambdaMemorySize,
+        architecture: lambda.Architecture.X86_64,
         timeout: Duration.seconds(spacyLambdaTimeout),
         environment: {
           LOG_LEVEL: lambdaLogLevel,
@@ -151,6 +152,7 @@ export class SpacySfnTask extends sfn.TaskStateBase {
       this.spacyCallFunction = new lambda.DockerImageFunction(this, 'SpacyCall', {
         code: lambda.DockerImageCode.fromEcr(repo),
         memorySize: spacyLambdaMemorySize,
+        architecture: lambda.Architecture.X86_64,
         timeout: Duration.seconds(spacyLambdaTimeout),
         environment: {
           LOG_LEVEL: lambdaLogLevel,

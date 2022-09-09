@@ -188,6 +188,7 @@ export class TextractGenericSyncSfnTask extends sfn.TaskStateBase {
     this.textractSyncCallFunction = new lambda.DockerImageFunction(this, 'TextractSyncCall', {
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/textract_sync/')),
       memorySize: lambdaMemory,
+      architecture: lambda.Architecture.X86_64,
       timeout: Duration.seconds(lambdaTimeout),
       environment: {
         S3_OUTPUT_BUCKET: props.s3OutputBucket,

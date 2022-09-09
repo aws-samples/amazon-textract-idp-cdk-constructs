@@ -47,6 +47,7 @@ export class DocumentSplitter extends sfn.StateMachineFragment {
     const splitterFunction = new lambda.DockerImageFunction(this, 'DocumentSplitterFunction', {
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/document_splitter/')),
       memorySize: lambdaMemoryMB,
+      architecture: lambda.Architecture.X86_64,
       timeout: Duration.seconds(lambdaTimeout),
       environment: {
         S3_OUTPUT_BUCKET: props.s3OutputBucket,
