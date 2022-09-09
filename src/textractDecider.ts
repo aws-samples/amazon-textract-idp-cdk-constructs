@@ -42,6 +42,7 @@ export class TextractPOCDecider extends sfn.StateMachineFragment {
 
     const deciderFunction = new lambda.DockerImageFunction(this, 'TextractDecider', {
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/decider/')),
+      architecture: lambda.Architecture.X86_64,
       memorySize: lambdaMemoryMB,
       timeout: Duration.seconds(lambdaTimeout),
     });

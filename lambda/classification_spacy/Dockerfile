@@ -1,4 +1,5 @@
-FROM public.ecr.aws/lambda/python:3.9
+FROM public.ecr.aws/lambda/python:3.9-x86_64
+
 RUN /var/lang/bin/python -m pip install --upgrade pip
 # RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 # RUN yum -y install unzip

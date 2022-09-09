@@ -181,6 +181,7 @@ export class CSVToAuroraTask extends sfn.TaskStateBase {
     this.csvToAuroraFunction = new lambda.DockerImageFunction(this, 'CSVToAuroraFunction', {
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/csv_to_aurora/')),
       memorySize: lambdaMemory,
+      architecture: lambda.Architecture.X86_64,
       timeout: Duration.seconds(lambdaTimeout),
       securityGroups: [lambdaSG],
       vpc: props.vpc,

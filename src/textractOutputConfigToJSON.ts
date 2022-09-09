@@ -52,6 +52,7 @@ export class TextractAsyncToJSON extends sfn.StateMachineFragment {
     const asyncToJSONFunction = new lambda.DockerImageFunction(this, 'TextractAsyncToJSON', {
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/async_to_json/')),
       memorySize: lambdaMemoryMB,
+      architecture: lambda.Architecture.X86_64,
       environment: {
         S3_OUTPUT_BUCKET: props.s3OutputBucket,
         S3_OUTPUT_PREFIX: props.s3OutputPrefix,

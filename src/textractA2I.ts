@@ -151,6 +151,7 @@ export class TextractA2ISfnTask extends sfn.TaskStateBase {
     const startA2IFunction = new lambda.DockerImageFunction(this, 'startA2ICall', {
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/a2i_preprocess/')),
       memorySize: 128,
+      architecture: lambda.Architecture.X86_64,
       environment: {
         TOKEN_STORE_DDB: this.taskTokenTableName,
         A2I_FLOW_DEFINITION_ARN: props.a2iFlowDefinitionARN,
@@ -165,6 +166,7 @@ export class TextractA2ISfnTask extends sfn.TaskStateBase {
     const postA2IFunction = new lambda.DockerImageFunction(this, 'endA2ICall', {
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/a2i_postprocess/')),
       memorySize: 128,
+      architecture: lambda.Architecture.X86_64,
       environment: {
         TOKEN_STORE_DDB: this.taskTokenTableName,
         LOG_LEVEL: lambdaLogLevel,

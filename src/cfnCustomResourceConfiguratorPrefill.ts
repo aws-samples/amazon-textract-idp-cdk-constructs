@@ -31,6 +31,7 @@ export class TextractConfiguration extends Construct {
 
     this.configurationInit = new lambda.DockerImageFunction(this, id, {
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/cfn_custom_configurator_prefill/')),
+      architecture: lambda.Architecture.X86_64,
       memorySize: 128,
       timeout: cdk.Duration.seconds(600),
       environment: {

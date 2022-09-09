@@ -228,6 +228,7 @@ export class TextractGenericAsyncSfnTask extends sfn.TaskStateBase {
     this.textractAsyncCallFunction = new lambda.DockerImageFunction(this, 'TextractAsyncCall', {
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/textract_async/')),
       memorySize: 128,
+      architecture: lambda.Architecture.X86_64,
       environment: {
         NOTIFICATION_SNS: this.textractAsyncSNS.topicArn,
         NOTIFICATION_ROLE_ARN: this.textractAsyncSNSRole.roleArn,
@@ -271,6 +272,7 @@ export class TextractGenericAsyncSfnTask extends sfn.TaskStateBase {
     this.textractAsyncReceiveSNSFunction = new lambda.DockerImageFunction(this, 'TextractAsyncSNSFunction', {
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/textract_async_sns_listener/')),
       memorySize: 128,
+      architecture: lambda.Architecture.X86_64,
       timeout: Duration.seconds(900),
       environment: {
         TOKEN_STORE_DDB: this.taskTokenTableName,

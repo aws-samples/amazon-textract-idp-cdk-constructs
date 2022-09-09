@@ -150,6 +150,7 @@ export class ComprehendGenericSyncSfnTask extends sfn.TaskStateBase {
 
     this.textractPutOnSQSFunction = new lambda.DockerImageFunction(this, 'PutOnSQS', {
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/put_on_sqs/')),
+      architecture: lambda.Architecture.X86_64,
       memorySize: lambdaMemory,
       timeout: Duration.seconds(lambdaTimeout),
       environment: {

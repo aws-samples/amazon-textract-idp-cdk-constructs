@@ -69,6 +69,7 @@ export class TextractClassificationConfigurator extends sfn.StateMachineFragment
     this.configuratorFunction = new lambda.DockerImageFunction(this, 'ClassificationConfigurator', {
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/configurator/')),
       memorySize: lambdaMemoryMB,
+      architecture: lambda.Architecture.X86_64,
       timeout: Duration.seconds(lambdaTimeout),
       environment: {
         CONFIGURATION_TABLE: configurationTable.tableName,

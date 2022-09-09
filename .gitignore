@@ -35,6 +35,8 @@ __pycache__
 .python-version
 .aws-sam
 .nvmrc
+.vscode
+update_dependencies_local.sh
 !/.projenrc.js
 /test-reports/
 junit.xml
