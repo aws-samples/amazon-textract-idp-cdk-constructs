@@ -38,8 +38,8 @@ export function integrationResourceArn(service: string, api: string, integration
   }:states:::${service}:${api}` + (integrationPattern ? resourceArnSuffix[integrationPattern] : '');
 }
 export interface CSVToAuroraTaskProps extends sfn.TaskStateBaseProps {
-  /** VPC to install the database into */
-  readonly vpc: ec2.IVpc;
+  /** VPC to install the database into, optional if dbCluster is passed in */
+  readonly vpc?: ec2.IVpc;
   readonly textractStateMachineTimeoutMinutes?: number;
   readonly lambdaLogLevel?: 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR' | 'FATAL';
   /** Lambda Function Timeout in seconds, default 300 */
@@ -55,6 +55,12 @@ export interface CSVToAuroraTaskProps extends sfn.TaskStateBaseProps {
      * @default - false
      */
   readonly enableCloudWatchMetricsAndDashboard?: boolean;
+  /** DBCluster to import into */
+  readonly dbCluster?: rds.IServerlessCluster;
+  /** lambdaSecurity Group for Cluster */
+  readonly lambdaSecurityGroup?:ec2.ISecurityGroup;
+  /** auroraSecurity Group for Cluster */
+  readonly auroraSecurityGroup?:ec2.ISecurityGroup;
   /**
        * The JSON input for the execution, same as that of StartExecution.
        *
@@ -128,8 +134,10 @@ export class CSVToAuroraTask extends sfn.TaskStateBase {
   public csvToAuroraLambdaLogGroup: ILogGroup;
   public version: string;
   public csvToAuroraFunction: lambda.IFunction;
-  public dbCluster: rds.IServerlessCluster;
   public csvToAuroraNumberRowsInsertedMetric?: cloudwatch.IMetric;
+  public dbCluster: rds.IServerlessCluster;
+  public auroraSecurityGroup: ec2.ISecurityGroup;
+  public lambdaSecurityGroup: ec2.ISecurityGroup;
 
   constructor(scope: Construct, id: string, private readonly props: CSVToAuroraTaskProps) {
     super(scope, id, props);
@@ -155,35 +163,48 @@ export class CSVToAuroraTask extends sfn.TaskStateBase {
     var csvToAuroraMaxRetries = props.csvToAuroraMaxRetries === undefined ? 100 : props.csvToAuroraMaxRetries;
     var csvToAuroraBackoffRate = props.csvToAuroraBackoffRate === undefined ? 1.1 : props.csvToAuroraBackoffRate;
     var csvToAuroraInterval = props.csvToAuroraInterval === undefined ? 1 : props.csvToAuroraInterval;
-    const lambdaSG: ec2.ISecurityGroup = new ec2.SecurityGroup(this, 'LambdaSG', { allowAllOutbound: true, vpc: props.vpc });
-    const auroraSg: ec2.ISecurityGroup = new ec2.SecurityGroup(this, 'Aurora', { allowAllOutbound: true, vpc: props.vpc });
-    auroraSg.addIngressRule(auroraSg, ec2.Port.tcp(5432), 'fromSameSG');
-    auroraSg.addIngressRule(auroraSg, ec2.Port.tcp(443), 'fromSameSG');
-    auroraSg.addIngressRule(lambdaSG, ec2.Port.tcp(5432), 'LambdaIngreess');
-    auroraSg.addIngressRule(lambdaSG, ec2.Port.tcp(443), 'LambdaIngreess');
 
-    // AURORA
-    this.dbCluster = new rds.ServerlessCluster(this, id + 'AuroraPSQL', {
-      engine: rds.DatabaseClusterEngine.AURORA_POSTGRESQL,
-      parameterGroup: rds.ParameterGroup.fromParameterGroupName(this, 'ParameterGroup', 'default.aurora-postgresql10'),
-      vpc: props.vpc,
-      securityGroups: [auroraSg],
-      enableDataApi: true,
-    });
+    if (props.dbCluster === undefined) {
+      if (props.vpc === undefined) {
+        throw new Error('if no dbCluster is passed in, requires a vpc props.');
+      }
+      this.lambdaSecurityGroup = new ec2.SecurityGroup(this, 'LambdaSG', { allowAllOutbound: true, vpc: props.vpc });
+      this.auroraSecurityGroup = new ec2.SecurityGroup(this, 'Aurora', { allowAllOutbound: true, vpc: props.vpc });
+      this.auroraSecurityGroup.addIngressRule(this.auroraSecurityGroup, ec2.Port.tcp(5432), 'fromSameSG');
+      this.auroraSecurityGroup.addIngressRule(this.auroraSecurityGroup, ec2.Port.tcp(443), 'fromSameSG');
+      this.auroraSecurityGroup.addIngressRule(this.lambdaSecurityGroup, ec2.Port.tcp(5432), 'LambdaIngreess');
+      this.auroraSecurityGroup.addIngressRule(this.lambdaSecurityGroup, ec2.Port.tcp(443), 'LambdaIngreess');
 
-    const rdsServerlessInit = new RdsServerlessInit(this, 'RdsServerlessInit', {
-      dbClusterSecretARN: (<rds.ServerlessCluster> this.dbCluster).secret!.secretArn,
-      dbClusterARN: (<rds.ServerlessCluster> this.dbCluster).clusterArn,
-    });
-    rdsServerlessInit.node.addDependency(this.dbCluster);
+      // AURORA
+      this.dbCluster = new rds.ServerlessCluster(this, id + 'AuroraPSQL', {
+        engine: rds.DatabaseClusterEngine.AURORA_POSTGRESQL,
+        parameterGroup: rds.ParameterGroup.fromParameterGroupName(this, 'ParameterGroup', 'default.aurora-postgresql10'),
+        vpc: props.vpc,
+        securityGroups: [this.auroraSecurityGroup],
+        enableDataApi: true,
+      });
 
+      const rdsServerlessInit = new RdsServerlessInit(this, 'RdsServerlessInit', {
+        dbClusterSecretARN: (<rds.ServerlessCluster> this.dbCluster).secret!.secretArn,
+        dbClusterARN: (<rds.ServerlessCluster> this.dbCluster).clusterArn,
+      });
+      rdsServerlessInit.node.addDependency(this.dbCluster);
+    } else {
+      if (props.lambdaSecurityGroup!=undefined && props.auroraSecurityGroup != undefined && props.dbCluster != undefined) {
+        this.lambdaSecurityGroup = props.lambdaSecurityGroup;
+        this.auroraSecurityGroup = props.lambdaSecurityGroup;
+        this.dbCluster = props.dbCluster;
+      } else {
+        throw new Error('Need lambdaSeucrityGroup and auroraSecurityGroup and dbCluster');
+      }
+    }
     // LAMBDA PUT ON Cluster
     this.csvToAuroraFunction = new lambda.DockerImageFunction(this, 'CSVToAuroraFunction', {
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/csv_to_aurora/')),
       memorySize: lambdaMemory,
       architecture: lambda.Architecture.X86_64,
       timeout: Duration.seconds(lambdaTimeout),
-      securityGroups: [lambdaSG],
+      securityGroups: [this.lambdaSecurityGroup],
       vpc: props.vpc,
       environment: {
         SECRET_ARN: (<rds.ServerlessCluster> this.dbCluster).secret!.secretArn,

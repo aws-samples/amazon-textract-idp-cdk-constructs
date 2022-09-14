@@ -21,6 +21,7 @@ export { CSVToAuroraTask, CSVToAuroraTaskProps } from './rdsCSVToAurora';
 export { ComprehendGenericSyncSfnTask, ComprehendGenericSyncSfnTaskProps } from './comprehendClassification';
 export { SpacySfnTask, SpacySfnTaskProps } from './spacyClassification';
 export { DocumentSplitter, DocumentSplitterProps } from './documentSplitter';
+export { RDSAuroraServerless, RDSAuroraServerlessProps } from './rdsAuroraServerless';
 
 
 export function validatePatternSupported(integrationPattern: sfn.IntegrationPattern, supportedPatterns: sfn.IntegrationPattern[]) {

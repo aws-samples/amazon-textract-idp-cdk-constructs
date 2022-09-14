@@ -1057,9 +1057,11 @@ Add a prefix to the stateId of all States found in a construct tree.
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTask.property.id">id</a></code> | <code>string</code> | Descriptive identifier for this chainable. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTask.property.startState">startState</a></code> | <code>aws-cdk-lib.aws_stepfunctions.State</code> | First state of this Chainable. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTask.property.stateId">stateId</a></code> | <code>string</code> | Tokenized string that evaluates to the state's ID. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTask.property.auroraSecurityGroup">auroraSecurityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTask.property.csvToAuroraFunction">csvToAuroraFunction</a></code> | <code>aws-cdk-lib.aws_lambda.IFunction</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTask.property.csvToAuroraLambdaLogGroup">csvToAuroraLambdaLogGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTask.property.dbCluster">dbCluster</a></code> | <code>aws-cdk-lib.aws_rds.IServerlessCluster</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTask.property.lambdaSecurityGroup">lambdaSecurityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTask.property.stateMachine">stateMachine</a></code> | <code>aws-cdk-lib.aws_stepfunctions.IStateMachine</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTask.property.version">version</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTask.property.csvToAuroraNumberRowsInsertedMetric">csvToAuroraNumberRowsInsertedMetric</a></code> | <code>aws-cdk-lib.aws_cloudwatch.IMetric</code> | *No description.* |
@@ -1126,6 +1128,16 @@ Tokenized string that evaluates to the state's ID.
 
 ---
 
+##### `auroraSecurityGroup`<sup>Required</sup> <a name="auroraSecurityGroup" id="amazon-textract-idp-cdk-constructs.CSVToAuroraTask.property.auroraSecurityGroup"></a>
+
+```typescript
+public readonly auroraSecurityGroup: ISecurityGroup;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup
+
+---
+
 ##### `csvToAuroraFunction`<sup>Required</sup> <a name="csvToAuroraFunction" id="amazon-textract-idp-cdk-constructs.CSVToAuroraTask.property.csvToAuroraFunction"></a>
 
 ```typescript
@@ -1153,6 +1165,16 @@ public readonly dbCluster: IServerlessCluster;
 ```
 
 - *Type:* aws-cdk-lib.aws_rds.IServerlessCluster
+
+---
+
+##### `lambdaSecurityGroup`<sup>Required</sup> <a name="lambdaSecurityGroup" id="amazon-textract-idp-cdk-constructs.CSVToAuroraTask.property.lambdaSecurityGroup"></a>
+
+```typescript
+public readonly lambdaSecurityGroup: ISecurityGroup;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup
 
 ---
 
@@ -1394,6 +1416,149 @@ public readonly startState: State;
 - *Type:* aws-cdk-lib.aws_stepfunctions.State
 
 The start state of this state machine fragment.
+
+---
+
+
+### RDSAuroraServerless <a name="RDSAuroraServerless" id="amazon-textract-idp-cdk-constructs.RDSAuroraServerless"></a>
+
+#### Initializers <a name="Initializers" id="amazon-textract-idp-cdk-constructs.RDSAuroraServerless.Initializer"></a>
+
+```typescript
+import { RDSAuroraServerless } from 'amazon-textract-idp-cdk-constructs'
+
+new RDSAuroraServerless(scope: Construct, id: string, props: RDSAuroraServerlessProps)
+```
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#amazon-textract-idp-cdk-constructs.RDSAuroraServerless.Initializer.parameter.scope">scope</a></code> | <code>constructs.Construct</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.RDSAuroraServerless.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.RDSAuroraServerless.Initializer.parameter.props">props</a></code> | <code><a href="#amazon-textract-idp-cdk-constructs.RDSAuroraServerlessProps">RDSAuroraServerlessProps</a></code> | *No description.* |
+
+---
+
+##### `scope`<sup>Required</sup> <a name="scope" id="amazon-textract-idp-cdk-constructs.RDSAuroraServerless.Initializer.parameter.scope"></a>
+
+- *Type:* constructs.Construct
+
+---
+
+##### `id`<sup>Required</sup> <a name="id" id="amazon-textract-idp-cdk-constructs.RDSAuroraServerless.Initializer.parameter.id"></a>
+
+- *Type:* string
+
+---
+
+##### `props`<sup>Required</sup> <a name="props" id="amazon-textract-idp-cdk-constructs.RDSAuroraServerless.Initializer.parameter.props"></a>
+
+- *Type:* <a href="#amazon-textract-idp-cdk-constructs.RDSAuroraServerlessProps">RDSAuroraServerlessProps</a>
+
+---
+
+#### Methods <a name="Methods" id="Methods"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#amazon-textract-idp-cdk-constructs.RDSAuroraServerless.toString">toString</a></code> | Returns a string representation of this construct. |
+
+---
+
+##### `toString` <a name="toString" id="amazon-textract-idp-cdk-constructs.RDSAuroraServerless.toString"></a>
+
+```typescript
+public toString(): string
+```
+
+Returns a string representation of this construct.
+
+#### Static Functions <a name="Static Functions" id="Static Functions"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#amazon-textract-idp-cdk-constructs.RDSAuroraServerless.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
+
+---
+
+##### ~~`isConstruct`~~ <a name="isConstruct" id="amazon-textract-idp-cdk-constructs.RDSAuroraServerless.isConstruct"></a>
+
+```typescript
+import { RDSAuroraServerless } from 'amazon-textract-idp-cdk-constructs'
+
+RDSAuroraServerless.isConstruct(x: any)
+```
+
+Checks if `x` is a construct.
+
+###### `x`<sup>Required</sup> <a name="x" id="amazon-textract-idp-cdk-constructs.RDSAuroraServerless.isConstruct.parameter.x"></a>
+
+- *Type:* any
+
+Any object.
+
+---
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#amazon-textract-idp-cdk-constructs.RDSAuroraServerless.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.RDSAuroraServerless.property.props">props</a></code> | <code><a href="#amazon-textract-idp-cdk-constructs.RDSAuroraServerlessProps">RDSAuroraServerlessProps</a></code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.RDSAuroraServerless.property.auroraSecurityGroup">auroraSecurityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.RDSAuroraServerless.property.dbCluster">dbCluster</a></code> | <code>aws-cdk-lib.aws_rds.IServerlessCluster</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.RDSAuroraServerless.property.lambdaSecurityGroup">lambdaSecurityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | *No description.* |
+
+---
+
+##### `node`<sup>Required</sup> <a name="node" id="amazon-textract-idp-cdk-constructs.RDSAuroraServerless.property.node"></a>
+
+```typescript
+public readonly node: Node;
+```
+
+- *Type:* constructs.Node
+
+The tree node.
+
+---
+
+##### `props`<sup>Required</sup> <a name="props" id="amazon-textract-idp-cdk-constructs.RDSAuroraServerless.property.props"></a>
+
+```typescript
+public readonly props: RDSAuroraServerlessProps;
+```
+
+- *Type:* <a href="#amazon-textract-idp-cdk-constructs.RDSAuroraServerlessProps">RDSAuroraServerlessProps</a>
+
+---
+
+##### `auroraSecurityGroup`<sup>Required</sup> <a name="auroraSecurityGroup" id="amazon-textract-idp-cdk-constructs.RDSAuroraServerless.property.auroraSecurityGroup"></a>
+
+```typescript
+public readonly auroraSecurityGroup: ISecurityGroup;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup
+
+---
+
+##### `dbCluster`<sup>Required</sup> <a name="dbCluster" id="amazon-textract-idp-cdk-constructs.RDSAuroraServerless.property.dbCluster"></a>
+
+```typescript
+public readonly dbCluster: IServerlessCluster;
+```
+
+- *Type:* aws-cdk-lib.aws_rds.IServerlessCluster
+
+---
+
+##### `lambdaSecurityGroup`<sup>Required</sup> <a name="lambdaSecurityGroup" id="amazon-textract-idp-cdk-constructs.RDSAuroraServerless.property.lambdaSecurityGroup"></a>
+
+```typescript
+public readonly lambdaSecurityGroup: ISecurityGroup;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup
 
 ---
 
@@ -5348,18 +5513,21 @@ const cSVToAuroraTaskProps: CSVToAuroraTaskProps = { ... }
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.resultPath">resultPath</a></code> | <code>string</code> | JSONPath expression to indicate where to inject the state's output. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.resultSelector">resultSelector</a></code> | <code>{[ key: string ]: any}</code> | The JSON that will replace the state's raw result and become the effective result before ResultPath is applied. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.timeout">timeout</a></code> | <code>aws-cdk-lib.Duration</code> | Timeout for the state machine. |
-| <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC to install the database into. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.associateWithParent">associateWithParent</a></code> | <code>boolean</code> | Pass the execution ID from the context object to the execution input. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.auroraSecurityGroup">auroraSecurityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | auroraSecurity Group for Cluster. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.csvToAuroraBackoffRate">csvToAuroraBackoffRate</a></code> | <code>number</code> | default is 1.1. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.csvToAuroraInterval">csvToAuroraInterval</a></code> | <code>number</code> | default is 1. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.csvToAuroraMaxRetries">csvToAuroraMaxRetries</a></code> | <code>number</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.dbCluster">dbCluster</a></code> | <code>aws-cdk-lib.aws_rds.IServerlessCluster</code> | DBCluster to import into. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.enableCloudWatchMetricsAndDashboard">enableCloudWatchMetricsAndDashboard</a></code> | <code>boolean</code> | enable CloudWatch Metrics and Dashboard. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.input">input</a></code> | <code>aws-cdk-lib.aws_stepfunctions.TaskInput</code> | The JSON input for the execution, same as that of StartExecution. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.lambdaLogLevel">lambdaLogLevel</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.lambdaMemory">lambdaMemory</a></code> | <code>number</code> | Memory allocated to Lambda function, default 512. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.lambdaSecurityGroup">lambdaSecurityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | lambdaSecurity Group for Cluster. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.lambdaTimeout">lambdaTimeout</a></code> | <code>number</code> | Lambda Function Timeout in seconds, default 300. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.name">name</a></code> | <code>string</code> | The name of the execution, same as that of StartExecution. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.textractStateMachineTimeoutMinutes">textractStateMachineTimeoutMinutes</a></code> | <code>number</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC to install the database into, optional if dbCluster is passed in. |
 
 ---
 
@@ -5485,18 +5653,6 @@ Timeout for the state machine.
 
 ---
 
-##### `vpc`<sup>Required</sup> <a name="vpc" id="amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.vpc"></a>
-
-```typescript
-public readonly vpc: IVpc;
-```
-
-- *Type:* aws-cdk-lib.aws_ec2.IVpc
-
-VPC to install the database into.
-
----
-
 ##### `associateWithParent`<sup>Optional</sup> <a name="associateWithParent" id="amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.associateWithParent"></a>
 
 ```typescript
@@ -5513,6 +5669,18 @@ This allows the Step Functions UI to link child executions from parent execution
 If you set this property to `true`, the `input` property must be an object (provided by `sfn.TaskInput.fromObject`) or omitted entirely.
 
 > [https://docs.aws.amazon.com/step-functions/latest/dg/concepts-nested-workflows.html#nested-execution-startid](https://docs.aws.amazon.com/step-functions/latest/dg/concepts-nested-workflows.html#nested-execution-startid)
+
+---
+
+##### `auroraSecurityGroup`<sup>Optional</sup> <a name="auroraSecurityGroup" id="amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.auroraSecurityGroup"></a>
+
+```typescript
+public readonly auroraSecurityGroup: ISecurityGroup;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup
+
+auroraSecurity Group for Cluster.
 
 ---
 
@@ -5547,6 +5715,18 @@ public readonly csvToAuroraMaxRetries: number;
 ```
 
 - *Type:* number
+
+---
+
+##### `dbCluster`<sup>Optional</sup> <a name="dbCluster" id="amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.dbCluster"></a>
+
+```typescript
+public readonly dbCluster: IServerlessCluster;
+```
+
+- *Type:* aws-cdk-lib.aws_rds.IServerlessCluster
+
+DBCluster to import into.
 
 ---
 
@@ -5600,6 +5780,18 @@ Memory allocated to Lambda function, default 512.
 
 ---
 
+##### `lambdaSecurityGroup`<sup>Optional</sup> <a name="lambdaSecurityGroup" id="amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.lambdaSecurityGroup"></a>
+
+```typescript
+public readonly lambdaSecurityGroup: ISecurityGroup;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.ISecurityGroup
+
+lambdaSecurity Group for Cluster.
+
+---
+
 ##### `lambdaTimeout`<sup>Optional</sup> <a name="lambdaTimeout" id="amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.lambdaTimeout"></a>
 
 ```typescript
@@ -5634,6 +5826,18 @@ public readonly textractStateMachineTimeoutMinutes: number;
 ```
 
 - *Type:* number
+
+---
+
+##### `vpc`<sup>Optional</sup> <a name="vpc" id="amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.vpc"></a>
+
+```typescript
+public readonly vpc: IVpc;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.IVpc
+
+VPC to install the database into, optional if dbCluster is passed in.
 
 ---
 
@@ -5716,6 +5920,36 @@ public readonly lambdaTimeout: number;
 - *Type:* number
 
 Lambda function timeout (may need to increase for larger documents).
+
+---
+
+### RDSAuroraServerlessProps <a name="RDSAuroraServerlessProps" id="amazon-textract-idp-cdk-constructs.RDSAuroraServerlessProps"></a>
+
+#### Initializer <a name="Initializer" id="amazon-textract-idp-cdk-constructs.RDSAuroraServerlessProps.Initializer"></a>
+
+```typescript
+import { RDSAuroraServerlessProps } from 'amazon-textract-idp-cdk-constructs'
+
+const rDSAuroraServerlessProps: RDSAuroraServerlessProps = { ... }
+```
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#amazon-textract-idp-cdk-constructs.RDSAuroraServerlessProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC to install the database into. |
+
+---
+
+##### `vpc`<sup>Required</sup> <a name="vpc" id="amazon-textract-idp-cdk-constructs.RDSAuroraServerlessProps.property.vpc"></a>
+
+```typescript
+public readonly vpc: IVpc;
+```
+
+- *Type:* aws-cdk-lib.aws_ec2.IVpc
+
+VPC to install the database into.
 
 ---
 

@@ -45,11 +45,9 @@ def split_and_save_pages(s3_path: str, mime: str, s3_output_bucket: str,
                 writer.add_page(pdf_reader.pages[page_number])
                 writer.write(page_in_mem)
                 logger.debug(f"len page_in_mem: {sys.getsizeof(page_in_mem)}")
-                s3_source_filename, _ = os.path.splitext(
-                    os.path.basename(s3_path))
                 file_name = f"{page_number+1}.pdf"
                 output_bucket_key = os.path.join(s3_output_prefix,
-                                                 s3_source_filename, file_name)
+                                                 file_name)
                 page_in_mem.seek(0)
                 s3.put_object(Body=page_in_mem,
                               Bucket=s3_output_bucket,
@@ -65,9 +63,8 @@ def split_and_save_pages(s3_path: str, mime: str, s3_output_bucket: str,
             page.save(page_in_mem, format="tiff")
             file_name = f"{page_number+1}.tiff"
             page_in_mem.seek(0)
-            s3_source_filename, _ = os.path.splitext(os.path.basename(s3_path))
             output_bucket_key = os.path.join(s3_output_prefix,
-                                             s3_source_filename, file_name)
+                                             file_name)
             s3.put_object(Body=page_in_mem,
                           Bucket=s3_output_bucket,
                           Key=output_bucket_key)

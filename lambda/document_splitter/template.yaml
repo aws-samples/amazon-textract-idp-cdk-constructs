@@ -19,7 +19,7 @@ Resources:
       Environment:
         Variables:
           S3_OUTPUT_PREFIX: textract-output
-          S3_OUTPUT_BUCKET: my-stack-dev-documentbucket04c71448-7en8gx904sk5
+          S3_OUTPUT_BUCKET: documentsplitterworkflow-textractsimplesyncworkfl-227yel3udgor
     Metadata:
       Dockerfile: Dockerfile
       DockerContext: .

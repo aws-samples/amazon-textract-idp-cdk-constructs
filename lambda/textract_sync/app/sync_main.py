@@ -14,7 +14,7 @@ from botocore.config import Config
 from typing import List
 
 logger = logging.getLogger(__name__)
-version = "0.0.1"
+__version__ = "0.0.1"
 s3 = boto3.client('s3')
 step_functions_client = boto3.client(service_name='stepfunctions')
 
@@ -60,8 +60,11 @@ class ProvisionedThroughputExceededException(Exception):
 def lambda_handler(event, _):
     log_level = os.environ.get('LOG_LEVEL', 'INFO')
     logger.setLevel(log_level)
-    logger.info(f"version: {version}")
     logger.info(json.dumps(event))
+    logger.info(f"version: {__version__}\n \
+        textractmanifest version: {tm.__version__}\n \
+        boto3 version: {boto3.__version__}\n \
+        textractcaller version: {tc.__version__}.")
 
     s3_output_bucket = os.environ.get('S3_OUTPUT_BUCKET')
     s3_output_prefix = os.environ.get('S3_OUTPUT_PREFIX')
@@ -147,6 +150,7 @@ def lambda_handler(event, _):
                 queries_config: {queries_config}")
             textract_response = tc.call_textract(
                 input_document=s3_path,
+                call_mode=tc.Textract_Call_Mode.FORCE_SYNC,
                 boto3_textract_client=textract,
                 features=features,
                 queries_config=queries_config)
