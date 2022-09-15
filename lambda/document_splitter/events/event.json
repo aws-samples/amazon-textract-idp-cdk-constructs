@@ -1,0 +1,5 @@
+{
+    "manifest": {
+        "S3Path": "s3://sdx-textract-us-east-1/210-page-book.pdf"
+    }
+}

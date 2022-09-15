@@ -1,4 +1,5 @@
-FROM public.ecr.aws/lambda/python:3.9
+FROM public.ecr.aws/lambda/python:3.9-x86_64
+
 RUN /var/lang/bin/python -m pip install --upgrade pip
 RUN python -m pip install cfnresponse  --target "${LAMBDA_TASK_ROOT}"
 

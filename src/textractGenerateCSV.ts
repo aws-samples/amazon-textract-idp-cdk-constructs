@@ -147,6 +147,7 @@ export class TextractGenerateCSV extends sfn.TaskStateBase {
     const csvGeneratorFunction = new lambda_.DockerImageFunction(this, 'TextractCSVGenerator', {
       code: lambda_.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/generatecsv/')),
       memorySize: lambdaMemoryMB,
+      architecture: lambda_.Architecture.X86_64,
       timeout: Duration.seconds(lambdaTimeout),
       environment: {
         CSV_S3_OUTPUT_BUCKET: props.csvS3OutputBucket,

@@ -64,6 +64,10 @@ export interface TextractGenericSyncSfnTaskProps extends sfn.TaskStateBaseProps 
   /** how long can we wait for the process (default is 48 hours (60*48=2880)) */
   readonly textractStateMachineTimeoutMinutes? : number;
   readonly textractAPI?: 'GENERIC' | 'ANALYZEID' | 'EXPENSE';
+  /** enable CloudWatch Metrics and Dashboard
+   * @default - false
+   */
+  readonly enableCloudWatchMetricsAndDashboard? : boolean;
   /**
        * The JSON input for the execution, same as that of StartExecution.
        *
@@ -142,10 +146,10 @@ export class TextractGenericSyncSfnTask extends sfn.TaskStateBase {
   public textractSyncLambdaLogGroup:ILogGroup;
   public version:string;
   public textractSyncCallFunction:lambda.IFunction;
-  public syncDurationMetric:cloudwatch.IMetric;
-  public syncNumberPagesMetric:cloudwatch.IMetric;
-  public syncNumberPagesSendMetric:cloudwatch.IMetric;
-  public syncTimedOutMetric:cloudwatch.IMetric;
+  public syncDurationMetric?:cloudwatch.IMetric;
+  public syncNumberPagesMetric?:cloudwatch.IMetric;
+  public syncNumberPagesSendMetric?:cloudwatch.IMetric;
+  public syncTimedOutMetric?:cloudwatch.IMetric;
 
   constructor(scope : Construct, id : string, private readonly props : TextractGenericSyncSfnTaskProps) {
     super(scope, id, props);
@@ -178,10 +182,13 @@ export class TextractGenericSyncSfnTask extends sfn.TaskStateBase {
     var textractAsyncCallMaxRetries = props.textractAsyncCallMaxRetries === undefined ? 100 : props.textractAsyncCallMaxRetries;
     var textractAsyncCallBackoffRate = props.textractAsyncCallBackoffRate === undefined ? 1.1 : props.textractAsyncCallBackoffRate;
     var textractAsyncCallInterval = props.textractAsyncCallInterval === undefined ? 1 : props.textractAsyncCallInterval;
+    var enableCloudWatchMetricsAndDashboard = props.enableCloudWatchMetricsAndDashboard === undefined ? false :
+      props.enableCloudWatchMetricsAndDashboard;
 
     this.textractSyncCallFunction = new lambda.DockerImageFunction(this, 'TextractSyncCall', {
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/textract_sync/')),
       memorySize: lambdaMemory,
+      architecture: lambda.Architecture.X86_64,
       timeout: Duration.seconds(lambdaTimeout),
       environment: {
         S3_OUTPUT_BUCKET: props.s3OutputBucket,
@@ -234,163 +241,164 @@ export class TextractGenericSyncSfnTask extends sfn.TaskStateBase {
     // =========
     // DASHBOARD
     // =========
-    const appName = this.node.tryGetContext('appName');
+    if (enableCloudWatchMetricsAndDashboard) {
+      const appName = this.node.tryGetContext('appName');
 
-    const customMetricNamespace = 'TextractConstructGenericSync';
+      const customMetricNamespace = 'TextractConstructGenericSync';
 
-    // OPERATIONAL
-    const syncDurationMetricFilter = new MetricFilter(this, `${appName}-DurationFilter`, {
-      logGroup: (<lambda.Function> this.textractSyncCallFunction).logGroup,
-      metricNamespace: customMetricNamespace,
-      metricName: 'Duration',
-      filterPattern: FilterPattern.spaceDelimited('INFO', 'timestamp', 'id', 'message', 'durationMs')
-        .whereString('message', '=', `textract_sync_${textractAPI}_call_duration_in_ms:`),
-      metricValue: '$durationMs',
-    });
-    this.syncDurationMetric = syncDurationMetricFilter.metric({ statistic: 'avg' });
+      // OPERATIONAL
+      const syncDurationMetricFilter = new MetricFilter(this, `${appName}-DurationFilter`, {
+        logGroup: (<lambda.Function> this.textractSyncCallFunction).logGroup,
+        metricNamespace: customMetricNamespace,
+        metricName: 'Duration',
+        filterPattern: FilterPattern.spaceDelimited('INFO', 'timestamp', 'id', 'message', 'durationMs')
+          .whereString('message', '=', `textract_sync_${textractAPI}_call_duration_in_ms:`),
+        metricValue: '$durationMs',
+      });
+      this.syncDurationMetric = syncDurationMetricFilter.metric({ statistic: 'avg' });
 
-    const syncNumberPagesMetricFilter = new MetricFilter(this, `${appName}-NumberPagesFilter`, {
-      logGroup: (<lambda.Function> this.textractSyncCallFunction).logGroup,
-      metricNamespace: customMetricNamespace,
-      metricName: 'NumberPages',
-      filterPattern: FilterPattern.spaceDelimited('INFO', 'timestamp', 'id', 'message', 'pages')
-        .whereString('message', '=', `textract_sync_${textractAPI}_number_of_pages_processed:`),
-      metricValue: '$pages',
-    });
-    this.syncNumberPagesMetric = syncNumberPagesMetricFilter.metric({ statistic: 'sum' });
+      const syncNumberPagesMetricFilter = new MetricFilter(this, `${appName}-NumberPagesFilter`, {
+        logGroup: (<lambda.Function> this.textractSyncCallFunction).logGroup,
+        metricNamespace: customMetricNamespace,
+        metricName: 'NumberPages',
+        filterPattern: FilterPattern.spaceDelimited('INFO', 'timestamp', 'id', 'message', 'pages')
+          .whereString('message', '=', `textract_sync_${textractAPI}_number_of_pages_processed:`),
+        metricValue: '$pages',
+      });
+      this.syncNumberPagesMetric = syncNumberPagesMetricFilter.metric({ statistic: 'sum' });
 
-    const syncNumberPagesSendMetricFilter = new MetricFilter(this, `${appName}-NumberPagesSendFilter`, {
-      logGroup: (<lambda.Function> this.textractSyncCallFunction).logGroup,
-      metricNamespace: customMetricNamespace,
-      metricName: 'NumberPages',
-      filterPattern: FilterPattern.spaceDelimited('INFO', 'timestamp', 'id', 'message', 'pages')
-        .whereString('message', '=', `textract_sync_${textractAPI}_number_of_pages_send_to_process:`),
-      metricValue: '$pages',
-    });
-    this.syncNumberPagesSendMetric = syncNumberPagesSendMetricFilter.metric({ statistic: 'sum' });
+      const syncNumberPagesSendMetricFilter = new MetricFilter(this, `${appName}-NumberPagesSendFilter`, {
+        logGroup: (<lambda.Function> this.textractSyncCallFunction).logGroup,
+        metricNamespace: customMetricNamespace,
+        metricName: 'NumberPages',
+        filterPattern: FilterPattern.spaceDelimited('INFO', 'timestamp', 'id', 'message', 'pages')
+          .whereString('message', '=', `textract_sync_${textractAPI}_number_of_pages_send_to_process:`),
+        metricValue: '$pages',
+      });
+      this.syncNumberPagesSendMetric = syncNumberPagesSendMetricFilter.metric({ statistic: 'sum' });
 
-    const syncTimedOutMetricFilter = new MetricFilter(this, `${appName}-TimedOutFilter`, {
-      logGroup: (<lambda.Function> this.textractSyncCallFunction).logGroup,
-      metricNamespace: customMetricNamespace,
-      metricName: 'DurationSeconds',
-      filterPattern: FilterPattern.spaceDelimited('INFO', 'timestamp', 'id', 'message1', 'durationS', 'message2')
-        .whereString('message1', '=', 'Task timed out after').whereString('message2', '=', 'seconds'),
-      metricValue: '$durationS',
-    });
-    this.syncTimedOutMetric = syncTimedOutMetricFilter.metric({ statistic: 'sum' });
-    // OPERATIONAL STOP
+      const syncTimedOutMetricFilter = new MetricFilter(this, `${appName}-TimedOutFilter`, {
+        logGroup: (<lambda.Function> this.textractSyncCallFunction).logGroup,
+        metricNamespace: customMetricNamespace,
+        metricName: 'DurationSeconds',
+        filterPattern: FilterPattern.spaceDelimited('INFO', 'timestamp', 'id', 'message1', 'durationS', 'message2')
+          .whereString('message1', '=', 'Task timed out after').whereString('message2', '=', 'seconds'),
+        metricValue: '$durationS',
+      });
+      this.syncTimedOutMetric = syncTimedOutMetricFilter.metric({ statistic: 'sum' });
+      // OPERATIONAL STOP
 
-    // CALCUATED OPERATIONAL METRICS
+      // CALCUATED OPERATIONAL METRICS
 
-    const pagesPerSecond = new cloudwatch.MathExpression({
-      expression: 'pages / (duration / 1000)',
-      usingMetrics: {
-        pages: this.syncNumberPagesMetric,
-        duration: this.syncDurationMetric,
-      },
-    });
-    // CALCUATED OPERATIONAL METRICS STOP
+      const pagesPerSecond = new cloudwatch.MathExpression({
+        expression: 'pages / (duration / 1000)',
+        usingMetrics: {
+          pages: this.syncNumberPagesMetric,
+          duration: this.syncDurationMetric,
+        },
+      });
+      // CALCUATED OPERATIONAL METRICS STOP
 
-    const errorFilterMetric = new MetricFilter(this, `${appName}-ErrorFilter`, {
-      logGroup: (<lambda.Function> this.textractSyncCallFunction).logGroup,
-      metricNamespace: customMetricNamespace,
-      metricName: 'Errors',
-      filterPattern: FilterPattern.anyTerm('ERROR', 'Error', 'error'),
-      metricValue: '1',
-    });
+      const errorFilterMetric = new MetricFilter(this, `${appName}-ErrorFilter`, {
+        logGroup: (<lambda.Function> this.textractSyncCallFunction).logGroup,
+        metricNamespace: customMetricNamespace,
+        metricName: 'Errors',
+        filterPattern: FilterPattern.anyTerm('ERROR', 'Error', 'error'),
+        metricValue: '1',
+      });
 
-    const limitExceededExceptionFilterMetric = new MetricFilter(this, `${appName}-limitExceededExceptionFilter`, {
-      logGroup: (<lambda.Function> this.textractSyncCallFunction).logGroup,
-      metricNamespace: customMetricNamespace,
-      metricName: 'LimitExceededException',
-      filterPattern: FilterPattern.anyTerm('textract.exceptions.LimitExceededException'),
-      metricValue: '1',
-    });
-    const throttlingException = new MetricFilter(this, `${appName}-throttlingExceptionFilter`, {
-      logGroup: (<lambda.Function> this.textractSyncCallFunction).logGroup,
-      metricNamespace: customMetricNamespace,
-      metricName: 'ThrottlingException',
-      filterPattern: FilterPattern.anyTerm('textract.exceptions.ThrottlingException'),
-      metricValue: '1',
-    });
+      const limitExceededExceptionFilterMetric = new MetricFilter(this, `${appName}-limitExceededExceptionFilter`, {
+        logGroup: (<lambda.Function> this.textractSyncCallFunction).logGroup,
+        metricNamespace: customMetricNamespace,
+        metricName: 'LimitExceededException',
+        filterPattern: FilterPattern.anyTerm('textract.exceptions.LimitExceededException'),
+        metricValue: '1',
+      });
+      const throttlingException = new MetricFilter(this, `${appName}-throttlingExceptionFilter`, {
+        logGroup: (<lambda.Function> this.textractSyncCallFunction).logGroup,
+        metricNamespace: customMetricNamespace,
+        metricName: 'ThrottlingException',
+        filterPattern: FilterPattern.anyTerm('textract.exceptions.ThrottlingException'),
+        metricValue: '1',
+      });
 
-    const provisionedThroughputExceededException = new MetricFilter(this, `${appName}-provisionedThroughputFilter`, {
-      logGroup: (<lambda.Function> this.textractSyncCallFunction).logGroup,
-      metricNamespace: customMetricNamespace,
-      metricName: 'ProvisionedThroughputExceededException',
-      filterPattern: FilterPattern.anyTerm('textract.exceptions.ProvisionedThroughputExceededException'),
-      metricValue: '1',
-    });
-    const internalServerError = new MetricFilter(this, `${appName}-internalServerErrorFilter`, {
-      logGroup: (<lambda.Function> this.textractSyncCallFunction).logGroup,
-      metricNamespace: customMetricNamespace,
-      metricName: 'InternalServerError',
-      filterPattern: FilterPattern.anyTerm('textract.exceptions.InternalServerError'),
-      metricValue: '1',
-    });
+      const provisionedThroughputExceededException = new MetricFilter(this, `${appName}-provisionedThroughputFilter`, {
+        logGroup: (<lambda.Function> this.textractSyncCallFunction).logGroup,
+        metricNamespace: customMetricNamespace,
+        metricName: 'ProvisionedThroughputExceededException',
+        filterPattern: FilterPattern.anyTerm('textract.exceptions.ProvisionedThroughputExceededException'),
+        metricValue: '1',
+      });
+      const internalServerError = new MetricFilter(this, `${appName}-internalServerErrorFilter`, {
+        logGroup: (<lambda.Function> this.textractSyncCallFunction).logGroup,
+        metricNamespace: customMetricNamespace,
+        metricName: 'InternalServerError',
+        filterPattern: FilterPattern.anyTerm('textract.exceptions.InternalServerError'),
+        metricValue: '1',
+      });
 
-    const errorMetric:cloudwatch.IMetric = errorFilterMetric.metric({ statistic: 'sum' });
-    const limitExceededMetric:cloudwatch.IMetric = limitExceededExceptionFilterMetric.metric({ statistic: 'sum' });
-    const throttlingMetric:cloudwatch.IMetric = throttlingException.metric({ statistic: 'sum' });
-    const provisionedThroughputMetric:cloudwatch.IMetric = provisionedThroughputExceededException.metric({ statistic: 'sum' });
-    const internalServerErrorMetric:cloudwatch.IMetric = internalServerError.metric({ statistic: 'sum' });
+      const errorMetric:cloudwatch.IMetric = errorFilterMetric.metric({ statistic: 'sum' });
+      const limitExceededMetric:cloudwatch.IMetric = limitExceededExceptionFilterMetric.metric({ statistic: 'sum' });
+      const throttlingMetric:cloudwatch.IMetric = throttlingException.metric({ statistic: 'sum' });
+      const provisionedThroughputMetric:cloudwatch.IMetric = provisionedThroughputExceededException.metric({ statistic: 'sum' });
+      const internalServerErrorMetric:cloudwatch.IMetric = internalServerError.metric({ statistic: 'sum' });
 
-    const textractStartDocumentTextThrottle:cloudwatch.IMetric= new cloudwatch.Metric({
-      namespace: 'AWS/Textract',
-      metricName: 'ThrottledCount',
-      dimensionsMap: {
-        Operation: 'StartDocumentTextDetection',
-      },
-      statistic: 'sum',
-    });
-    // DASHBOARD LAMBDA
+      const textractStartDocumentTextThrottle:cloudwatch.IMetric= new cloudwatch.Metric({
+        namespace: 'AWS/Textract',
+        metricName: 'ThrottledCount',
+        dimensionsMap: {
+          Operation: 'StartDocumentTextDetection',
+        },
+        statistic: 'sum',
+      });
+      // DASHBOARD LAMBDA
 
-    const dashboardWidth=24;
-    // const widgetStandardHeight=9;
+      const dashboardWidth=24;
+      // const widgetStandardHeight=9;
 
-    // DASHBOARD
-    new cloudwatch.Dashboard(this, '${appName}-TestDashboard', {
-      end: 'end',
-      periodOverride: cloudwatch.PeriodOverride.AUTO,
-      start: 'start',
-      widgets: [
-        [
-          new cloudwatch.Column(new cloudwatch.TextWidget({ markdown: '# Operational Data Row widgets', width: dashboardWidth })),
+      // DASHBOARD
+      new cloudwatch.Dashboard(this, '${appName}-TestDashboard', {
+        end: 'end',
+        periodOverride: cloudwatch.PeriodOverride.AUTO,
+        start: 'start',
+        widgets: [
+          [
+            new cloudwatch.Column(new cloudwatch.TextWidget({ markdown: '# Operational Data Row widgets', width: dashboardWidth })),
+          ],
+          [
+            new cloudwatch.Column(new cloudwatch.GraphWidget({ title: 'PagesPerSecond', left: [pagesPerSecond], width: Math.floor(dashboardWidth/2) })),
+            new cloudwatch.Column(new cloudwatch.GraphWidget({ title: 'Duration', left: [this.syncDurationMetric], width: Math.floor(dashboardWidth/4) })),
+            new cloudwatch.Column(new cloudwatch.GraphWidget({ title: 'NumberPagesProcessed', left: [this.syncNumberPagesMetric], width: Math.floor(dashboardWidth/4) })),
+            new cloudwatch.Column(new cloudwatch.GraphWidget({ title: 'NumberPagesSendToProcess', left: [this.syncNumberPagesSendMetric], width: Math.floor(dashboardWidth/4) })),
+          ],
+          [
+            new cloudwatch.Column(new cloudwatch.TextWidget({ markdown: '# Async Textract Exceptions Row', width: dashboardWidth })),
+          ],
+          [
+            new cloudwatch.GraphWidget({ title: 'Errors', left: [errorMetric], width: Math.floor(dashboardWidth/5) }),
+            new cloudwatch.GraphWidget({ title: 'LimitExceeded', left: [limitExceededMetric], width: Math.floor(dashboardWidth/5) }),
+            new cloudwatch.GraphWidget({ title: 'Throttling', left: [throttlingMetric], width: Math.floor(dashboardWidth/5) }),
+            new cloudwatch.GraphWidget({ title: 'ProvisionedThrougput', left: [provisionedThroughputMetric], width: Math.floor(dashboardWidth/5) }),
+            new cloudwatch.GraphWidget({ title: 'InternalServerError', left: [internalServerErrorMetric], width: Math.floor(dashboardWidth/5) }),
+          ],
+          [
+            new cloudwatch.TextWidget({ markdown: '# Textract', width: dashboardWidth }),
+          ],
+          [
+            new cloudwatch.GraphWidget({ title: 'Textract-StartDetectText-ThrottledCount', left: [textractStartDocumentTextThrottle] }),
+          ],
+          [
+            new cloudwatch.TextWidget({ markdown: '# textractSyncCallFunction', width: dashboardWidth }),
+          ],
+          [
+            new cloudwatch.GraphWidget({ title: 'Sync-Function-Errors', left: [this.textractSyncCallFunction.metricErrors()], width: Math.floor(dashboardWidth/4) }),
+            new cloudwatch.GraphWidget({ title: 'Sync-Function-Invocations', left: [this.textractSyncCallFunction.metricInvocations()], width: Math.floor(dashboardWidth/4) }),
+            new cloudwatch.GraphWidget({ title: 'Sync-Function-Throttles', left: [this.textractSyncCallFunction.metricThrottles()], width: Math.floor(dashboardWidth/4) }),
+            new cloudwatch.GraphWidget({ title: 'Sync-Function-TimedOut', left: [this.syncTimedOutMetric], width: Math.floor(dashboardWidth/4) }),
+          ],
         ],
-        [
-          new cloudwatch.Column(new cloudwatch.GraphWidget({ title: 'PagesPerSecond', left: [pagesPerSecond], width: Math.floor(dashboardWidth/2) })),
-          new cloudwatch.Column(new cloudwatch.GraphWidget({ title: 'Duration', left: [this.syncDurationMetric], width: Math.floor(dashboardWidth/4) })),
-          new cloudwatch.Column(new cloudwatch.GraphWidget({ title: 'NumberPagesProcessed', left: [this.syncNumberPagesMetric], width: Math.floor(dashboardWidth/4) })),
-          new cloudwatch.Column(new cloudwatch.GraphWidget({ title: 'NumberPagesSendToProcess', left: [this.syncNumberPagesSendMetric], width: Math.floor(dashboardWidth/4) })),
-        ],
-        [
-          new cloudwatch.Column(new cloudwatch.TextWidget({ markdown: '# Async Textract Exceptions Row', width: dashboardWidth })),
-        ],
-        [
-          new cloudwatch.GraphWidget({ title: 'Errors', left: [errorMetric], width: Math.floor(dashboardWidth/5) }),
-          new cloudwatch.GraphWidget({ title: 'LimitExceeded', left: [limitExceededMetric], width: Math.floor(dashboardWidth/5) }),
-          new cloudwatch.GraphWidget({ title: 'Throttling', left: [throttlingMetric], width: Math.floor(dashboardWidth/5) }),
-          new cloudwatch.GraphWidget({ title: 'ProvisionedThrougput', left: [provisionedThroughputMetric], width: Math.floor(dashboardWidth/5) }),
-          new cloudwatch.GraphWidget({ title: 'InternalServerError', left: [internalServerErrorMetric], width: Math.floor(dashboardWidth/5) }),
-        ],
-        [
-          new cloudwatch.TextWidget({ markdown: '# Textract', width: dashboardWidth }),
-        ],
-        [
-          new cloudwatch.GraphWidget({ title: 'Textract-StartDetectText-ThrottledCount', left: [textractStartDocumentTextThrottle] }),
-        ],
-        [
-          new cloudwatch.TextWidget({ markdown: '# textractSyncCallFunction', width: dashboardWidth }),
-        ],
-        [
-          new cloudwatch.GraphWidget({ title: 'Sync-Function-Errors', left: [this.textractSyncCallFunction.metricErrors()], width: Math.floor(dashboardWidth/4) }),
-          new cloudwatch.GraphWidget({ title: 'Sync-Function-Invocations', left: [this.textractSyncCallFunction.metricInvocations()], width: Math.floor(dashboardWidth/4) }),
-          new cloudwatch.GraphWidget({ title: 'Sync-Function-Throttles', left: [this.textractSyncCallFunction.metricThrottles()], width: Math.floor(dashboardWidth/4) }),
-          new cloudwatch.GraphWidget({ title: 'Sync-Function-TimedOut', left: [this.syncTimedOutMetric], width: Math.floor(dashboardWidth/4) }),
-        ],
-      ],
-    });
-
+      });
+    }
     // END DASHBOARD
     this.taskPolicies = this.createScopedAccessPolicy();
   }
