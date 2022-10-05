@@ -5976,6 +5976,7 @@ const spacySfnTaskProps: SpacySfnTaskProps = { ... }
 | <code><a href="#amazon-textract-idp-cdk-constructs.SpacySfnTaskProps.property.resultSelector">resultSelector</a></code> | <code>{[ key: string ]: any}</code> | The JSON that will replace the state's raw result and become the effective result before ResultPath is applied. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.SpacySfnTaskProps.property.timeout">timeout</a></code> | <code>aws-cdk-lib.Duration</code> | Timeout for the state machine. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.SpacySfnTaskProps.property.associateWithParent">associateWithParent</a></code> | <code>boolean</code> | Pass the execution ID from the context object to the execution input. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SpacySfnTaskProps.property.dockerImageFunction">dockerImageFunction</a></code> | <code>aws-cdk-lib.aws_lambda.IFunction</code> | Docker Container (to use in DockerImageCode.from_ecr() call). |
 | <code><a href="#amazon-textract-idp-cdk-constructs.SpacySfnTaskProps.property.input">input</a></code> | <code>aws-cdk-lib.aws_stepfunctions.TaskInput</code> | The JSON input for the execution, same as that of StartExecution. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.SpacySfnTaskProps.property.lambdaLogLevel">lambdaLogLevel</a></code> | <code>string</code> | log level for Lambda function, supports DEBUG\|INFO\|WARNING\|ERROR\|FATAL. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.SpacySfnTaskProps.property.name">name</a></code> | <code>string</code> | The name of the execution, same as that of StartExecution. |
@@ -6124,6 +6125,18 @@ This allows the Step Functions UI to link child executions from parent execution
 If you set this property to `true`, the `input` property must be an object (provided by `sfn.TaskInput.fromObject`) or omitted entirely.
 
 > [https://docs.aws.amazon.com/step-functions/latest/dg/concepts-nested-workflows.html#nested-execution-startid](https://docs.aws.amazon.com/step-functions/latest/dg/concepts-nested-workflows.html#nested-execution-startid)
+
+---
+
+##### `dockerImageFunction`<sup>Optional</sup> <a name="dockerImageFunction" id="amazon-textract-idp-cdk-constructs.SpacySfnTaskProps.property.dockerImageFunction"></a>
+
+```typescript
+public readonly dockerImageFunction: IFunction;
+```
+
+- *Type:* aws-cdk-lib.aws_lambda.IFunction
+
+Docker Container (to use in DockerImageCode.from_ecr() call).
 
 ---
 

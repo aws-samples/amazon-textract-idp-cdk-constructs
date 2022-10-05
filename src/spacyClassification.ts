@@ -44,6 +44,8 @@ export interface SpacySfnTaskProps extends sfn.TaskStateBaseProps {
   readonly spacyLambdaMemorySize? : number;
   /** ECR Container URI for Spacy classification */
   readonly spacyImageEcrRepository? : string;
+  /** Docker Container (to use in DockerImageCode.from_ecr() call) */
+  readonly dockerImageFunction? : lambda.IFunction;
   /**
        * The JSON input for the execution, same as that of StartExecution.
        *
@@ -137,7 +139,7 @@ export class SpacySfnTask extends sfn.TaskStateBase {
     var spacyLambdaTimeout = props.spacyLambdaTimeout === undefined ? 900 : props.spacyLambdaTimeout;
     var spacyLambdaMemorySize = props.spacyLambdaMemorySize === undefined ? 4096 : props.spacyLambdaMemorySize;
 
-    if (props.spacyImageEcrRepository === undefined) {
+    if (props.spacyImageEcrRepository === undefined && props.dockerImageFunction === undefined) {
       this.spacyCallFunction = new lambda.DockerImageFunction(this, 'SpacyCall', {
         code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/classification_spacy_image/')),
         memorySize: spacyLambdaMemorySize,
@@ -147,6 +149,8 @@ export class SpacySfnTask extends sfn.TaskStateBase {
           LOG_LEVEL: lambdaLogLevel,
         },
       });
+    } else if (props.dockerImageFunction != undefined) {
+      this.spacyCallFunction = props.dockerImageFunction;
     } else {
       const repo = new ecr.Repository(this, 'SpacyRepo', { repositoryName: props.spacyImageEcrRepository });
       this.spacyCallFunction = new lambda.DockerImageFunction(this, 'SpacyCall', {
