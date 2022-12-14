@@ -1,7 +1,7 @@
 FROM public.ecr.aws/lambda/python:3.9-x86_64
 
 RUN /var/lang/bin/python -m pip install --upgrade pip
-RUN python -m pip install amazon-textract-caller==0.0.25 schadem-tidp-manifest==0.0.8 marshmallow --upgrade --target "${LAMBDA_TASK_ROOT}"
+RUN python -m pip install amazon-textract-caller==0.0.25 schadem-tidp-manifest==0.0.9 marshmallow --upgrade --target "${LAMBDA_TASK_ROOT}"
 
 # Copy function code
 COPY app/* ${LAMBDA_TASK_ROOT}/
