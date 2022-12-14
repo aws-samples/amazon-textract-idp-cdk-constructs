@@ -9,7 +9,7 @@ RUN /var/lang/bin/python -m pip install --upgrade pip
 
 COPY en_textcat_demo-0.0.0.tar.gz ${LAMBDA_TASK_ROOT}/
 
-RUN python -m pip install schadem-tidp-manifest==0.0.8 ${LAMBDA_TASK_ROOT}/en_textcat_demo-0.0.0.tar.gz --target "${LAMBDA_TASK_ROOT}"
+RUN python -m pip install schadem-tidp-manifest==0.0.9 ${LAMBDA_TASK_ROOT}/en_textcat_demo-0.0.0.tar.gz --target "${LAMBDA_TASK_ROOT}"
 
 # Copy function code
 COPY app/* ${LAMBDA_TASK_ROOT}/

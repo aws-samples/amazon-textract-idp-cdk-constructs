@@ -1,7 +1,7 @@
 FROM public.ecr.aws/lambda/python:3.9-x86_64
 
 RUN /var/lang/bin/python -m pip install --upgrade pip
-RUN python -m pip install amazon-textract-caller==0.0.25 schadem-tidp-manifest==0.0.8 marshmallow --target "${LAMBDA_TASK_ROOT}"
+RUN python -m pip install amazon-textract-caller==0.0.25 schadem-tidp-manifest==0.0.9 marshmallow --target "${LAMBDA_TASK_ROOT}"
 RUN python -m pip install --force-reinstall boto3==1.24.70 --target "${LAMBDA_TASK_ROOT}"
 
 # Copy function code
