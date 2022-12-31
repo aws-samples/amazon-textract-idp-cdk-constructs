@@ -39,7 +39,14 @@
                 }
             ],
             "s3Path": "s3://schademcdkstackpaystubst-schademcdkidpstackpython-1fvi0dqoz24lj/uploads/w2-example.png",
-            "textractFeatures": ["QUERIES"]
+            "textractFeatures": ["QUERIES"],
+            "metaData": [{
+                "key": "DOCUMENT_ID",
+                "value": "document_id_value_1"
+            },{
+                "key": "meta_data_key_2",
+                "value": "meta_data_value_2"
+            }]
         },
         "mime": "image/png",
         "classification": null,

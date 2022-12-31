@@ -33,6 +33,9 @@ def lambda_handler(event, _):
         boto3 version: {boto3.__version__}\n \
         textractcaller version: {tc.__version__}.")
 
+    textract_api = os.environ.get('TEXTRACT_API', None)
+    if not textract_api:
+        textract_api = 'GENERIC'
     s3_output_bucket = os.environ.get('S3_OUTPUT_BUCKET', None)
     if not s3_output_bucket:
         raise Exception("no S3_OUTPUT_BUCKET set")
@@ -55,8 +58,14 @@ def lambda_handler(event, _):
     output_config = tc.OutputConfig(s3_bucket=oc_s3_bucket,
                                     s3_prefix=oc_s3_prefix)
     start_time = round(time.time() * 1000)
-    full_json = tc.get_full_json_from_output_config(
-        output_config=output_config, job_id=job_id, s3_client=s3)
+    if textract_api=='GENERIC':
+        full_json = tc.get_full_json_from_output_config(
+            output_config=output_config, job_id=job_id, s3_client=s3)
+    elif textract_api=='LENDING':
+        full_json = tc.get_full_json_lending_from_output_config(
+            output_config=output_config, job_id=job_id, s3_client=s3,
+            subfolder="detailedResponse"
+        )
 
     s3_filename, _ = os.path.splitext(os.path.basename(manifest.s3_path))
 

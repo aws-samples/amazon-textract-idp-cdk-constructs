@@ -7,12 +7,13 @@ import os
 import io
 import csv
 import boto3
-from typing import Tuple
+from typing import Tuple, List
 import json
-import textractmanifest as tm
-from textractprettyprinter.t_pretty_print import convert_queries_to_list_trp2, convert_form_to_list_trp2
+from textractprettyprinter.t_pretty_print import convert_queries_to_list_trp2, convert_form_to_list_trp2, convert_lending_from_trp2
 import trp.trp2 as t2
+import trp.trp2_lending as tl
 import datetime
+import textractmanifest as tm
 
 logger = logging.getLogger(__name__)
 version = "0.0.3"
@@ -39,6 +40,15 @@ def get_file_from_s3(s3_path: str, range=None) -> bytes:
     return o.get('Body').read()
 
 
+def create_meta_data_dict(manifest: tm.IDPManifest) -> dict:
+    meta_data_dict: dict = dict()
+    if manifest.meta_data:
+        for meta_data in manifest.meta_data:
+            logger.debug(f"meta_data: {meta_data}")
+            meta_data_dict[meta_data.key] = meta_data.value
+    return meta_data_dict
+
+
 def lambda_handler(event, _):
     # takes and even which includes a location to a Textract JSON schema file and generates CSV based on Query results + FORMS results
     # in the form of
@@ -51,10 +61,17 @@ def lambda_handler(event, _):
     csv_s3_output_prefix = os.environ.get('CSV_S3_OUTPUT_PREFIX')
     output_type = os.environ.get('OUTPUT_TYPE', 'CSV')
     csv_s3_output_bucket = os.environ.get('CSV_S3_OUTPUT_BUCKET')
+    textract_api = os.environ.get('TEXTRACT_API', 'GENERIC')
+    meta_data_to_append = os.environ.get('META_DATA_TO_APPEND', '')
+    meta_data_to_append_list = meta_data_to_append.split(',')
+    logger.debug(f"meta_data_to_append_list: {meta_data_to_append_list}")
 
-    logger.info(f"CSV_S3_OUTPUT_PREFIX: {csv_s3_output_prefix} \n\
+    logger.debug(f"CSV_S3_OUTPUT_PREFIX: {csv_s3_output_prefix} \n\
         CSV_S3_OUTPUT_BUCKET: {csv_s3_output_bucket} \n\
-            OUTPUT_TYPE: {output_type}")
+            OUTPUT_TYPE: {output_type} \n \
+    TEXTRACT_API: {textract_api} \n\
+    META_DATA_TO_APPEND: {meta_data_to_append}")
+
     task_token = event['Token']
     try:
         if not csv_s3_output_prefix or not csv_s3_output_bucket:
@@ -65,62 +82,101 @@ def lambda_handler(event, _):
                     'Payload']['textract_result']:
             raise ValueError(
                 f"no 'TextractOutputJsonPath' in event['textract_result]")
+        manifest: tm.IDPManifest = tm.IDPManifestSchema().load(  #type: ignore
+            event['Payload']['manifest']
+        ) if 'manifest' in event['Payload'] else tm.IDPManifest()
+        meta_data_dict = create_meta_data_dict(manifest=manifest)
+        values_to_append: List[str] = [
+            meta_data_dict[meta_data_name_to_append]
+            for meta_data_name_to_append in meta_data_to_append_list
+            if meta_data_name_to_append in meta_data_dict
+        ]
+        logger.debug(f"value_to_append: {values_to_append}")
         # FIXME: hard coded result location
         s3_path = event['Payload']['textract_result']['TextractOutputJsonPath']
-        classification = ""
-        if 'classification' in event['Payload'] and event['Payload'][
-                'classification'] and 'documentType' in event['Payload'][
-                    'classification']:
-            classification = event['Payload']['classification']['documentType']
-
         base_filename = os.path.basename(s3_path)
         base_filename_no_suffix, _ = os.path.splitext(base_filename)
         file_json = get_file_from_s3(s3_path=s3_path).decode('utf-8')
-        trp2_doc: t2.TDocument = t2.TDocumentSchema().load(
-            json.loads(file_json))  #type: ignore
-        timestamp = datetime.datetime.now().astimezone().replace(
-            microsecond=0).isoformat()
+
         result_value = ""
-        if output_type == 'CSV':
-            key_value_list = convert_form_to_list_trp2(
-                trp2_doc=trp2_doc)  #type: ignore
-            queries_value_list = convert_queries_to_list_trp2(
-                trp2_doc=trp2_doc)  #type: ignore
-            csv_output = io.StringIO()
-            csv_writer = csv.writer(csv_output,
-                                    delimiter=",",
-                                    quotechar='"',
-                                    quoting=csv.QUOTE_MINIMAL)
-            for page in key_value_list:
-                csv_writer.writerows(
-                    [[timestamp, classification, base_filename] + x
-                     for x in page])
-            for page in queries_value_list:
-                csv_writer.writerows(
-                    [[timestamp, classification, base_filename] + x
-                     for x in page])
-            csv_s3_output_key = f"{csv_s3_output_prefix}/{timestamp}/{base_filename_no_suffix}.csv"
-            result_value = csv_output.getvalue()
-        elif output_type == 'LINES':
-            csv_s3_output_key = f"{csv_s3_output_prefix}/{timestamp}/{base_filename_no_suffix}.txt"
-            for page in trp2_doc.pages:
-                result_value += t2.TDocument.get_text_for_tblocks(
-                    trp2_doc.lines(page=page))
-            logger.debug(f"got {len(result_value)}")
+        if textract_api == 'GENERIC':
+            classification = ""
+            if 'classification' in event['Payload'] and event['Payload'][
+                    'classification'] and 'documentType' in event['Payload'][
+                        'classification']:
+                classification = event['Payload']['classification'][
+                    'documentType']
+
+            trp2_doc: t2.TDocument = t2.TDocumentSchema().load(
+                json.loads(file_json))  #type: ignore
+            timestamp = datetime.datetime.now().astimezone().replace(
+                microsecond=0).isoformat()
+            if output_type == 'CSV':
+                key_value_list = convert_form_to_list_trp2(trp2_doc=trp2_doc)
+                queries_value_list = convert_queries_to_list_trp2(
+                    trp2_doc=trp2_doc)  #type: ignore
+                csv_output = io.StringIO()
+                csv_writer = csv.writer(csv_output,
+                                        delimiter=",",
+                                        quotechar='"',
+                                        quoting=csv.QUOTE_MINIMAL)
+                for page in key_value_list:
+                    csv_writer.writerows(
+                        [[timestamp, classification, base_filename] + x +
+                         values_to_append for x in page])
+                for page in queries_value_list:
+                    csv_writer.writerows(
+                        [[timestamp, classification, base_filename] + x +
+                         values_to_append for x in page])
+                s3_output_key = f"{csv_s3_output_prefix}/{timestamp}/{base_filename_no_suffix}.csv"
+                result_value = csv_output.getvalue()
+            elif output_type == 'LINES':
+                s3_output_key = f"{csv_s3_output_prefix}/{timestamp}/{base_filename_no_suffix}.txt"
+                for page in trp2_doc.pages:
+                    result_value += t2.TDocument.get_text_for_tblocks(
+                        trp2_doc.lines(page=page))
+                logger.debug(f"got {len(result_value)}")
+            else:
+                raise ValueError(f"output_type '{output_type}' not supported.")
+        elif textract_api == 'LENDING':
+            trp2_lending_doc: tl.TFullLendingDocument = tl.TFullLendingDocumentSchema(
+            ).load(json.loads(file_json))  #type: ignore
+            timestamp = datetime.datetime.now().astimezone().replace(
+                microsecond=0).isoformat()
+            result_value = ""
+            if output_type == 'CSV':
+                lending_array = convert_lending_from_trp2(trp2_lending_doc)
+                if values_to_append:
+                    [x.extend(values_to_append) for x in lending_array]
+                csv_output = io.StringIO()
+                csv_writer = csv.writer(csv_output,
+                                        delimiter=",",
+                                        quotechar='"',
+                                        quoting=csv.QUOTE_MINIMAL)
+                csv_writer.writerows(lending_array)
+                s3_output_key = f"{csv_s3_output_prefix}/{timestamp}/{base_filename_no_suffix}.csv"
+                result_value = csv_output.getvalue()
+            elif output_type == 'LINES':
+                raise Exception(
+                    "LINES is not supported with LENDING at the moment.")
+            else:
+                raise ValueError(f"output_type '{output_type}' not supported.")
+        elif textract_api == 'ANALYZEID':
+            raise Exception("ANALYZEID not implemented yet")
         else:
-            raise ValueError(f"output_type '${output_type}' not supported: ")
+            raise Exception("textract_api value unknown")
 
         s3_client.put_object(Body=bytes(result_value.encode('UTF-8')),
                              Bucket=csv_s3_output_bucket,
-                             Key=csv_s3_output_key)
+                             Key=s3_output_key)
         logger.debug(
-            f"TextractOutputCSVPath: s3://{csv_s3_output_bucket}/{csv_s3_output_key}"
+            f"TextractOutputCSVPath: s3://{csv_s3_output_bucket}/{s3_output_key}"
         )
         step_functions_client.send_task_success(
             taskToken=task_token,
             output=json.dumps({
                 "TextractOutputCSVPath":
-                f"s3://{csv_s3_output_bucket}/{csv_s3_output_key}"
+                f"s3://{csv_s3_output_bucket}/{s3_output_key}"
             }))
     except Exception as e:
         logger.error(e, exc_info=True)

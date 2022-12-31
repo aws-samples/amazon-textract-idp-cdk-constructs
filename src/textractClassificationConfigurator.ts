@@ -13,6 +13,7 @@ export interface TextractClassificationConfiguratorProps {
   readonly lambdaMemoryMB?:number;
   readonly lambdaTimeout?:number;
   readonly lambdaLogLevel?:string;
+  readonly configurationTable?:dynamodb.ITable;
 }
 
 /**
@@ -42,29 +43,34 @@ export class TextractClassificationConfigurator extends sfn.StateMachineFragment
   public readonly endStates: sfn.INextable[];
   public configuratorFunction:lambda.IFunction;
   public configuratorFunctionLogGroupName:string;
+  public configurationTable:dynamodb.ITable;
   public configurationTableName:string;
 
   constructor(parent: Construct, id: string, props: TextractClassificationConfiguratorProps) {
     super(parent, id);
 
-    const configurationTable = new dynamodb.Table(this, 'TextractConfigurationTable', {
-      partitionKey: {
-        name: 'DOCUMENT_TYPE',
-        type: dynamodb.AttributeType.STRING,
-      },
-      removalPolicy: RemovalPolicy.DESTROY,
-      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-    });
-    this.configurationTableName=configurationTable.tableName;
-
-    const textractDocTypeConfig = new TextractConfiguration(this, 'DocTypeConfig', {
-      configuration_table: configurationTable.tableName,
-    });
-    textractDocTypeConfig.node.addDependency(configurationTable);
-
     var lambdaMemoryMB= props.lambdaMemoryMB === undefined ? 1024 : props.lambdaMemoryMB;
     var lambdaTimeout= props.lambdaTimeout === undefined ? 900 : props.lambdaTimeout;
     var lambdaLogLevel= props.lambdaLogLevel === undefined ? 'DEBUG' : props.lambdaLogLevel;
+
+    if (props.configurationTable === undefined) {
+      this.configurationTable = new dynamodb.Table(this, 'TextractConfigurationTable', {
+        partitionKey: {
+          name: 'DOCUMENT_TYPE',
+          type: dynamodb.AttributeType.STRING,
+        },
+        removalPolicy: RemovalPolicy.DESTROY,
+        billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      });
+      this.configurationTableName=this.configurationTable.tableName;
+      const configurationInitFunction = new TextractConfiguration(this, 'DocTypeConfig', {
+        configuration_table: this.configurationTable.tableName,
+      });
+      configurationInitFunction.node.addDependency(this.configurationTable);
+    } else {
+      this.configurationTable=props.configurationTable;
+      this.configurationTableName=props.configurationTable.tableName;
+    }
 
     this.configuratorFunction = new lambda.DockerImageFunction(this, 'ClassificationConfigurator', {
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/configurator/')),
@@ -72,13 +78,13 @@ export class TextractClassificationConfigurator extends sfn.StateMachineFragment
       architecture: lambda.Architecture.X86_64,
       timeout: Duration.seconds(lambdaTimeout),
       environment: {
-        CONFIGURATION_TABLE: configurationTable.tableName,
+        CONFIGURATION_TABLE: this.configurationTable.tableName,
         LOG_LEVEL: lambdaLogLevel,
       },
     });
     this.configuratorFunction.addToRolePolicy(new iam.PolicyStatement({
       actions: ['dynamodb:PutItem', 'dynamodb:GetItem'],
-      resources: [configurationTable.tableArn],
+      resources: [this.configurationTable.tableArn],
     }));
     this.configuratorFunctionLogGroupName=(<lambda.Function> this.configuratorFunction).logGroup.logGroupName;
 

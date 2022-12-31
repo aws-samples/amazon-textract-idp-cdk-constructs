@@ -21,6 +21,8 @@ Resources:
           CSV_S3_OUTPUT_PREFIX: textract-csv-output
           CSV_S3_OUTPUT_BUCKET: idp-stack-python-sample-schademcdkidpstackpython-gnw5reia5742
           LOG_LEVEL: DEBUG
+          META_DATA_TO_APPEND: DOCUMENT_ID,SOME_KEY
+          TEXTRACT_API: LENDING
     Metadata:
       Dockerfile: Dockerfile
       DockerContext: .
