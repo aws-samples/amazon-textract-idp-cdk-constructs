@@ -1,3 +1,3 @@
 filetype
-PyPDF2
+pypdf[full]
 Pillow
