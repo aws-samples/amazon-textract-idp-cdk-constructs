@@ -7,7 +7,7 @@ import os
 import boto3
 import filetype
 from typing import Tuple, Optional
-from PyPDF2 import PdfReader
+from PyPDF2 import PdfFileReader
 from PIL import Image, ImageSequence
 import io
 import json
@@ -60,7 +60,7 @@ def parse_manifest(s3_path: str) -> tm.IDPManifest:
 def get_number_of_pages(file_bytes: bytes, mime: str) -> int:
     if mime == 'application/pdf':
         with io.BytesIO(file_bytes) as input_pdf_file:
-            pdf_reader = PdfReader(input_pdf_file)
+            pdf_reader = PdfFileReader(input_pdf_file)
             return pdf_reader.numPages
     elif mime == 'image/tiff':
         num_pages = 0
