@@ -3069,6 +3069,7 @@ Any object.
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractClassificationConfigurator.property.endStates">endStates</a></code> | <code>aws-cdk-lib.aws_stepfunctions.INextable[]</code> | The states to chain onto if this fragment is used. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractClassificationConfigurator.property.id">id</a></code> | <code>string</code> | Descriptive identifier for this chainable. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractClassificationConfigurator.property.startState">startState</a></code> | <code>aws-cdk-lib.aws_stepfunctions.State</code> | The start state of this state machine fragment. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractClassificationConfigurator.property.configurationTable">configurationTable</a></code> | <code>aws-cdk-lib.aws_dynamodb.ITable</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractClassificationConfigurator.property.configurationTableName">configurationTableName</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractClassificationConfigurator.property.configuratorFunction">configuratorFunction</a></code> | <code>aws-cdk-lib.aws_lambda.IFunction</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractClassificationConfigurator.property.configuratorFunctionLogGroupName">configuratorFunctionLogGroupName</a></code> | <code>string</code> | *No description.* |
@@ -3120,6 +3121,16 @@ public readonly startState: State;
 - *Type:* aws-cdk-lib.aws_stepfunctions.State
 
 The start state of this state machine fragment.
+
+---
+
+##### `configurationTable`<sup>Required</sup> <a name="configurationTable" id="amazon-textract-idp-cdk-constructs.TextractClassificationConfigurator.property.configurationTable"></a>
+
+```typescript
+public readonly configurationTable: ITable;
+```
+
+- *Type:* aws-cdk-lib.aws_dynamodb.ITable
 
 ---
 
@@ -4185,6 +4196,7 @@ Add a prefix to the stateId of all States found in a construct tree.
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.receiveStartSNSLambdaLogGroup">receiveStartSNSLambdaLogGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.startTextractLambdaLogGroup">startTextractLambdaLogGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.stateMachine">stateMachine</a></code> | <code>aws-cdk-lib.aws_stepfunctions.IStateMachine</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.taskTokenTable">taskTokenTable</a></code> | <code>aws-cdk-lib.aws_dynamodb.ITable</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.taskTokenTableName">taskTokenTableName</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.textractAsyncCallFunction">textractAsyncCallFunction</a></code> | <code>aws-cdk-lib.aws_lambda.IFunction</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.textractAsyncReceiveSNSFunction">textractAsyncReceiveSNSFunction</a></code> | <code>aws-cdk-lib.aws_lambda.IFunction</code> | *No description.* |
@@ -4285,6 +4297,16 @@ public readonly stateMachine: IStateMachine;
 ```
 
 - *Type:* aws-cdk-lib.aws_stepfunctions.IStateMachine
+
+---
+
+##### `taskTokenTable`<sup>Required</sup> <a name="taskTokenTable" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.taskTokenTable"></a>
+
+```typescript
+public readonly taskTokenTable: ITable;
+```
+
+- *Type:* aws-cdk-lib.aws_dynamodb.ITable
 
 ---
 
@@ -6481,6 +6503,7 @@ const textractAsyncToJSONProps: TextractAsyncToJSONProps = { ... }
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractAsyncToJSONProps.property.lambdaLogLevel">lambdaLogLevel</a></code> | <code>string</code> | log level for Lambda function, supports DEBUG\|INFO\|WARNING\|ERROR\|FATAL. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractAsyncToJSONProps.property.lambdaMemoryMB">lambdaMemoryMB</a></code> | <code>number</code> | memory of Lambda function (may need to increase for larger documents), set to 10240 (max) atm, decrease for smaller workloads. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractAsyncToJSONProps.property.lambdaTimeout">lambdaTimeout</a></code> | <code>number</code> | memory of Lambda function (may need to increase for larger documents). |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractAsyncToJSONProps.property.textractAPI">textractAPI</a></code> | <code>string</code> | Which Textract API was used to create the OutputConfig? |
 
 ---
 
@@ -6542,6 +6565,21 @@ memory of Lambda function (may need to increase for larger documents).
 
 ---
 
+##### `textractAPI`<sup>Optional</sup> <a name="textractAPI" id="amazon-textract-idp-cdk-constructs.TextractAsyncToJSONProps.property.textractAPI"></a>
+
+```typescript
+public readonly textractAPI: string;
+```
+
+- *Type:* string
+- *Default:* GENERIC
+
+Which Textract API was used to create the OutputConfig?
+
+GENERIC and LENDING are supported.
+
+---
+
 ### TextractClassificationConfiguratorProps <a name="TextractClassificationConfiguratorProps" id="amazon-textract-idp-cdk-constructs.TextractClassificationConfiguratorProps"></a>
 
 #### Initializer <a name="Initializer" id="amazon-textract-idp-cdk-constructs.TextractClassificationConfiguratorProps.Initializer"></a>
@@ -6556,9 +6594,20 @@ const textractClassificationConfiguratorProps: TextractClassificationConfigurato
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractClassificationConfiguratorProps.property.configurationTable">configurationTable</a></code> | <code>aws-cdk-lib.aws_dynamodb.ITable</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractClassificationConfiguratorProps.property.lambdaLogLevel">lambdaLogLevel</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractClassificationConfiguratorProps.property.lambdaMemoryMB">lambdaMemoryMB</a></code> | <code>number</code> | memory of Lambda function (may need to increase for larger documents). |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractClassificationConfiguratorProps.property.lambdaTimeout">lambdaTimeout</a></code> | <code>number</code> | *No description.* |
+
+---
+
+##### `configurationTable`<sup>Optional</sup> <a name="configurationTable" id="amazon-textract-idp-cdk-constructs.TextractClassificationConfiguratorProps.property.configurationTable"></a>
+
+```typescript
+public readonly configurationTable: ITable;
+```
+
+- *Type:* aws-cdk-lib.aws_dynamodb.ITable
 
 ---
 
@@ -6664,8 +6713,10 @@ const textractGenerateCSVProps: TextractGenerateCSVProps = { ... }
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.lambdaLogLevel">lambdaLogLevel</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.lambdaMemoryMB">lambdaMemoryMB</a></code> | <code>number</code> | memory of Lambda function (may need to increase for larger documents). |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.lambdaTimeout">lambdaTimeout</a></code> | <code>number</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.metaDataToAppend">metaDataToAppend</a></code> | <code>string[]</code> | The generated CSV can have any meta-data from the manifest file included. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.name">name</a></code> | <code>string</code> | The name of the execution, same as that of StartExecution. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.outputType">outputType</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.textractAPI">textractAPI</a></code> | <code>string</code> | Which Textract API output should be converted to a CSV? |
 
 ---
 
@@ -6877,6 +6928,22 @@ public readonly lambdaTimeout: number;
 
 ---
 
+##### `metaDataToAppend`<sup>Optional</sup> <a name="metaDataToAppend" id="amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.metaDataToAppend"></a>
+
+```typescript
+public readonly metaDataToAppend: string[];
+```
+
+- *Type:* string[]
+
+The generated CSV can have any meta-data from the manifest file included.
+
+This is a list of all meta-data names to include
+If they are missed they will be ""
+MetaData keys have to be without ','
+
+---
+
 ##### `name`<sup>Optional</sup> <a name="name" id="amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.name"></a>
 
 ```typescript
@@ -6899,6 +6966,21 @@ public readonly outputType: string;
 ```
 
 - *Type:* string
+
+---
+
+##### `textractAPI`<sup>Optional</sup> <a name="textractAPI" id="amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.textractAPI"></a>
+
+```typescript
+public readonly textractAPI: string;
+```
+
+- *Type:* string
+- *Default:* GENERIC
+
+Which Textract API output should be converted to a CSV?
+
+GENERIC and AnalyzeID and LENDING are supported.
 
 ---
 
@@ -6931,7 +7013,9 @@ const textractGenericAsyncSfnTaskProps: TextractGenericAsyncSfnTaskProps = { ...
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.input">input</a></code> | <code>aws-cdk-lib.aws_stepfunctions.TaskInput</code> | The JSON input for the execution, same as that of StartExecution. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.lambdaLogLevel">lambdaLogLevel</a></code> | <code>string</code> | log level for Lambda function, supports DEBUG\|INFO\|WARNING\|ERROR\|FATAL. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.name">name</a></code> | <code>string</code> | The name of the execution, same as that of StartExecution. |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.textractAPI">textractAPI</a></code> | <code>string</code> | Which Textract API to call GENERIC and EXPENSE are supported. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.snsRoleTextract">snsRoleTextract</a></code> | <code>aws-cdk-lib.aws_iam.IRole</code> | IAM Role to assign to Textract, by default new iam.Role(this, 'TextractAsyncSNSRole', { assumedBy: new iam.ServicePrincipal('textract.amazonaws.com'), managedPolicies: [ManagedPolicy.fromAwsManagedPolicyName('AmazonSQSFullAccess'),   ManagedPolicy.fromAwsManagedPolicyName('AmazonSNSFullAccess'),   ManagedPolicy.fromAwsManagedPolicyName('AmazonS3ReadOnlyAccess'),   ManagedPolicy.fromAwsManagedPolicyName('AmazonTextractFullAccess')], }); |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.taskTokenTable">taskTokenTable</a></code> | <code>aws-cdk-lib.aws_dynamodb.ITable</code> | task token table to use for mapping of Textract [JobTag](https://docs.aws.amazon.com/textract/latest/dg/API_StartDocumentTextDetection.html#Textract-StartDocumentTextDetection-request-JobTag) to the [TaskToken](https://docs.aws.amazon.com/step-functions/latest/dg/connect-to-resource.html). |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.textractAPI">textractAPI</a></code> | <code>string</code> | Which Textract API to call GENERIC and EXPENSE and LENDING are supported. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.textractAsyncCallBackoffRate">textractAsyncCallBackoffRate</a></code> | <code>number</code> | retyr backoff rate. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.textractAsyncCallInterval">textractAsyncCallInterval</a></code> | <code>number</code> | time in seconds to wait before next retry. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.textractAsyncCallMaxRetries">textractAsyncCallMaxRetries</a></code> | <code>number</code> | number of retries in Step Function flow. |
@@ -7162,6 +7246,30 @@ The name of the execution, same as that of StartExecution.
 
 ---
 
+##### `snsRoleTextract`<sup>Optional</sup> <a name="snsRoleTextract" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.snsRoleTextract"></a>
+
+```typescript
+public readonly snsRoleTextract: IRole;
+```
+
+- *Type:* aws-cdk-lib.aws_iam.IRole
+
+IAM Role to assign to Textract, by default new iam.Role(this, 'TextractAsyncSNSRole', { assumedBy: new iam.ServicePrincipal('textract.amazonaws.com'), managedPolicies: [ManagedPolicy.fromAwsManagedPolicyName('AmazonSQSFullAccess'),   ManagedPolicy.fromAwsManagedPolicyName('AmazonSNSFullAccess'),   ManagedPolicy.fromAwsManagedPolicyName('AmazonS3ReadOnlyAccess'),   ManagedPolicy.fromAwsManagedPolicyName('AmazonTextractFullAccess')], });
+
+---
+
+##### `taskTokenTable`<sup>Optional</sup> <a name="taskTokenTable" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.taskTokenTable"></a>
+
+```typescript
+public readonly taskTokenTable: ITable;
+```
+
+- *Type:* aws-cdk-lib.aws_dynamodb.ITable
+
+task token table to use for mapping of Textract [JobTag](https://docs.aws.amazon.com/textract/latest/dg/API_StartDocumentTextDetection.html#Textract-StartDocumentTextDetection-request-JobTag) to the [TaskToken](https://docs.aws.amazon.com/step-functions/latest/dg/connect-to-resource.html).
+
+---
+
 ##### `textractAPI`<sup>Optional</sup> <a name="textractAPI" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.textractAPI"></a>
 
 ```typescript
@@ -7171,7 +7279,7 @@ public readonly textractAPI: string;
 - *Type:* string
 - *Default:* GENERIC
 
-Which Textract API to call GENERIC and EXPENSE are supported.
+Which Textract API to call GENERIC and EXPENSE and LENDING are supported.
 
 For GENERIC, when called without features (e. g. FORMS, TABLES, QUERIES), StartDetectText is called.
 For GENERIC, when called with a feature (e. g. FORMS, TABLES, QUERIES),  StartAnalyzeDocument is called.

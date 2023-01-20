@@ -9,6 +9,10 @@ import { Construct } from 'constructs';
 
 export interface TextractConfigurationProps {
   readonly configuration_table:string;
+  /** Function used to initialize the DynamoDB table for the Classification Configuration
+   *  The Function has to implement CloudFormation Custom Resource https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-custom-resources-lambda.html
+  */
+  readonly configurationInitFunction?: lambda.IFunction;
 }
 
 /**
@@ -23,31 +27,35 @@ export interface TextractConfigurationProps {
  *
  */
 export class TextractConfiguration extends Construct {
-  private configurationInit:lambda.IFunction;
+  public configurationInitFunction:lambda.IFunction;
   public response:string;
 
   constructor(scope: Construct, id: string, props: TextractConfigurationProps) {
     super(scope, id);
 
-    this.configurationInit = new lambda.DockerImageFunction(this, id, {
-      code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/cfn_custom_configurator_prefill/')),
-      architecture: lambda.Architecture.X86_64,
-      memorySize: 128,
-      timeout: cdk.Duration.seconds(600),
-      environment: {
-        LOG_LEVEL: 'DEBUG',
-        CONFIGURATION_TABLE: props.configuration_table,
-      },
-    });
+    if (props.configurationInitFunction === undefined) {
+      this.configurationInitFunction = new lambda.DockerImageFunction(this, id, {
+        code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/cfn_custom_configurator_prefill/')),
+        architecture: lambda.Architecture.X86_64,
+        memorySize: 128,
+        timeout: cdk.Duration.seconds(600),
+        environment: {
+          LOG_LEVEL: 'DEBUG',
+          CONFIGURATION_TABLE: props.configuration_table,
+        },
+      });
+    } else {
+      this.configurationInitFunction = props.configurationInitFunction;
+    }
 
-    this.configurationInit.addToRolePolicy(
+    this.configurationInitFunction.addToRolePolicy(
       new iam.PolicyStatement({
         actions: ['dynamodb:PutItem', 'dynamodb:GetItem'],
         resources: ['*'],
       }));
 
     const provider = new customResources.Provider(this, 'Provider', {
-      onEventHandler: this.configurationInit,
+      onEventHandler: this.configurationInitFunction,
     });
 
     const resource = new cdk.CustomResource(this, 'Resource', {

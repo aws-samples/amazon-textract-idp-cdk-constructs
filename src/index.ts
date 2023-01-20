@@ -56,12 +56,12 @@ export interface TextractGenericAsyncSfnTaskProps extends sfn.TaskStateBaseProps
   /** The prefix to use for the temporary output files (e. g. output from async process before stiching together) */
   readonly s3TempOutputPrefix : string;
   /** Which Textract API to call
-   * GENERIC and EXPENSE are supported.
+   * GENERIC and EXPENSE and LENDING are supported.
    *
    * For GENERIC, when called without features (e. g. FORMS, TABLES, QUERIES), StartDetectText is called.
    * For GENERIC, when called with a feature (e. g. FORMS, TABLES, QUERIES),  StartAnalyzeDocument is called.
    * @default - GENERIC */
-  readonly textractAPI?: 'GENERIC' | 'EXPENSE';
+  readonly textractAPI?: 'GENERIC' | 'EXPENSE' | 'LENDING';
   /** number of retries in Step Function flow
    * @default is 100 */
   readonly textractAsyncCallMaxRetries?: number;
@@ -82,6 +82,20 @@ export interface TextractGenericAsyncSfnTaskProps extends sfn.TaskStateBaseProps
    * @default - false
    */
   readonly enableCloudWatchMetricsAndDashboard? : boolean;
+  /** task token table to use for mapping of Textract [JobTag](https://docs.aws.amazon.com/textract/latest/dg/API_StartDocumentTextDetection.html#Textract-StartDocumentTextDetection-request-JobTag)
+   * to the [TaskToken](https://docs.aws.amazon.com/step-functions/latest/dg/connect-to-resource.html)
+  */
+  readonly taskTokenTable?: dynamodb.ITable;
+  /** IAM Role to assign to Textract, by default
+  *  new iam.Role(this, 'TextractAsyncSNSRole', {
+      assumedBy: new iam.ServicePrincipal('textract.amazonaws.com'),
+      managedPolicies: [ManagedPolicy.fromAwsManagedPolicyName('AmazonSQSFullAccess'),
+        ManagedPolicy.fromAwsManagedPolicyName('AmazonSNSFullAccess'),
+        ManagedPolicy.fromAwsManagedPolicyName('AmazonS3ReadOnlyAccess'),
+        ManagedPolicy.fromAwsManagedPolicyName('AmazonTextractFullAccess')],
+    });*/
+  readonly snsRoleTextract?: iam.IRole;
+
   /**
        * The JSON input for the execution, same as that of StartExecution.
        *
@@ -172,6 +186,7 @@ export class TextractGenericAsyncSfnTask extends sfn.TaskStateBase {
   public stateMachine : sfn.IStateMachine;
   public startTextractLambdaLogGroup:ILogGroup;
   public receiveStartSNSLambdaLogGroup:ILogGroup;
+  public taskTokenTable:dynamodb.ITable;
   public taskTokenTableName:string;
   public textractAsyncSNSRole:IRole;
   public textractAsyncSNS:sns.ITopic;
@@ -185,6 +200,10 @@ export class TextractGenericAsyncSfnTask extends sfn.TaskStateBase {
 
 
   constructor(scope : Construct, id : string, private readonly props : TextractGenericAsyncSfnTaskProps) {
+    /**resources
+     * DynamoDB table
+     * textractAsyncSNSRole
+     */
     super(scope, id, props);
 
     this.integrationPattern = props.integrationPattern || sfn.IntegrationPattern.REQUEST_RESPONSE;
@@ -207,24 +226,35 @@ export class TextractGenericAsyncSfnTask extends sfn.TaskStateBase {
     var enableCloudWatchMetricsAndDashboard = props.enableCloudWatchMetricsAndDashboard === undefined ? false :
       props.enableCloudWatchMetricsAndDashboard;
 
-    const taskTokenTable = new dynamodb.Table(this, 'TextractTaskTokenTable', {
-      partitionKey: {
-        name: 'ID',
-        type: dynamodb.AttributeType.STRING,
-      },
-      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      removalPolicy: RemovalPolicy.DESTROY,
-      timeToLiveAttribute: 'ttltimestamp',
-    });
-    this.taskTokenTableName = taskTokenTable.tableName;
+    /** RESOURCE DYNAMODB TABLE for TASK TOKEN */
+    if (props.taskTokenTable === undefined) {
+      this.taskTokenTable = new dynamodb.Table(this, 'TextractTaskTokenTable', {
+        partitionKey: {
+          name: 'ID',
+          type: dynamodb.AttributeType.STRING,
+        },
+        billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+        removalPolicy: RemovalPolicy.DESTROY,
+        timeToLiveAttribute: 'ttltimestamp',
+      });
+    } else {
+      this.taskTokenTable = props.taskTokenTable;
+    }
+    this.taskTokenTableName = this.taskTokenTable.tableName;
 
-    this.textractAsyncSNSRole = new iam.Role(this, 'TextractAsyncSNSRole', {
-      assumedBy: new iam.ServicePrincipal('textract.amazonaws.com'),
-      managedPolicies: [ManagedPolicy.fromAwsManagedPolicyName('AmazonSQSFullAccess'),
-        ManagedPolicy.fromAwsManagedPolicyName('AmazonSNSFullAccess'),
-        ManagedPolicy.fromAwsManagedPolicyName('AmazonS3ReadOnlyAccess'),
-        ManagedPolicy.fromAwsManagedPolicyName('AmazonTextractFullAccess')],
-    });
+    /** RESOURCE: SNS Role for Textract to use*/
+    if (props.snsRoleTextract === undefined) {
+      this.textractAsyncSNSRole = new iam.Role(this, 'TextractAsyncSNSRole', {
+        assumedBy: new iam.ServicePrincipal('textract.amazonaws.com'),
+        managedPolicies: [ManagedPolicy.fromAwsManagedPolicyName('AmazonSQSFullAccess'),
+          ManagedPolicy.fromAwsManagedPolicyName('AmazonSNSFullAccess'),
+          ManagedPolicy.fromAwsManagedPolicyName('AmazonS3ReadOnlyAccess'),
+          ManagedPolicy.fromAwsManagedPolicyName('AmazonTextractFullAccess')],
+      });
+    } else {
+      this.textractAsyncSNSRole = props.snsRoleTextract;
+
+    }
 
     this.textractAsyncSNS = new sns.Topic(this, 'TextractAsyncSNS');
     this.textractAsyncCallFunction = new lambda.DockerImageFunction(this, 'TextractAsyncCall', {
@@ -268,7 +298,7 @@ export class TextractGenericAsyncSfnTask extends sfn.TaskStateBase {
       }/*`, '*'],
     }));
     this.textractAsyncCallFunction.addToRolePolicy(new iam.PolicyStatement({ actions: ['sns:*'], resources: [this.textractAsyncSNS.topicArn] }));
-    this.textractAsyncCallFunction.addToRolePolicy(new iam.PolicyStatement({ actions: ['dynamodb:PutItem', 'dynamodb:GetItem'], resources: [taskTokenTable.tableArn] }));
+    this.textractAsyncCallFunction.addToRolePolicy(new iam.PolicyStatement({ actions: ['dynamodb:PutItem', 'dynamodb:GetItem'], resources: [this.taskTokenTable.tableArn] }));
     this.startTextractLambdaLogGroup=(<lambda.Function> this.textractAsyncCallFunction).logGroup;
 
     this.textractAsyncReceiveSNSFunction = new lambda.DockerImageFunction(this, 'TextractAsyncSNSFunction', {

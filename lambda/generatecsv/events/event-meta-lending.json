@@ -1,0 +1,20 @@
+{
+    "Token": "AQCQAAAAKgAAAAMAAAAAAAAAAdneV23bj2R21/LWiG+zCa3j3rBLNgIDWJNn5KA4AKRaQcrmFdts9pmNM5zbEF8jCd57UFLQUb7YRVBitULL9FnKNMehsa0hD9j0iL2HD8OOW7lw96zBewW+YmwSjIRhZB5NBUA8v4i22Q6YfuX/K+gT1k5MibBaH248ITFyqCb3aehQDStMdqI+lGs+Wk1B2SZCnrsB1Bzx8GmzIAPJJRw/TWp4E5lriT5sc26sodvERpSrhSWx0fbompLJKc9F1waCn0Wyus7ZJKiFkjaJKCR688FFiL69/3dATcKRecWbzJhfIsGzSWVe+PQEfQ6BtfSCqOsYDDSA5pryTH52qn7ZrI2F4CUxVkwFQ+2YqFbu2Nxp9zryyxmb4GaGyne5LsA1g8JNVk5bMZBeuuqW2bc9UIawVTgPKtJjIZnsq89jZiGyTOvuSItts6yIXmPbh6sLp7QK3AGFxxPIYtAGtHQwZPXacz+gD3OAUPit5RspT9HpUonbS+Rf5IWdZMWwrp2NOgQN6aBZfhazWYJHQcWRHp287DOJARHSQ6yoqS2GkxgiQbyTTrU0hXs/+H7t9n9F+lF0qKgCdNhukBwBzw/h3ig9H40t53AlKyJNy0rQlpwIf2x8bQpj1w2EyDOsT5VzeTGwxHycij5I",
+    "Payload": {
+        "manifest": {
+            "s3Path": "s3://lendingworkflow-textractsimplesyncworkflow5c83a6b-1ieddf0hrnpxc/uploads/lending_console_demo_with_contacts copy.pdf",
+            "metaData": [{
+                "value": "lending_console_demo_with_contacts copy",
+                "key": "DOCUMENT_ID"
+            }]
+        },
+        "mime": "application/pdf",
+        "classification": null,
+        "numberOfPages": 8,
+        "textract_result": {
+            "TextractTempOutputJsonPath": "s3://lendingworkflow-textractsimplesyncworkflow5c83a6b-1ieddf0hrnpxc/textract-temp-output/4e6e18bd643f23acfc771dba396121079be19dbc357ad2741159ae4143a1e025",
+            "TextractOutputJsonPath": "s3://lendingworkflow-textractsimplesyncworkflow5c83a6b-1ieddf0hrnpxc/textract-output/lending_console_demo_with_contacts copy2022-12-30T21:57:56.591963/lending_console_demo_with_contacts copy.json"
+        }
+    },
+    "ExecutionId": "arn:aws:states:us-east-1:913165245630:execution:LendingWorkflow109AF6E5-Z3ztsLpGPLXA:lending_console_demo_with_contactscopypdf2022-12-30T215736388516"
+}

@@ -16,6 +16,11 @@ export interface TextractAsyncToJSONProps {
   readonly lambdaTimeout?: number;
   /** log level for Lambda function, supports DEBUG|INFO|WARNING|ERROR|FATAL */
   readonly lambdaLogLevel? : 'DEBUG'|'INFO'|'WARNING'|'ERROR'|'FATAL';
+  /** Which Textract API was used to create the OutputConfig?
+   * GENERIC and LENDING are supported.
+   *
+   * @default - GENERIC */
+  readonly textractAPI?: 'GENERIC' | 'LENDING';
 }
 
 /**
@@ -48,6 +53,7 @@ export class TextractAsyncToJSON extends sfn.StateMachineFragment {
     var lambdaLogLevel = props.lambdaLogLevel === undefined ? 'DEBUG' : props.lambdaLogLevel;
     var lambdaTimeout = props.lambdaTimeout === undefined ? 900 : props.lambdaTimeout;
     var lambdaMemoryMB = props.lambdaMemoryMB === undefined ? 10240 : props.lambdaMemoryMB;
+    var textractAPI = props.textractAPI === undefined ? 'GENERIC' : props.textractAPI;
 
     const asyncToJSONFunction = new lambda.DockerImageFunction(this, 'TextractAsyncToJSON', {
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/async_to_json/')),
@@ -57,6 +63,7 @@ export class TextractAsyncToJSON extends sfn.StateMachineFragment {
         S3_OUTPUT_BUCKET: props.s3OutputBucket,
         S3_OUTPUT_PREFIX: props.s3OutputPrefix,
         LOG_LEVEL: lambdaLogLevel,
+        TEXTRACT_API: textractAPI,
       },
       timeout: Duration.seconds(lambdaTimeout),
     });

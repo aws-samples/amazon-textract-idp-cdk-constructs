@@ -40,6 +40,16 @@ export interface TextractGenerateCSVProps extends sfn.TaskStateBaseProps{
   readonly outputType?:string;
   readonly lambdaTimeout?:number;
   readonly lambdaLogLevel?:string;
+  /** Which Textract API output should be converted to a CSV?
+   * GENERIC and AnalyzeID and LENDING are supported.
+   * @default - GENERIC */
+  readonly textractAPI?: 'GENERIC' | 'ANALYZEID' | 'LENDING';
+  /** The generated CSV can have any meta-data from the manifest file included.
+   * This is a list of all meta-data names to include
+   * If they are missed they will be ""
+   * MetaData keys have to be without ','
+   */
+  readonly metaDataToAppend?:Array<string>;
   /**
        * The JSON input for the execution, same as that of StartExecution.
        *
@@ -129,21 +139,13 @@ export class TextractGenerateCSV extends sfn.TaskStateBase {
     if (this.props.associateWithParent && props.input && props.input.type !== sfn.InputType.OBJECT) {
       throw new Error('Could not enable `associateWithParent` because `input` is taken directly from a JSON path. Use `sfn.TaskInput.fromObject` instead.');
     }
-    var lambdaMemoryMB = 1048;
-    if (typeof(props.lambdaMemoryMB!=0) && props.lambdaMemoryMB) {
-      lambdaMemoryMB=props.lambdaMemoryMB;
-    }
-
+    var lambdaLogLevel = props.lambdaLogLevel === undefined ? 'DEBUG' : props.lambdaLogLevel;
+    var lambdaTimeout = props.lambdaTimeout === undefined ? 300 : props.lambdaTimeout;
+    var lambdaMemoryMB = props.lambdaMemoryMB === undefined ? 1048 : props.lambdaMemoryMB;
+    var textractAPI = props.textractAPI === undefined ? 'GENERIC' : props.textractAPI;
     var outputType= props.outputType === undefined ? 'CSV' : props.outputType;
+    var metaDataToAppend= props.metaDataToAppend === undefined ? '' : props.metaDataToAppend;
 
-    var lambdaLogLevel = 'INFO';
-    if (typeof(props.lambdaLogLevel)!='undefined' && ! props.lambdaMemoryMB) {
-      lambdaLogLevel=props.lambdaLogLevel;
-    }
-    var lambdaTimeout = 900;
-    if (typeof(props.lambdaTimeout!=0) && props.lambdaTimeout) {
-      lambdaTimeout=props.lambdaTimeout;
-    }
     const csvGeneratorFunction = new lambda_.DockerImageFunction(this, 'TextractCSVGenerator', {
       code: lambda_.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/generatecsv/')),
       memorySize: lambdaMemoryMB,
@@ -154,6 +156,8 @@ export class TextractGenerateCSV extends sfn.TaskStateBase {
         CSV_S3_OUTPUT_PREFIX: props.csvS3OutputPrefix,
         LOG_LEVEL: lambdaLogLevel,
         OUTPUT_TYPE: outputType,
+        TEXTRACT_API: textractAPI,
+        META_DATA_TO_APPEND: metaDataToAppend?.toString(),
       },
     });
     csvGeneratorFunction.addToRolePolicy(new iam.PolicyStatement({ actions: ['s3:PutObject', 's3:Get*', 's3:List*'], resources: ['*'] }));

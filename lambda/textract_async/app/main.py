@@ -183,6 +183,15 @@ def lambda_handler(event, _):
                 return_job_id=True,
                 force_async_api=True,
             )
+        elif textract_api == 'LENDING':
+            response = tc.call_textract_lending(
+                input_document=s3_path,
+                boto3_textract_client=textract,
+                output_config=output_config,
+                notification_channel=nc,
+                job_tag=uuid_key,
+                return_job_id=True,
+            )
         else:
             raise ValueError(f"unsupported Textract API: {textract_api}")
 
