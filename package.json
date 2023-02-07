@@ -16,6 +16,7 @@
     "eslint": "npx projen eslint",
     "package": "npx projen package",
     "package-all": "npx projen package-all",
+    "package:java": "npx projen package:java",
     "package:js": "npx projen package:js",
     "package:python": "npx projen package:python",
     "post-compile": "npx projen post-compile",
@@ -118,6 +119,13 @@
   "jsii": {
     "outdir": "dist",
     "targets": {
+      "java": {
+        "package": "software.amazon.textract.idp",
+        "maven": {
+          "groupId": "software.amazon.textract.idp",
+          "artifactId": "idp-cdk-constructs"
+        }
+      },
       "python": {
         "distName": "amazon-textract-idp-cdk-constructs",
         "module": "amazon_textract_idp_cdk_constructs"

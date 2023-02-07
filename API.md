@@ -2852,6 +2852,7 @@ Any object.
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractAsyncToJSON.property.endStates">endStates</a></code> | <code>aws-cdk-lib.aws_stepfunctions.INextable[]</code> | The states to chain onto if this fragment is used. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractAsyncToJSON.property.id">id</a></code> | <code>string</code> | Descriptive identifier for this chainable. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractAsyncToJSON.property.startState">startState</a></code> | <code>aws-cdk-lib.aws_stepfunctions.State</code> | The start state of this state machine fragment. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractAsyncToJSON.property.asyncToJSONFunction">asyncToJSONFunction</a></code> | <code>aws-cdk-lib.aws_lambda.IFunction</code> | *No description.* |
 
 ---
 
@@ -2900,6 +2901,16 @@ public readonly startState: State;
 - *Type:* aws-cdk-lib.aws_stepfunctions.State
 
 The start state of this state machine fragment.
+
+---
+
+##### `asyncToJSONFunction`<sup>Required</sup> <a name="asyncToJSONFunction" id="amazon-textract-idp-cdk-constructs.TextractAsyncToJSON.property.asyncToJSONFunction"></a>
+
+```typescript
+public readonly asyncToJSONFunction: IFunction;
+```
+
+- *Type:* aws-cdk-lib.aws_lambda.IFunction
 
 ---
 
@@ -5188,6 +5199,7 @@ Any object.
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractPOCDecider.property.endStates">endStates</a></code> | <code>aws-cdk-lib.aws_stepfunctions.INextable[]</code> | The states to chain onto if this fragment is used. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractPOCDecider.property.id">id</a></code> | <code>string</code> | Descriptive identifier for this chainable. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractPOCDecider.property.startState">startState</a></code> | <code>aws-cdk-lib.aws_stepfunctions.State</code> | The start state of this state machine fragment. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractPOCDecider.property.deciderFunction">deciderFunction</a></code> | <code>aws-cdk-lib.aws_lambda.IFunction</code> | *No description.* |
 
 ---
 
@@ -5239,6 +5251,16 @@ The start state of this state machine fragment.
 
 ---
 
+##### `deciderFunction`<sup>Required</sup> <a name="deciderFunction" id="amazon-textract-idp-cdk-constructs.TextractPOCDecider.property.deciderFunction"></a>
+
+```typescript
+public readonly deciderFunction: IFunction;
+```
+
+- *Type:* aws-cdk-lib.aws_lambda.IFunction
+
+---
+
 
 ## Structs <a name="Structs" id="Structs"></a>
 
@@ -5271,7 +5293,7 @@ const comprehendGenericSyncSfnTaskProps: ComprehendGenericSyncSfnTaskProps = { .
 | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.lambdaMemory">lambdaMemory</a></code> | <code>number</code> | Memory allocated to Lambda function, default 512. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.lambdaTimeout">lambdaTimeout</a></code> | <code>number</code> | Lambda Function Timeout in seconds, default 300. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.name">name</a></code> | <code>string</code> | The name of the execution, same as that of StartExecution. |
-| <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.textractStateMachineTimeoutMinutes">textractStateMachineTimeoutMinutes</a></code> | <code>number</code> | how long can we wait for the process (default is 48 hours (60*48=2880)). |
+| <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.textractStateMachineTimeoutMinutes">textractStateMachineTimeoutMinutes</a></code> | <code>number</code> | how long can we wait for the process (default is 60 minutes). |
 | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.workflowTracingEnabled">workflowTracingEnabled</a></code> | <code>boolean</code> | *No description.* |
 
 ---
@@ -5499,7 +5521,7 @@ public readonly textractStateMachineTimeoutMinutes: number;
 
 - *Type:* number
 
-how long can we wait for the process (default is 48 hours (60*48=2880)).
+how long can we wait for the process (default is 60 minutes).
 
 ---
 
@@ -6498,11 +6520,15 @@ const textractAsyncToJSONProps: TextractAsyncToJSONProps = { ... }
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractAsyncToJSONProps.property.s3OutputBucket">s3OutputBucket</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractAsyncToJSONProps.property.s3OutputBucket">s3OutputBucket</a></code> | <code>string</code> | Bucketname to output data to. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractAsyncToJSONProps.property.s3OutputPrefix">s3OutputPrefix</a></code> | <code>string</code> | The prefix to use for the output files. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractAsyncToJSONProps.property.inputPolicyStatements">inputPolicyStatements</a></code> | <code>object</code> | List of PolicyStatements to attach to the Lambda function. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractAsyncToJSONProps.property.lambdaLogLevel">lambdaLogLevel</a></code> | <code>string</code> | log level for Lambda function, supports DEBUG\|INFO\|WARNING\|ERROR\|FATAL. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractAsyncToJSONProps.property.lambdaMemoryMB">lambdaMemoryMB</a></code> | <code>number</code> | memory of Lambda function (may need to increase for larger documents), set to 10240 (max) atm, decrease for smaller workloads. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractAsyncToJSONProps.property.lambdaTimeout">lambdaTimeout</a></code> | <code>number</code> | memory of Lambda function (may need to increase for larger documents). |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractAsyncToJSONProps.property.outputPolicyStatements">outputPolicyStatements</a></code> | <code>object</code> | List of PolicyStatements to attach to the Lambda function. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractAsyncToJSONProps.property.s3InputBucket">s3InputBucket</a></code> | <code>string</code> | location of input S3 objects - if left empty will generate rule for s3 access to all [*]. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractAsyncToJSONProps.property.s3InputPrefix">s3InputPrefix</a></code> | <code>string</code> | prefix for input S3 objects - if left empty will generate rule for s3 access to all in bucket. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractAsyncToJSONProps.property.textractAPI">textractAPI</a></code> | <code>string</code> | Which Textract API was used to create the OutputConfig? |
 
 ---
@@ -6515,6 +6541,8 @@ public readonly s3OutputBucket: string;
 
 - *Type:* string
 
+Bucketname to output data to.
+
 ---
 
 ##### `s3OutputPrefix`<sup>Required</sup> <a name="s3OutputPrefix" id="amazon-textract-idp-cdk-constructs.TextractAsyncToJSONProps.property.s3OutputPrefix"></a>
@@ -6526,6 +6554,18 @@ public readonly s3OutputPrefix: string;
 - *Type:* string
 
 The prefix to use for the output files.
+
+---
+
+##### `inputPolicyStatements`<sup>Optional</sup> <a name="inputPolicyStatements" id="amazon-textract-idp-cdk-constructs.TextractAsyncToJSONProps.property.inputPolicyStatements"></a>
+
+```typescript
+public readonly inputPolicyStatements: object;
+```
+
+- *Type:* object
+
+List of PolicyStatements to attach to the Lambda function.
 
 ---
 
@@ -6562,6 +6602,42 @@ public readonly lambdaTimeout: number;
 - *Type:* number
 
 memory of Lambda function (may need to increase for larger documents).
+
+---
+
+##### `outputPolicyStatements`<sup>Optional</sup> <a name="outputPolicyStatements" id="amazon-textract-idp-cdk-constructs.TextractAsyncToJSONProps.property.outputPolicyStatements"></a>
+
+```typescript
+public readonly outputPolicyStatements: object;
+```
+
+- *Type:* object
+
+List of PolicyStatements to attach to the Lambda function.
+
+---
+
+##### `s3InputBucket`<sup>Optional</sup> <a name="s3InputBucket" id="amazon-textract-idp-cdk-constructs.TextractAsyncToJSONProps.property.s3InputBucket"></a>
+
+```typescript
+public readonly s3InputBucket: string;
+```
+
+- *Type:* string
+
+location of input S3 objects - if left empty will generate rule for s3 access to all [*].
+
+---
+
+##### `s3InputPrefix`<sup>Optional</sup> <a name="s3InputPrefix" id="amazon-textract-idp-cdk-constructs.TextractAsyncToJSONProps.property.s3InputPrefix"></a>
+
+```typescript
+public readonly s3InputPrefix: string;
+```
+
+- *Type:* string
+
+prefix for input S3 objects - if left empty will generate rule for s3 access to all in bucket.
 
 ---
 
@@ -6657,8 +6733,34 @@ const textractDPPOCDeciderProps: TextractDPPOCDeciderProps = { ... }
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractDPPOCDeciderProps.property.deciderFunction">deciderFunction</a></code> | <code>aws-cdk-lib.aws_lambda.IFunction</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractDPPOCDeciderProps.property.inputPolicyStatements">inputPolicyStatements</a></code> | <code>object</code> | List of PolicyStatements to attach to the Lambda function for S3 GET and LIST. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractDPPOCDeciderProps.property.lambdaMemoryMB">lambdaMemoryMB</a></code> | <code>number</code> | memory of Lambda function (may need to increase for larger documents). |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractDPPOCDeciderProps.property.lambdaTimeout">lambdaTimeout</a></code> | <code>number</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractDPPOCDeciderProps.property.s3InputBucket">s3InputBucket</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractDPPOCDeciderProps.property.s3InputPrefix">s3InputPrefix</a></code> | <code>string</code> | prefix for the incoming document. |
+
+---
+
+##### `deciderFunction`<sup>Optional</sup> <a name="deciderFunction" id="amazon-textract-idp-cdk-constructs.TextractDPPOCDeciderProps.property.deciderFunction"></a>
+
+```typescript
+public readonly deciderFunction: IFunction;
+```
+
+- *Type:* aws-cdk-lib.aws_lambda.IFunction
+
+---
+
+##### `inputPolicyStatements`<sup>Optional</sup> <a name="inputPolicyStatements" id="amazon-textract-idp-cdk-constructs.TextractDPPOCDeciderProps.property.inputPolicyStatements"></a>
+
+```typescript
+public readonly inputPolicyStatements: object;
+```
+
+- *Type:* object
+
+List of PolicyStatements to attach to the Lambda function for S3 GET and LIST.
 
 ---
 
@@ -6681,6 +6783,30 @@ public readonly lambdaTimeout: number;
 ```
 
 - *Type:* number
+
+---
+
+##### `s3InputBucket`<sup>Optional</sup> <a name="s3InputBucket" id="amazon-textract-idp-cdk-constructs.TextractDPPOCDeciderProps.property.s3InputBucket"></a>
+
+```typescript
+public readonly s3InputBucket: string;
+```
+
+- *Type:* string
+
+---
+
+##### `s3InputPrefix`<sup>Optional</sup> <a name="s3InputPrefix" id="amazon-textract-idp-cdk-constructs.TextractDPPOCDeciderProps.property.s3InputPrefix"></a>
+
+```typescript
+public readonly s3InputPrefix: string;
+```
+
+- *Type:* string
+
+prefix for the incoming document.
+
+Will be used to create role
 
 ---
 
@@ -6710,13 +6836,17 @@ const textractGenerateCSVProps: TextractGenerateCSVProps = { ... }
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.csvS3OutputPrefix">csvS3OutputPrefix</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.associateWithParent">associateWithParent</a></code> | <code>boolean</code> | Pass the execution ID from the context object to the execution input. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.input">input</a></code> | <code>aws-cdk-lib.aws_stepfunctions.TaskInput</code> | The JSON input for the execution, same as that of StartExecution. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.inputPolicyStatements">inputPolicyStatements</a></code> | <code>object</code> | List of PolicyStatements to attach to the Lambda function. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.lambdaLogLevel">lambdaLogLevel</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.lambdaMemoryMB">lambdaMemoryMB</a></code> | <code>number</code> | memory of Lambda function (may need to increase for larger documents). |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.lambdaTimeout">lambdaTimeout</a></code> | <code>number</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.metaDataToAppend">metaDataToAppend</a></code> | <code>string[]</code> | The generated CSV can have any meta-data from the manifest file included. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.name">name</a></code> | <code>string</code> | The name of the execution, same as that of StartExecution. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.outputPolicyStatements">outputPolicyStatements</a></code> | <code>object</code> | List of PolicyStatements to attach to the Lambda function. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.outputType">outputType</a></code> | <code>string</code> | *No description.* |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.textractAPI">textractAPI</a></code> | <code>string</code> | Which Textract API output should be converted to a CSV? |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.s3InputBucket">s3InputBucket</a></code> | <code>string</code> | Bucketname and prefix to read document from /** location of input S3 objects - if left empty will generate rule for s3 access to all [*]. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.s3InputPrefix">s3InputPrefix</a></code> | <code>string</code> | prefix for input S3 objects - if left empty will generate rule for s3 access to all in bucket. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.textractAPI">textractAPI</a></code> | <code>string</code> | *No description.* |
 
 ---
 
@@ -6896,6 +7026,18 @@ The JSON input for the execution, same as that of StartExecution.
 
 ---
 
+##### `inputPolicyStatements`<sup>Optional</sup> <a name="inputPolicyStatements" id="amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.inputPolicyStatements"></a>
+
+```typescript
+public readonly inputPolicyStatements: object;
+```
+
+- *Type:* object
+
+List of PolicyStatements to attach to the Lambda function.
+
+---
+
 ##### `lambdaLogLevel`<sup>Optional</sup> <a name="lambdaLogLevel" id="amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.lambdaLogLevel"></a>
 
 ```typescript
@@ -6959,6 +7101,18 @@ The name of the execution, same as that of StartExecution.
 
 ---
 
+##### `outputPolicyStatements`<sup>Optional</sup> <a name="outputPolicyStatements" id="amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.outputPolicyStatements"></a>
+
+```typescript
+public readonly outputPolicyStatements: object;
+```
+
+- *Type:* object
+
+List of PolicyStatements to attach to the Lambda function.
+
+---
+
 ##### `outputType`<sup>Optional</sup> <a name="outputType" id="amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.outputType"></a>
 
 ```typescript
@@ -6969,6 +7123,30 @@ public readonly outputType: string;
 
 ---
 
+##### `s3InputBucket`<sup>Optional</sup> <a name="s3InputBucket" id="amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.s3InputBucket"></a>
+
+```typescript
+public readonly s3InputBucket: string;
+```
+
+- *Type:* string
+
+Bucketname and prefix to read document from /** location of input S3 objects - if left empty will generate rule for s3 access to all [*].
+
+---
+
+##### `s3InputPrefix`<sup>Optional</sup> <a name="s3InputPrefix" id="amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.s3InputPrefix"></a>
+
+```typescript
+public readonly s3InputPrefix: string;
+```
+
+- *Type:* string
+
+prefix for input S3 objects - if left empty will generate rule for s3 access to all in bucket.
+
+---
+
 ##### `textractAPI`<sup>Optional</sup> <a name="textractAPI" id="amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.textractAPI"></a>
 
 ```typescript
@@ -6976,11 +7154,6 @@ public readonly textractAPI: string;
 ```
 
 - *Type:* string
-- *Default:* GENERIC
-
-Which Textract API output should be converted to a CSV?
-
-GENERIC and AnalyzeID and LENDING are supported.
 
 ---
 
@@ -7009,13 +7182,17 @@ const textractGenericAsyncSfnTaskProps: TextractGenericAsyncSfnTaskProps = { ...
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.s3OutputBucket">s3OutputBucket</a></code> | <code>string</code> | Bucketname to output data to. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.s3TempOutputPrefix">s3TempOutputPrefix</a></code> | <code>string</code> | The prefix to use for the temporary output files (e. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.associateWithParent">associateWithParent</a></code> | <code>boolean</code> | Pass the execution ID from the context object to the execution input. |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.enableCloudWatchMetricsAndDashboard">enableCloudWatchMetricsAndDashboard</a></code> | <code>boolean</code> | enable CloudWatch Metrics and Dashboard. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.enableCloudWatchMetricsAndDashboard">enableCloudWatchMetricsAndDashboard</a></code> | <code>boolean</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.input">input</a></code> | <code>aws-cdk-lib.aws_stepfunctions.TaskInput</code> | The JSON input for the execution, same as that of StartExecution. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.inputPolicyStatements">inputPolicyStatements</a></code> | <code>object</code> | List of PolicyStatements to attach to the Lambda function. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.lambdaLogLevel">lambdaLogLevel</a></code> | <code>string</code> | log level for Lambda function, supports DEBUG\|INFO\|WARNING\|ERROR\|FATAL. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.name">name</a></code> | <code>string</code> | The name of the execution, same as that of StartExecution. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.outputPolicyStatements">outputPolicyStatements</a></code> | <code>object</code> | List of PolicyStatements to attach to the Lambda function. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.s3InputBucket">s3InputBucket</a></code> | <code>string</code> | Bucketname and prefix to read document from /** location of input S3 objects - if left empty will generate rule for s3 access to all [*]. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.s3InputPrefix">s3InputPrefix</a></code> | <code>string</code> | prefix for input S3 objects - if left empty will generate rule for s3 access to all in bucket. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.snsRoleTextract">snsRoleTextract</a></code> | <code>aws-cdk-lib.aws_iam.IRole</code> | IAM Role to assign to Textract, by default new iam.Role(this, 'TextractAsyncSNSRole', { assumedBy: new iam.ServicePrincipal('textract.amazonaws.com'), managedPolicies: [ManagedPolicy.fromAwsManagedPolicyName('AmazonSQSFullAccess'),   ManagedPolicy.fromAwsManagedPolicyName('AmazonSNSFullAccess'),   ManagedPolicy.fromAwsManagedPolicyName('AmazonS3ReadOnlyAccess'),   ManagedPolicy.fromAwsManagedPolicyName('AmazonTextractFullAccess')], }); |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.taskTokenTable">taskTokenTable</a></code> | <code>aws-cdk-lib.aws_dynamodb.ITable</code> | task token table to use for mapping of Textract [JobTag](https://docs.aws.amazon.com/textract/latest/dg/API_StartDocumentTextDetection.html#Textract-StartDocumentTextDetection-request-JobTag) to the [TaskToken](https://docs.aws.amazon.com/step-functions/latest/dg/connect-to-resource.html). |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.textractAPI">textractAPI</a></code> | <code>string</code> | Which Textract API to call GENERIC and EXPENSE and LENDING are supported. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.textractAPI">textractAPI</a></code> | <code>string</code> | Which Textract API to call ALL asynchronous Textract API calls are supported. Valid values are GENERIC \| EXPENSE \| LENDING. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.textractAsyncCallBackoffRate">textractAsyncCallBackoffRate</a></code> | <code>number</code> | retyr backoff rate. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.textractAsyncCallInterval">textractAsyncCallInterval</a></code> | <code>number</code> | time in seconds to wait before next retry. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.textractAsyncCallMaxRetries">textractAsyncCallMaxRetries</a></code> | <code>number</code> | number of retries in Step Function flow. |
@@ -7197,9 +7374,6 @@ public readonly enableCloudWatchMetricsAndDashboard: boolean;
 ```
 
 - *Type:* boolean
-- *Default:* false
-
-enable CloudWatch Metrics and Dashboard.
 
 ---
 
@@ -7215,6 +7389,18 @@ public readonly input: TaskInput;
 The JSON input for the execution, same as that of StartExecution.
 
 > [https://docs.aws.amazon.com/step-functions/latest/apireference/API_StartExecution.html](https://docs.aws.amazon.com/step-functions/latest/apireference/API_StartExecution.html)
+
+---
+
+##### `inputPolicyStatements`<sup>Optional</sup> <a name="inputPolicyStatements" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.inputPolicyStatements"></a>
+
+```typescript
+public readonly inputPolicyStatements: object;
+```
+
+- *Type:* object
+
+List of PolicyStatements to attach to the Lambda function.
 
 ---
 
@@ -7243,6 +7429,42 @@ public readonly name: string;
 The name of the execution, same as that of StartExecution.
 
 > [https://docs.aws.amazon.com/step-functions/latest/apireference/API_StartExecution.html](https://docs.aws.amazon.com/step-functions/latest/apireference/API_StartExecution.html)
+
+---
+
+##### `outputPolicyStatements`<sup>Optional</sup> <a name="outputPolicyStatements" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.outputPolicyStatements"></a>
+
+```typescript
+public readonly outputPolicyStatements: object;
+```
+
+- *Type:* object
+
+List of PolicyStatements to attach to the Lambda function.
+
+---
+
+##### `s3InputBucket`<sup>Optional</sup> <a name="s3InputBucket" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.s3InputBucket"></a>
+
+```typescript
+public readonly s3InputBucket: string;
+```
+
+- *Type:* string
+
+Bucketname and prefix to read document from /** location of input S3 objects - if left empty will generate rule for s3 access to all [*].
+
+---
+
+##### `s3InputPrefix`<sup>Optional</sup> <a name="s3InputPrefix" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.s3InputPrefix"></a>
+
+```typescript
+public readonly s3InputPrefix: string;
+```
+
+- *Type:* string
+
+prefix for input S3 objects - if left empty will generate rule for s3 access to all in bucket.
 
 ---
 
@@ -7279,10 +7501,10 @@ public readonly textractAPI: string;
 - *Type:* string
 - *Default:* GENERIC
 
-Which Textract API to call GENERIC and EXPENSE and LENDING are supported.
+Which Textract API to call ALL asynchronous Textract API calls are supported. Valid values are GENERIC | EXPENSE | LENDING.
 
-For GENERIC, when called without features (e. g. FORMS, TABLES, QUERIES), StartDetectText is called.
-For GENERIC, when called with a feature (e. g. FORMS, TABLES, QUERIES),  StartAnalyzeDocument is called.
+For GENERIC, when called without features (e. g. FORMS, TABLES, QUERIES, SIGNATURE), StartDetectText is called and only OCR is returned.
+For GENERIC, when called with a feature (e. g. FORMS, TABLES, QUERIES, SIGNATURE),  StartAnalyzeDocument is called.
 
 ---
 
@@ -7368,10 +7590,12 @@ const textractGenericSyncSfnTaskProps: TextractGenericSyncSfnTaskProps = { ... }
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.enableDashboard">enableDashboard</a></code> | <code>boolean</code> | not implemented yet. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.enableMonitoring">enableMonitoring</a></code> | <code>boolean</code> | not implemented yet. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.input">input</a></code> | <code>aws-cdk-lib.aws_stepfunctions.TaskInput</code> | The JSON input for the execution, same as that of StartExecution. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.inputPolicyStatements">inputPolicyStatements</a></code> | <code>object</code> | List of PolicyStatements to attach to the Lambda function. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.lambdaLogLevel">lambdaLogLevel</a></code> | <code>string</code> | Log level, can be DEBUG, INFO, WARNING, ERROR, FATAL. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.lambdaMemory">lambdaMemory</a></code> | <code>number</code> | Memory allocated to Lambda function, default 512. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.lambdaTimeout">lambdaTimeout</a></code> | <code>number</code> | Lambda Function Timeout in seconds, default 300. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.name">name</a></code> | <code>string</code> | The name of the execution, same as that of StartExecution. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.outputPolicyStatements">outputPolicyStatements</a></code> | <code>object</code> | List of PolicyStatements to attach to the Lambda function. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.s3InputBucket">s3InputBucket</a></code> | <code>string</code> | location of input S3 objects - if left empty will generate rule for s3 access to all [*]. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.s3InputPrefix">s3InputPrefix</a></code> | <code>string</code> | prefix for input S3 objects - if left empty will generate rule for s3 access to all [*]. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.textractAPI">textractAPI</a></code> | <code>string</code> | *No description.* |
@@ -7610,6 +7834,18 @@ The JSON input for the execution, same as that of StartExecution.
 
 ---
 
+##### `inputPolicyStatements`<sup>Optional</sup> <a name="inputPolicyStatements" id="amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.inputPolicyStatements"></a>
+
+```typescript
+public readonly inputPolicyStatements: object;
+```
+
+- *Type:* object
+
+List of PolicyStatements to attach to the Lambda function.
+
+---
+
 ##### `lambdaLogLevel`<sup>Optional</sup> <a name="lambdaLogLevel" id="amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.lambdaLogLevel"></a>
 
 ```typescript
@@ -7658,6 +7894,18 @@ public readonly name: string;
 The name of the execution, same as that of StartExecution.
 
 > [https://docs.aws.amazon.com/step-functions/latest/apireference/API_StartExecution.html](https://docs.aws.amazon.com/step-functions/latest/apireference/API_StartExecution.html)
+
+---
+
+##### `outputPolicyStatements`<sup>Optional</sup> <a name="outputPolicyStatements" id="amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.outputPolicyStatements"></a>
+
+```typescript
+public readonly outputPolicyStatements: object;
+```
+
+- *Type:* object
+
+List of PolicyStatements to attach to the Lambda function.
 
 ---
 

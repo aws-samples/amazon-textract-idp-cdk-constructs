@@ -55,11 +55,16 @@ export interface TextractGenericAsyncSfnTaskProps extends sfn.TaskStateBaseProps
   readonly s3OutputBucket : string;
   /** The prefix to use for the temporary output files (e. g. output from async process before stiching together) */
   readonly s3TempOutputPrefix : string;
+  /** Bucketname and prefix to read document from
+  /** location of input S3 objects - if left empty will generate rule for s3 access to all [*] */
+  readonly s3InputBucket?: string;
+  /** prefix for input S3 objects - if left empty will generate rule for s3 access to all in bucket */
+  readonly s3InputPrefix?: string;
   /** Which Textract API to call
-   * GENERIC and EXPENSE and LENDING are supported.
+   * ALL asynchronous Textract API calls are supported. Valid values are GENERIC | EXPENSE | LENDING.
    *
-   * For GENERIC, when called without features (e. g. FORMS, TABLES, QUERIES), StartDetectText is called.
-   * For GENERIC, when called with a feature (e. g. FORMS, TABLES, QUERIES),  StartAnalyzeDocument is called.
+   * For GENERIC, when called without features (e. g. FORMS, TABLES, QUERIES, SIGNATURE), StartDetectText is called and only OCR is returned.
+   * For GENERIC, when called with a feature (e. g. FORMS, TABLES, QUERIES, SIGNATURE),  StartAnalyzeDocument is called.
    * @default - GENERIC */
   readonly textractAPI?: 'GENERIC' | 'EXPENSE' | 'LENDING';
   /** number of retries in Step Function flow
@@ -81,6 +86,10 @@ export interface TextractGenericAsyncSfnTaskProps extends sfn.TaskStateBaseProps
   /** enable CloudWatch Metrics and Dashboard
    * @default - false
    */
+  /** List of PolicyStatements to attach to the Lambda function.  */
+  readonly inputPolicyStatements?: [iam.PolicyStatement];
+  /** List of PolicyStatements to attach to the Lambda function.  */
+  readonly outputPolicyStatements?: [iam.PolicyStatement];
   readonly enableCloudWatchMetricsAndDashboard? : boolean;
   /** task token table to use for mapping of Textract [JobTag](https://docs.aws.amazon.com/textract/latest/dg/API_StartDocumentTextDetection.html#Textract-StartDocumentTextDetection-request-JobTag)
    * to the [TaskToken](https://docs.aws.amazon.com/step-functions/latest/dg/connect-to-resource.html)
@@ -223,6 +232,10 @@ export class TextractGenericAsyncSfnTask extends sfn.TaskStateBase {
     var textractAsyncCallMaxRetries = props.textractAsyncCallMaxRetries === undefined ? 100 : props.textractAsyncCallMaxRetries;
     var textractAsyncCallBackoffRate = props.textractAsyncCallBackoffRate === undefined ? 1.1 : props.textractAsyncCallBackoffRate;
     var textractAsyncCallInterval = props.textractAsyncCallInterval === undefined ? 1 : props.textractAsyncCallInterval;
+    var s3TempOutputPrefix =
+      props.s3TempOutputPrefix === undefined ? '' : props.s3TempOutputPrefix;
+    var s3InputPrefix =
+      props.s3InputPrefix === undefined ? '' : props.s3InputPrefix;
     var enableCloudWatchMetricsAndDashboard = props.enableCloudWatchMetricsAndDashboard === undefined ? false :
       props.enableCloudWatchMetricsAndDashboard;
 
@@ -287,17 +300,66 @@ export class TextractGenericAsyncSfnTask extends sfn.TaskStateBase {
       ],
       resources: ['*'],
     }));
-    this.textractAsyncCallFunction.addToRolePolicy(new iam.PolicyStatement({
-      actions: [
-        's3:GetObject', 's3:ListBucket', 's3:PutObject',
-      ],
-      resources: [`arn:aws:s3:::${
-        props.s3OutputBucket
-      }`, `arn:aws:s3:::${
-        props.s3OutputBucket
-      }/*`, '*'],
-    }));
-    this.textractAsyncCallFunction.addToRolePolicy(new iam.PolicyStatement({ actions: ['sns:*'], resources: [this.textractAsyncSNS.topicArn] }));
+    /** ################ INPUT BUCKET POLICIES */
+    if (props.inputPolicyStatements === undefined) {
+      if (props.s3InputBucket === undefined) {
+        this.textractAsyncCallFunction.addToRolePolicy(
+          new iam.PolicyStatement({
+            actions: ['s3:GetObject', 's3:ListBucket'],
+            resources: ['*'],
+          }),
+        );
+      } else {
+        this.textractAsyncCallFunction.addToRolePolicy(
+          new iam.PolicyStatement({
+            actions: ['s3:GetObject'],
+            resources: [
+              path.join(`arn:aws:s3:::${props.s3InputBucket}`, '/*'),
+              path.join(`arn:aws:s3:::${props.s3InputBucket}`, s3InputPrefix, '/*'),
+            ],
+          }),
+        );
+        this.textractAsyncCallFunction.addToRolePolicy(
+          new iam.PolicyStatement({
+            actions: ['s3:ListBucket'],
+            resources: [
+              path.join(`arn:aws:s3:::${props.s3InputBucket}`),
+            ],
+          }),
+        );
+      }
+    } else {
+      for (var policyStatement of props.inputPolicyStatements) {
+        this.textractAsyncCallFunction.addToRolePolicy(policyStatement);
+      }
+    }
+    /** ##################### OUTPUT BUCKET POLICIES */
+    if (props.outputPolicyStatements === undefined) {
+      if (props.s3OutputBucket === undefined) {
+        this.textractAsyncCallFunction.addToRolePolicy(
+          new iam.PolicyStatement({
+            actions: ['s3:PutObject'],
+            resources: ['*'],
+          }),
+        );
+      } else {
+        this.textractAsyncCallFunction.addToRolePolicy(
+          new iam.PolicyStatement({
+            actions: ['s3:PutObject'],
+            resources: [
+              path.join(`arn:aws:s3:::${props.s3OutputBucket}`, s3TempOutputPrefix, '/'),
+              path.join(`arn:aws:s3:::${props.s3OutputBucket}`, s3TempOutputPrefix, '/*'),
+            ],
+          }),
+        );
+      }
+    } else {
+      for (var policyStatement of props.outputPolicyStatements) {
+        this.textractAsyncCallFunction.addToRolePolicy(policyStatement);
+      }
+    }
+
+    // this.textractAsyncCallFunction.addToRolePolicy(new iam.PolicyStatement({ actions: ['sns:*'], resources: [this.textractAsyncSNS.topicArn] }));
     this.textractAsyncCallFunction.addToRolePolicy(new iam.PolicyStatement({ actions: ['dynamodb:PutItem', 'dynamodb:GetItem'], resources: [this.taskTokenTable.tableArn] }));
     this.startTextractLambdaLogGroup=(<lambda.Function> this.textractAsyncCallFunction).logGroup;
 
@@ -314,13 +376,7 @@ export class TextractGenericAsyncSfnTask extends sfn.TaskStateBase {
       },
     });
     this.textractAsyncSNS.addSubscription(new LambdaSubscription(this.textractAsyncReceiveSNSFunction));
-    this.textractAsyncReceiveSNSFunction.addToRolePolicy(new iam.PolicyStatement({ actions: ['dynamodb:GetItem'], resources: ['*'] }));
-    this.textractAsyncReceiveSNSFunction.addToRolePolicy(new iam.PolicyStatement({
-      actions: ['s3:Put*', 's3:List*'],
-      resources: [`arn:aws:s3:::${
-        props.s3OutputBucket
-      }`, `arn:aws:s3:::${props.s3OutputBucket}/${props.s3TempOutputPrefix}/*`],
-    }));
+    this.textractAsyncReceiveSNSFunction.addToRolePolicy(new iam.PolicyStatement({ actions: ['dynamodb:GetItem'], resources: [this.taskTokenTable.tableArn] }));
     this.receiveStartSNSLambdaLogGroup=(<lambda.Function> this.textractAsyncReceiveSNSFunction).logGroup;
 
     const workflow_chain = sfn.Chain.start(textractAsyncCallTask);
