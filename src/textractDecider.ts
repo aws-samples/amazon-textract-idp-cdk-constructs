@@ -8,8 +8,14 @@ import { Construct } from 'constructs';
 
 export interface TextractDPPOCDeciderProps {
   /** memory of Lambda function (may need to increase for larger documents) */
-  readonly lambdaMemoryMB?:number;
-  readonly lambdaTimeout?:number;
+  readonly lambdaMemoryMB?: number;
+  readonly lambdaTimeout?: number;
+  readonly deciderFunction?: lambda.IFunction;
+  readonly s3InputBucket?: string;
+  /** prefix for the incoming document. Will be used to create role */
+  readonly s3InputPrefix?: string;
+  /** List of PolicyStatements to attach to the Lambda function for S3 GET and LIST. */
+  readonly inputPolicyStatements?: [iam.PolicyStatement];
 }
 /**
  * This construct takes in a manifest definition or a plain JSON with a s3Path:
@@ -34,26 +40,61 @@ export interface TextractDPPOCDeciderProps {
 export class TextractPOCDecider extends sfn.StateMachineFragment {
   public readonly startState: sfn.State;
   public readonly endStates: sfn.INextable[];
+  public readonly deciderFunction: lambda.IFunction;
+
   constructor(parent: Construct, id: string, props: TextractDPPOCDeciderProps) {
     super(parent, id);
 
-    var lambdaMemoryMB = props.lambdaMemoryMB === undefined ? 1024 : props.lambdaMemoryMB;
-    var lambdaTimeout = props.lambdaTimeout === undefined ? 900 : props.lambdaTimeout;
+    var lambdaMemoryMB =
+      props.lambdaMemoryMB === undefined ? 1024 : props.lambdaMemoryMB;
+    var lambdaTimeout =
+      props.lambdaTimeout === undefined ? 900 : props.lambdaTimeout;
+    var s3InputPrefix =
+      props.s3InputPrefix === undefined ? '' : props.s3InputPrefix;
 
-    const deciderFunction = new lambda.DockerImageFunction(this, 'TextractDecider', {
-      code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/decider/')),
-      architecture: lambda.Architecture.X86_64,
-      memorySize: lambdaMemoryMB,
-      timeout: Duration.seconds(lambdaTimeout),
-    });
-    deciderFunction.addToRolePolicy(new iam.PolicyStatement({ actions: ['s3:GetObject'], resources: ['*'] }));
+    this.deciderFunction = new lambda.DockerImageFunction(
+      this,
+      'TextractDecider',
+      {
+        code: lambda.DockerImageCode.fromImageAsset(
+          path.join(__dirname, '../lambda/decider/'),
+        ),
+        architecture: lambda.Architecture.X86_64,
+        memorySize: lambdaMemoryMB,
+        timeout: Duration.seconds(lambdaTimeout),
+      },
+    );
 
+    if (props.inputPolicyStatements === undefined) {
+      if (props.s3InputBucket === undefined) {
+        this.deciderFunction.addToRolePolicy(
+          new iam.PolicyStatement({
+            actions: ['s3:GetObject', 's3:ListBucket'],
+            resources: ['*'],
+          }),
+        );
+      } else {
+        this.deciderFunction.addToRolePolicy(
+          new iam.PolicyStatement({
+            actions: ['s3:GetObject', 's3:ListBucket'],
+            resources: [
+              path.join(`arn:aws:s3:::${props.s3InputBucket}`, s3InputPrefix, '/'),
+              path.join(`arn:aws:s3:::${props.s3InputBucket}`, s3InputPrefix, '/*'),
+            ],
+          }),
+        );
+      }
+    } else {
+      for (var policyStatement of props.inputPolicyStatements) {
+        this.deciderFunction.addToRolePolicy(policyStatement);
+      }
+    }
     const deciderLambdaInvoke = new tasks.LambdaInvoke(this, id, {
-      lambdaFunction: deciderFunction,
+      lambdaFunction: this.deciderFunction,
       timeout: Duration.seconds(100),
       outputPath: '$.Payload',
     });
-    this.startState=deciderLambdaInvoke;
-    this.endStates=[deciderLambdaInvoke];
+    this.startState = deciderLambdaInvoke;
+    this.endStates = [deciderLambdaInvoke];
   }
 }

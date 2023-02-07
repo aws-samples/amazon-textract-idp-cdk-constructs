@@ -30,5 +30,12 @@ const project = new awscdk.AwsCdkConstructLibrary({
     distName: 'amazon-textract-idp-cdk-constructs',
     module: 'amazon_textract_idp_cdk_constructs',
   },
+  publishToMaven: {
+    javaPackage: 'software.amazon.textract.idp',
+    mavenArtifactId: 'idp-cdk-constructs',
+    mavenGroupId: 'software.amazon.textract.idp',
+    // serverId: 'github',
+    // repositoryUrl: 'https://maven.pkg.github.com/example/hello-jsii',
+  },
 });
 project.synth();

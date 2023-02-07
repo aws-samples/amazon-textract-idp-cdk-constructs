@@ -42,7 +42,7 @@ export interface ComprehendGenericSyncSfnTaskProps extends sfn.TaskStateBaseProp
   /** Memory allocated to Lambda function, default 512 */
   readonly lambdaMemory? : number;
   readonly workflowTracingEnabled? : boolean;
-  /** how long can we wait for the process (default is 48 hours (60*48=2880)) */
+  /** how long can we wait for the process (default is 60 minutes) */
   readonly textractStateMachineTimeoutMinutes? : number;
   /**
        * The JSON input for the execution, same as that of StartExecution.
@@ -137,7 +137,7 @@ export class ComprehendGenericSyncSfnTask extends sfn.TaskStateBase {
       throw new Error('Could not enable `associateWithParent` because `input` is taken directly from a JSON path. Use `sfn.TaskInput.fromObject` instead.');
     }
 
-    var textractStateMachineTimeoutMinutes = props.textractStateMachineTimeoutMinutes === undefined ? 2880 : props.textractStateMachineTimeoutMinutes;
+    var textractStateMachineTimeoutMinutes = props.textractStateMachineTimeoutMinutes === undefined ? 60 : props.textractStateMachineTimeoutMinutes;
     var lambdaLogLevel = props.lambdaLogLevel === undefined ? 'DEBUG' : props.lambdaLogLevel;
     var lambdaLogLevel = props.lambdaLogLevel === undefined ? 'DEBUG' : props.lambdaLogLevel;
     var lambdaTimeout = props.lambdaTimeout === undefined ? 300 : props.lambdaTimeout;
@@ -181,7 +181,7 @@ export class ComprehendGenericSyncSfnTask extends sfn.TaskStateBase {
     this.comprehendSyncCallFunction.addEventSource(new SqsEventSource(this.comprehendSyncSQS, { batchSize: 1 }));
     this.comprehendSyncCallFunction.addToRolePolicy(new iam.PolicyStatement({ actions: ['comprehend:ClassifyDocument'], resources: ['*'] }));
     this.comprehendSyncCallFunction.addToRolePolicy(new iam.PolicyStatement({
-      actions: ['s3:GetObject', 's3:ListBucket', 's3:PutObject'], resources: ['*'],
+      actions: ['s3:GetObject', 's3:ListBucket'], resources: ['*'],
     }));
     this.comprehendSyncLambdaLogGroup=(<lambda.Function> this.comprehendSyncCallFunction).logGroup;
 
