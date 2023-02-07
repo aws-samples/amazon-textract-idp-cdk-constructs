@@ -7,6 +7,7 @@ import * as tasks from 'aws-cdk-lib/aws-stepfunctions-tasks';
 import { Construct } from 'constructs';
 
 export interface TextractAsyncToJSONProps {
+  /** Bucketname to output data to */
   readonly s3OutputBucket: string;
   /** The prefix to use for the output files */
   readonly s3OutputPrefix: string;
@@ -21,6 +22,14 @@ export interface TextractAsyncToJSONProps {
    *
    * @default - GENERIC */
   readonly textractAPI?: 'GENERIC' | 'LENDING';
+  /** location of input S3 objects - if left empty will generate rule for s3 access to all [*] */
+  readonly s3InputBucket?: string;
+  /** prefix for input S3 objects - if left empty will generate rule for s3 access to all in bucket */
+  readonly s3InputPrefix?: string;
+  /** List of PolicyStatements to attach to the Lambda function.  */
+  readonly inputPolicyStatements?: [iam.PolicyStatement];
+  /** List of PolicyStatements to attach to the Lambda function.  */
+  readonly outputPolicyStatements?: [iam.PolicyStatement];
 }
 
 /**
@@ -47,6 +56,7 @@ export interface TextractAsyncToJSONProps {
 export class TextractAsyncToJSON extends sfn.StateMachineFragment {
   public readonly startState : sfn.State;
   public readonly endStates : sfn.INextable[];
+  public readonly asyncToJSONFunction: lambda.IFunction;
   constructor(parent : Construct, id : string, props : TextractAsyncToJSONProps) {
     super(parent, id);
 
@@ -55,7 +65,12 @@ export class TextractAsyncToJSON extends sfn.StateMachineFragment {
     var lambdaMemoryMB = props.lambdaMemoryMB === undefined ? 10240 : props.lambdaMemoryMB;
     var textractAPI = props.textractAPI === undefined ? 'GENERIC' : props.textractAPI;
 
-    const asyncToJSONFunction = new lambda.DockerImageFunction(this, 'TextractAsyncToJSON', {
+    var s3OutputPrefix =
+      props.s3OutputPrefix === undefined ? '' : props.s3OutputPrefix;
+    var s3InputPrefix =
+      props.s3InputPrefix === undefined ? '' : props.s3InputPrefix;
+
+    this.asyncToJSONFunction = new lambda.DockerImageFunction(this, 'TextractAsyncToJSON', {
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/async_to_json/')),
       memorySize: lambdaMemoryMB,
       architecture: lambda.Architecture.X86_64,
@@ -67,13 +82,66 @@ export class TextractAsyncToJSON extends sfn.StateMachineFragment {
       },
       timeout: Duration.seconds(lambdaTimeout),
     });
-    asyncToJSONFunction.addToRolePolicy(new iam.PolicyStatement({
-      actions: ['s3:Get*', 's3:List*', 's3:Put*'],
-      resources: ['*'],
-    }));
+    /** ################ INPUT BUCKET POLICIES */
+    if (props.inputPolicyStatements === undefined) {
+      if (props.s3InputBucket === undefined) {
+        this.asyncToJSONFunction.addToRolePolicy(
+          new iam.PolicyStatement({
+            actions: ['s3:GetObject', 's3:ListBucket'],
+            resources: ['*'],
+          }),
+        );
+      } else {
+        this.asyncToJSONFunction.addToRolePolicy(
+          new iam.PolicyStatement({
+            actions: ['s3:GetObject'],
+            resources: [
+              path.join(`arn:aws:s3:::${props.s3InputBucket}`, s3InputPrefix, '/*'),
+            ],
+          }),
+        );
+        this.asyncToJSONFunction.addToRolePolicy(
+          new iam.PolicyStatement({
+            actions: ['s3:ListBucket'],
+            resources: [
+              path.join(`arn:aws:s3:::${props.s3InputBucket}`),
+            ],
+          }),
+        );
+      }
+    } else {
+      for (var policyStatement of props.inputPolicyStatements) {
+        this.asyncToJSONFunction.addToRolePolicy(policyStatement);
+      }
+    }
+    /** ##################### OUTPUT BUCKET POLICIES */
+    if (props.outputPolicyStatements === undefined) {
+      if (props.s3OutputBucket === undefined) {
+        this.asyncToJSONFunction.addToRolePolicy(
+          new iam.PolicyStatement({
+            actions: ['s3:PutObject'],
+            resources: ['*'],
+          }),
+        );
+      } else {
+        this.asyncToJSONFunction.addToRolePolicy(
+          new iam.PolicyStatement({
+            actions: ['s3:PutObject'],
+            resources: [
+              path.join(`arn:aws:s3:::${props.s3OutputBucket}`, s3OutputPrefix, '/'),
+              path.join(`arn:aws:s3:::${props.s3OutputBucket}`, s3OutputPrefix, '/*'),
+            ],
+          }),
+        );
+      }
+    } else {
+      for (var policyStatement of props.outputPolicyStatements) {
+        this.asyncToJSONFunction.addToRolePolicy(policyStatement);
+      }
+    }
 
     const asyncToJSON = new tasks.LambdaInvoke(this, id, {
-      lambdaFunction: asyncToJSONFunction,
+      lambdaFunction: this.asyncToJSONFunction,
       timeout: Duration.seconds(900),
       outputPath: '$.Payload',
     });

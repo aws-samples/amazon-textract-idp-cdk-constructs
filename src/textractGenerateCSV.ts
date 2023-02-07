@@ -43,6 +43,10 @@ export interface TextractGenerateCSVProps extends sfn.TaskStateBaseProps{
   /** Which Textract API output should be converted to a CSV?
    * GENERIC and AnalyzeID and LENDING are supported.
    * @default - GENERIC */
+  /** List of PolicyStatements to attach to the Lambda function.  */
+  readonly inputPolicyStatements?: [iam.PolicyStatement];
+  /** List of PolicyStatements to attach to the Lambda function.  */
+  readonly outputPolicyStatements?: [iam.PolicyStatement];
   readonly textractAPI?: 'GENERIC' | 'ANALYZEID' | 'LENDING';
   /** The generated CSV can have any meta-data from the manifest file included.
    * This is a list of all meta-data names to include
@@ -50,6 +54,11 @@ export interface TextractGenerateCSVProps extends sfn.TaskStateBaseProps{
    * MetaData keys have to be without ','
    */
   readonly metaDataToAppend?:Array<string>;
+  /** Bucketname and prefix to read document from
+  /** location of input S3 objects - if left empty will generate rule for s3 access to all [*] */
+  readonly s3InputBucket?: string;
+  /** prefix for input S3 objects - if left empty will generate rule for s3 access to all in bucket */
+  readonly s3InputPrefix?: string;
   /**
        * The JSON input for the execution, same as that of StartExecution.
        *
@@ -145,8 +154,12 @@ export class TextractGenerateCSV extends sfn.TaskStateBase {
     var textractAPI = props.textractAPI === undefined ? 'GENERIC' : props.textractAPI;
     var outputType= props.outputType === undefined ? 'CSV' : props.outputType;
     var metaDataToAppend= props.metaDataToAppend === undefined ? '' : props.metaDataToAppend;
+    var s3TempOutputPrefix =
+      props.csvS3OutputPrefix === undefined ? '' : props.csvS3OutputPrefix;
+    var s3InputPrefix =
+      props.s3InputPrefix === undefined ? '' : props.s3InputPrefix;
 
-    const csvGeneratorFunction = new lambda_.DockerImageFunction(this, 'TextractCSVGenerator', {
+    this.generateCSVLambda = new lambda_.DockerImageFunction(this, 'TextractCSVGenerator', {
       code: lambda_.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/generatecsv/')),
       memorySize: lambdaMemoryMB,
       architecture: lambda_.Architecture.X86_64,
@@ -160,19 +173,76 @@ export class TextractGenerateCSV extends sfn.TaskStateBase {
         META_DATA_TO_APPEND: metaDataToAppend?.toString(),
       },
     });
-    csvGeneratorFunction.addToRolePolicy(new iam.PolicyStatement({ actions: ['s3:PutObject', 's3:Get*', 's3:List*'], resources: ['*'] }));
-    csvGeneratorFunction.addToRolePolicy(new iam.PolicyStatement({
+
+    /** ################ INPUT BUCKET POLICIES */
+    if (props.inputPolicyStatements === undefined) {
+      if (props.s3InputBucket === undefined) {
+        this.generateCSVLambda.addToRolePolicy(
+          new iam.PolicyStatement({
+            actions: ['s3:GetObject', 's3:ListBucket'],
+            resources: ['*'],
+          }),
+        );
+      } else {
+        this.generateCSVLambda.addToRolePolicy(
+          new iam.PolicyStatement({
+            actions: ['s3:GetObject'],
+            resources: [
+              path.join(`arn:aws:s3:::${props.s3InputBucket}`, s3InputPrefix, '/*'),
+            ],
+          }),
+        );
+        this.generateCSVLambda.addToRolePolicy(
+          new iam.PolicyStatement({
+            actions: ['s3:ListBucket'],
+            resources: [
+              path.join(`arn:aws:s3:::${props.s3InputBucket}`),
+            ],
+          }),
+        );
+      }
+    } else {
+      for (var policyStatement of props.inputPolicyStatements) {
+        this.generateCSVLambda.addToRolePolicy(policyStatement);
+      }
+    }
+    /** ##################### OUTPUT BUCKET POLICIES */
+    if (props.outputPolicyStatements === undefined) {
+      if (props.csvS3OutputBucket === undefined) {
+        this.generateCSVLambda.addToRolePolicy(
+          new iam.PolicyStatement({
+            actions: ['s3:PutObject'],
+            resources: ['*'],
+          }),
+        );
+      } else {
+        this.generateCSVLambda.addToRolePolicy(
+          new iam.PolicyStatement({
+            actions: ['s3:PutObject'],
+            resources: [
+              path.join(`arn:aws:s3:::${props.csvS3OutputBucket}`, s3TempOutputPrefix, '/'),
+              path.join(`arn:aws:s3:::${props.csvS3OutputBucket}`, s3TempOutputPrefix, '/*'),
+            ],
+          }),
+        );
+      }
+    } else {
+      for (var policyStatement of props.outputPolicyStatements) {
+        this.generateCSVLambda.addToRolePolicy(policyStatement);
+      }
+    }
+
+    this.generateCSVLambda.addToRolePolicy(new iam.PolicyStatement({
       actions: [
         'states:SendTaskSuccess', 'states:SendTaskFailure',
       ],
       resources: ['*'],
     }));
-    this.generateCSVLambda = csvGeneratorFunction;
-    this.generateCSVLogGroup = csvGeneratorFunction.logGroup;
+    this.generateCSVLogGroup = (<lambda_.Function> this.generateCSVLambda).logGroup;
 
 
     const csvGeneratorLambdaInvoke = new tasks.LambdaInvoke(this, 'csvGeneratorInvoke', {
-      lambdaFunction: csvGeneratorFunction,
+      lambdaFunction: this.generateCSVLambda,
     });
 
     csvGeneratorLambdaInvoke.addCatch(new sfn.Fail(this, 'csvGenerationFailure'), {

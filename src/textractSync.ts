@@ -68,6 +68,10 @@ export interface TextractGenericSyncSfnTaskProps extends sfn.TaskStateBaseProps 
    * @default - false
    */
   readonly enableCloudWatchMetricsAndDashboard? : boolean;
+  /** List of PolicyStatements to attach to the Lambda function.  */
+  readonly inputPolicyStatements?: [iam.PolicyStatement];
+  /** List of PolicyStatements to attach to the Lambda function.  */
+  readonly outputPolicyStatements?: [iam.PolicyStatement];
   /**
        * The JSON input for the execution, same as that of StartExecution.
        *
@@ -170,9 +174,6 @@ export class TextractGenericSyncSfnTask extends sfn.TaskStateBase {
       throw new Error('no s3OutputBucket and s3OutputPrefix passed in');
     }
 
-    if (!props.s3OutputBucket || !props.s3OutputPrefix) {
-      throw new Error('no s3OutputBucket and s3OutputPrefix passed in');
-    }
 
     var textractAPI = props.textractAPI === undefined ? 'GENERIC' : props.textractAPI;
     var textractStateMachineTimeoutMinutes = props.textractStateMachineTimeoutMinutes === undefined ? 2880 : props.textractStateMachineTimeoutMinutes;
@@ -184,6 +185,10 @@ export class TextractGenericSyncSfnTask extends sfn.TaskStateBase {
     var textractAsyncCallInterval = props.textractAsyncCallInterval === undefined ? 1 : props.textractAsyncCallInterval;
     var enableCloudWatchMetricsAndDashboard = props.enableCloudWatchMetricsAndDashboard === undefined ? false :
       props.enableCloudWatchMetricsAndDashboard;
+    var s3InputPrefix =
+      props.s3InputPrefix === undefined ? '' : props.s3InputPrefix;
+    var s3OutputPrefix =
+      props.s3OutputPrefix === undefined ? '' : props.s3OutputPrefix;
 
     this.textractSyncCallFunction = new lambda.DockerImageFunction(this, 'TextractSyncCall', {
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/textract_sync/')),
@@ -212,16 +217,57 @@ export class TextractGenericSyncSfnTask extends sfn.TaskStateBase {
         ],
         resources: ['*'],
       }));
-    this.textractSyncCallFunction.addToRolePolicy(new iam.PolicyStatement({
-      actions: [
-        's3:GetObject', 's3:ListBucket', 's3:PutObject',
-      ],
-      resources: [`arn:aws:s3:::${
-        props.s3OutputBucket
-      }`, `arn:aws:s3:::${
-        props.s3OutputBucket
-      }/*`, '*'],
-    }));
+    /** ################ INPUT BUCKET POLICIES */
+    if (props.inputPolicyStatements === undefined) {
+      if (props.s3InputBucket === undefined) {
+        this.textractSyncCallFunction.addToRolePolicy(
+          new iam.PolicyStatement({
+            actions: ['s3:GetObject', 's3:ListBucket'],
+            resources: ['*'],
+          }),
+        );
+      } else {
+        this.textractSyncCallFunction.addToRolePolicy(
+          new iam.PolicyStatement({
+            actions: ['s3:GetObject', 's3:ListBucket'],
+            resources: [
+              path.join(`arn:aws:s3:::${props.s3InputBucket}`, s3InputPrefix, '/'),
+              path.join(`arn:aws:s3:::${props.s3InputBucket}`, s3InputPrefix, '/*'),
+            ],
+          }),
+        );
+      }
+    } else {
+      for (var policyStatement of props.inputPolicyStatements) {
+        this.textractSyncCallFunction.addToRolePolicy(policyStatement);
+      }
+    }
+
+    /** ##################### OUTPUT BUCKET POLICIES */
+    if (props.outputPolicyStatements === undefined) {
+      if (props.s3OutputBucket === undefined) {
+        this.textractSyncCallFunction.addToRolePolicy(
+          new iam.PolicyStatement({
+            actions: ['s3:PutObject'],
+            resources: ['*'],
+          }),
+        );
+      } else {
+        this.textractSyncCallFunction.addToRolePolicy(
+          new iam.PolicyStatement({
+            actions: ['s3:PutObject'],
+            resources: [
+              path.join(`arn:aws:s3:::${props.s3OutputBucket}`, s3OutputPrefix, '/'),
+              path.join(`arn:aws:s3:::${props.s3OutputBucket}`, s3OutputPrefix, '/*'),
+            ],
+          }),
+        );
+      }
+    } else {
+      for (var policyStatement of props.outputPolicyStatements) {
+        this.textractSyncCallFunction.addToRolePolicy(policyStatement);
+      }
+    }
     this.textractSyncLambdaLogGroup=(<lambda.Function> this.textractSyncCallFunction).logGroup;
 
     const workflow_chain = sfn.Chain.start(textractSyncCallTask);
@@ -232,12 +278,15 @@ export class TextractGenericSyncSfnTask extends sfn.TaskStateBase {
       tracingEnabled: true,
     });
 
-    this.textractSyncCallFunction.addToRolePolicy(new iam.PolicyStatement({
-      actions: [
-        'states:SendTaskFailure', 'states:SendTaskSuccess',
-      ],
-      resources: ['*'],
-    }));
+    if (this.integrationPattern === sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN) {
+      this.textractSyncCallFunction.addToRolePolicy(new iam.PolicyStatement({
+        actions: [
+          'states:SendTaskFailure', 'states:SendTaskSuccess',
+        ],
+        resources: ['*'],
+      }));
+    }
+
     // =========
     // DASHBOARD
     // =========
