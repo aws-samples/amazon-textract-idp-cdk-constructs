@@ -46,7 +46,18 @@ def lambda_handler(event, context):
 
         parsed_email = download_email(message_id)
         key = str(uuid.uuid4())
-        updated_email_bucket_name = process.env.S3_BUCKET_NAME
+        s3_output_bucket = os.environ.get('S3_OUTPUT_BUCKET')
+        s3_output_prefix = os.environ.get('S3_OUTPUT_PREFIX')
+
+        if not s3_output_bucket or not s3_output_prefix:
+            raise ValueError(
+                f"no s3_output_bucket: {s3_output_bucket} or s3_output_prefix: {s3_output_prefix} defined."
+            )
+        logger.debug(f"LOG_LEVEL: {log_level} \n \
+                    S3_OUTPUT_BUCKET: {s3_output_bucket} \n \
+                    S3_OUTPUT_PREFIX: {s3_output_prefix} \n \
+                    TEXTRACT_API: {textract_api} \n  ")
+
 
         # Can take in multiple pdf attachments
         if parsed_email.is_multipart():
@@ -61,7 +72,7 @@ def lambda_handler(event, context):
                     fp.close()
                     print('ATTACHMENT - ' , fp)
 
-                    s3.upload_file('/tmp/' + file_name,  Bucket=updated_email_bucket_name, Key=file_name)
+                    s3.upload_file('/tmp/' + file_name,  Bucket=s3_output_bucket, Key=file_name)
                     print('Finished upload to S3 ' , fp)
 
     except ClientError as e:
