@@ -5262,6 +5262,116 @@ public readonly deciderFunction: IFunction;
 ---
 
 
+### WorkmailS3IngestionPoint <a name="WorkmailS3IngestionPoint" id="amazon-textract-idp-cdk-constructs.WorkmailS3IngestionPoint"></a>
+
+#### Initializers <a name="Initializers" id="amazon-textract-idp-cdk-constructs.WorkmailS3IngestionPoint.Initializer"></a>
+
+```typescript
+import { WorkmailS3IngestionPoint } from 'amazon-textract-idp-cdk-constructs'
+
+new WorkmailS3IngestionPoint(scope: Construct, id: string, props: WorkmailS3IngestionPointProps)
+```
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#amazon-textract-idp-cdk-constructs.WorkmailS3IngestionPoint.Initializer.parameter.scope">scope</a></code> | <code>constructs.Construct</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.WorkmailS3IngestionPoint.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.WorkmailS3IngestionPoint.Initializer.parameter.props">props</a></code> | <code><a href="#amazon-textract-idp-cdk-constructs.WorkmailS3IngestionPointProps">WorkmailS3IngestionPointProps</a></code> | *No description.* |
+
+---
+
+##### `scope`<sup>Required</sup> <a name="scope" id="amazon-textract-idp-cdk-constructs.WorkmailS3IngestionPoint.Initializer.parameter.scope"></a>
+
+- *Type:* constructs.Construct
+
+---
+
+##### `id`<sup>Required</sup> <a name="id" id="amazon-textract-idp-cdk-constructs.WorkmailS3IngestionPoint.Initializer.parameter.id"></a>
+
+- *Type:* string
+
+---
+
+##### `props`<sup>Required</sup> <a name="props" id="amazon-textract-idp-cdk-constructs.WorkmailS3IngestionPoint.Initializer.parameter.props"></a>
+
+- *Type:* <a href="#amazon-textract-idp-cdk-constructs.WorkmailS3IngestionPointProps">WorkmailS3IngestionPointProps</a>
+
+---
+
+#### Methods <a name="Methods" id="Methods"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#amazon-textract-idp-cdk-constructs.WorkmailS3IngestionPoint.toString">toString</a></code> | Returns a string representation of this construct. |
+
+---
+
+##### `toString` <a name="toString" id="amazon-textract-idp-cdk-constructs.WorkmailS3IngestionPoint.toString"></a>
+
+```typescript
+public toString(): string
+```
+
+Returns a string representation of this construct.
+
+#### Static Functions <a name="Static Functions" id="Static Functions"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#amazon-textract-idp-cdk-constructs.WorkmailS3IngestionPoint.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
+
+---
+
+##### ~~`isConstruct`~~ <a name="isConstruct" id="amazon-textract-idp-cdk-constructs.WorkmailS3IngestionPoint.isConstruct"></a>
+
+```typescript
+import { WorkmailS3IngestionPoint } from 'amazon-textract-idp-cdk-constructs'
+
+WorkmailS3IngestionPoint.isConstruct(x: any)
+```
+
+Checks if `x` is a construct.
+
+###### `x`<sup>Required</sup> <a name="x" id="amazon-textract-idp-cdk-constructs.WorkmailS3IngestionPoint.isConstruct.parameter.x"></a>
+
+- *Type:* any
+
+Any object.
+
+---
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#amazon-textract-idp-cdk-constructs.WorkmailS3IngestionPoint.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.WorkmailS3IngestionPoint.property.props">props</a></code> | <code><a href="#amazon-textract-idp-cdk-constructs.WorkmailS3IngestionPointProps">WorkmailS3IngestionPointProps</a></code> | *No description.* |
+
+---
+
+##### `node`<sup>Required</sup> <a name="node" id="amazon-textract-idp-cdk-constructs.WorkmailS3IngestionPoint.property.node"></a>
+
+```typescript
+public readonly node: Node;
+```
+
+- *Type:* constructs.Node
+
+The tree node.
+
+---
+
+##### `props`<sup>Required</sup> <a name="props" id="amazon-textract-idp-cdk-constructs.WorkmailS3IngestionPoint.property.props"></a>
+
+```typescript
+public readonly props: WorkmailS3IngestionPointProps;
+```
+
+- *Type:* <a href="#amazon-textract-idp-cdk-constructs.WorkmailS3IngestionPointProps">WorkmailS3IngestionPointProps</a>
+
+---
+
+
 ## Structs <a name="Structs" id="Structs"></a>
 
 ### ComprehendGenericSyncSfnTaskProps <a name="ComprehendGenericSyncSfnTaskProps" id="amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps"></a>
@@ -7996,6 +8106,101 @@ public readonly workflowTracingEnabled: boolean;
 ```
 
 - *Type:* boolean
+
+---
+
+### WorkmailS3IngestionPointProps <a name="WorkmailS3IngestionPointProps" id="amazon-textract-idp-cdk-constructs.WorkmailS3IngestionPointProps"></a>
+
+#### Initializer <a name="Initializer" id="amazon-textract-idp-cdk-constructs.WorkmailS3IngestionPointProps.Initializer"></a>
+
+```typescript
+import { WorkmailS3IngestionPointProps } from 'amazon-textract-idp-cdk-constructs'
+
+const workmailS3IngestionPointProps: WorkmailS3IngestionPointProps = { ... }
+```
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#amazon-textract-idp-cdk-constructs.WorkmailS3IngestionPointProps.property.s3OutputBucket">s3OutputBucket</a></code> | <code>string</code> | Bucket name to output data to. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.WorkmailS3IngestionPointProps.property.s3OutputPrefix">s3OutputPrefix</a></code> | <code>string</code> | The prefix to use to output files to. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.WorkmailS3IngestionPointProps.property.workmailAccountNumber">workmailAccountNumber</a></code> | <code>string</code> | Account number for WorkMail instance. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.WorkmailS3IngestionPointProps.property.workmailRegion">workmailRegion</a></code> | <code>string</code> | Region where WorkMailail instance exists. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.WorkmailS3IngestionPointProps.property.lambdaMemoryMB">lambdaMemoryMB</a></code> | <code>number</code> | Lambda function memory configuration (may need to increase for larger documents). |
+| <code><a href="#amazon-textract-idp-cdk-constructs.WorkmailS3IngestionPointProps.property.lambdaTimeout">lambdaTimeout</a></code> | <code>number</code> | Lambda function timeout (may need to increase for larger documents). |
+
+---
+
+##### `s3OutputBucket`<sup>Required</sup> <a name="s3OutputBucket" id="amazon-textract-idp-cdk-constructs.WorkmailS3IngestionPointProps.property.s3OutputBucket"></a>
+
+```typescript
+public readonly s3OutputBucket: string;
+```
+
+- *Type:* string
+
+Bucket name to output data to.
+
+---
+
+##### `s3OutputPrefix`<sup>Required</sup> <a name="s3OutputPrefix" id="amazon-textract-idp-cdk-constructs.WorkmailS3IngestionPointProps.property.s3OutputPrefix"></a>
+
+```typescript
+public readonly s3OutputPrefix: string;
+```
+
+- *Type:* string
+
+The prefix to use to output files to.
+
+---
+
+##### `workmailAccountNumber`<sup>Required</sup> <a name="workmailAccountNumber" id="amazon-textract-idp-cdk-constructs.WorkmailS3IngestionPointProps.property.workmailAccountNumber"></a>
+
+```typescript
+public readonly workmailAccountNumber: string;
+```
+
+- *Type:* string
+
+Account number for WorkMail instance.
+
+---
+
+##### `workmailRegion`<sup>Required</sup> <a name="workmailRegion" id="amazon-textract-idp-cdk-constructs.WorkmailS3IngestionPointProps.property.workmailRegion"></a>
+
+```typescript
+public readonly workmailRegion: string;
+```
+
+- *Type:* string
+
+Region where WorkMailail instance exists.
+
+---
+
+##### `lambdaMemoryMB`<sup>Optional</sup> <a name="lambdaMemoryMB" id="amazon-textract-idp-cdk-constructs.WorkmailS3IngestionPointProps.property.lambdaMemoryMB"></a>
+
+```typescript
+public readonly lambdaMemoryMB: number;
+```
+
+- *Type:* number
+
+Lambda function memory configuration (may need to increase for larger documents).
+
+---
+
+##### `lambdaTimeout`<sup>Optional</sup> <a name="lambdaTimeout" id="amazon-textract-idp-cdk-constructs.WorkmailS3IngestionPointProps.property.lambdaTimeout"></a>
+
+```typescript
+public readonly lambdaTimeout: number;
+```
+
+- *Type:* number
+
+Lambda function timeout (may need to increase for larger documents).
 
 ---
 
