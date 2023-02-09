@@ -157,6 +157,7 @@ export class ComprehendGenericSyncSfnTask extends sfn.TaskStateBase {
     this.comprehendSyncCallFunction = new lambda.DockerImageFunction(this, 'ComprehendSyncCall', {
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/comprehend_sync/')),
       memorySize: lambdaMemory,
+      architecture: lambda.Architecture.X86_64,
       timeout: Duration.seconds(lambdaTimeout),
       environment: {
         LOG_LEVEL: lambdaLogLevel,

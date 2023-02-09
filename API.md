@@ -6780,7 +6780,7 @@ const textractClassificationConfiguratorProps: TextractClassificationConfigurato
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractClassificationConfiguratorProps.property.configurationTable">configurationTable</a></code> | <code>aws-cdk-lib.aws_dynamodb.ITable</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractClassificationConfiguratorProps.property.configurationTable">configurationTable</a></code> | <code>aws-cdk-lib.aws_dynamodb.Table</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractClassificationConfiguratorProps.property.lambdaLogLevel">lambdaLogLevel</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractClassificationConfiguratorProps.property.lambdaMemoryMB">lambdaMemoryMB</a></code> | <code>number</code> | memory of Lambda function (may need to increase for larger documents). |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractClassificationConfiguratorProps.property.lambdaTimeout">lambdaTimeout</a></code> | <code>number</code> | *No description.* |
@@ -6790,10 +6790,10 @@ const textractClassificationConfiguratorProps: TextractClassificationConfigurato
 ##### `configurationTable`<sup>Optional</sup> <a name="configurationTable" id="amazon-textract-idp-cdk-constructs.TextractClassificationConfiguratorProps.property.configurationTable"></a>
 
 ```typescript
-public readonly configurationTable: ITable;
+public readonly configurationTable: Table;
 ```
 
-- *Type:* aws-cdk-lib.aws_dynamodb.ITable
+- *Type:* aws-cdk-lib.aws_dynamodb.Table
 
 ---
 

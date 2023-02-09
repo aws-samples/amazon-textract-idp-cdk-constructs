@@ -239,11 +239,12 @@ export class CSVToAuroraTask extends sfn.TaskStateBase {
       ],
       resources: ['*'],
     }));
+
     this.csvToAuroraFunction.addToRolePolicy(new iam.PolicyStatement({
       actions: [
         'secretsmanager:GetSecretValue',
       ],
-      resources: ['*'],
+      resources: [(<rds.ServerlessCluster> this.dbCluster).secret!.secretArn],
     }));
     this.csvToAuroraFunction.addToRolePolicy(new iam.PolicyStatement({
       actions: [

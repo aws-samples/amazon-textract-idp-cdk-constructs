@@ -61,18 +61,13 @@ def lambda_handler(event, _):
     logger.info(f"version: {version}")
     logger.info(json.dumps(event))
 
-    sqs_queue_url = os.environ.get('SQS_QUEUE_URL', None)
-    if not sqs_queue_url:
-        raise Exception("no SQS_QUEUE_URL set")
-
     comprehend_classifier_arn = os.environ.get('COMPREHEND_CLASSIFIER_ARN',
                                                None)
     if not comprehend_classifier_arn:
         raise Exception("no COMPREHEND_CLASSIFIER_ARN set")
 
     logger.debug(f"LOG_LEVEL: {log_level} \n \
-                COMPREHEND_CLASSIFIER_ARN: {comprehend_classifier_arn} \n \
-                SQS_QUEUE_URL: {sqs_queue_url}")
+                COMPREHEND_CLASSIFIER_ARN: {comprehend_classifier_arn}")
 
     processing_status: bool = True
     files_with_failures: List[str] = list()

@@ -13,7 +13,7 @@ export interface TextractClassificationConfiguratorProps {
   readonly lambdaMemoryMB?:number;
   readonly lambdaTimeout?:number;
   readonly lambdaLogLevel?:string;
-  readonly configurationTable?:dynamodb.ITable;
+  readonly configurationTable?:dynamodb.Table;
 }
 
 /**
@@ -64,7 +64,7 @@ export class TextractClassificationConfigurator extends sfn.StateMachineFragment
       });
       this.configurationTableName=this.configurationTable.tableName;
       const configurationInitFunction = new TextractConfiguration(this, 'DocTypeConfig', {
-        configuration_table: this.configurationTable.tableName,
+        configurationTable: this.configurationTable,
       });
       configurationInitFunction.node.addDependency(this.configurationTable);
     } else {
