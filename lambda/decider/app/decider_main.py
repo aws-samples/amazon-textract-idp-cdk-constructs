@@ -76,7 +76,7 @@ def get_number_of_pages(file_bytes: bytes, mime: str) -> int:
 
 
 def lambda_handler(event, _):
-    # Accepts a manifest file (https://github.com/schadem/schadem-tidp-manifest), will enrich with information if possible
+    # Accepts a manifest file, will enrich with information if possible
     # add
     #    "mime": mime,
     #    "classification": manifest.classification,
@@ -88,7 +88,7 @@ def lambda_handler(event, _):
     log_level = os.environ.get('LOG_LEVEL', 'INFO')
     logger.setLevel(log_level)
     logger.info(f"version: {version}")
-    logger.info(f"schadem-tidp-manifest version: {tm.__version__}")
+    logger.info(f"amazon-textract-idp-cdk-manifest version: {tm.__version__}")
     logger.info(json.dumps(event))
 
     original_manifest: tm.IDPManifest = tm.IDPManifestSchema().load(
