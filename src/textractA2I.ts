@@ -214,7 +214,6 @@ export class TextractA2ISfnTask extends sfn.TaskStateBase {
     this.stateMachine = new sfn.StateMachine(this, 'StateMachine', {
       definition: workflow_chain,
       timeout: Duration.hours(2),
-      tracingEnabled: true,
     });
 
     this.taskPolicies = this.createScopedAccessPolicy();

@@ -79,7 +79,7 @@ def lambda_handler(event, _):
         raise ValueError("Need Payload with manifest to process message.")
 
     manifest: tm.IDPManifest = tm.IDPManifestSchema().load(
-        message["Payload"]['manifest'])  #type: ignore
+        event["Payload"]['manifest'])  #type: ignore
 
     s3_path = manifest.s3_path
     payload = event['Payload']

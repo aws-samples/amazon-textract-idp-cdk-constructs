@@ -181,7 +181,6 @@ export class SpacySfnTask extends sfn.TaskStateBase {
     this.stateMachine = new sfn.StateMachine(this, 'StateMachine', {
       definition: workflow_chain,
       timeout: Duration.hours(textractStateMachineTimeoutMinutes),
-      tracingEnabled: true,
     });
 
     // =========

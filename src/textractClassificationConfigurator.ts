@@ -13,7 +13,7 @@ export interface TextractClassificationConfiguratorProps {
   readonly lambdaMemoryMB?:number;
   readonly lambdaTimeout?:number;
   readonly lambdaLogLevel?:string;
-  readonly configurationTable?:dynamodb.Table;
+  readonly configurationTable?:dynamodb.ITable;
 }
 
 /**
@@ -42,7 +42,6 @@ export class TextractClassificationConfigurator extends sfn.StateMachineFragment
   public readonly startState: sfn.State;
   public readonly endStates: sfn.INextable[];
   public configuratorFunction:lambda.IFunction;
-  public configuratorFunctionLogGroupName:string;
   public configurationTable:dynamodb.ITable;
   public configurationTableName:string;
 
@@ -64,7 +63,8 @@ export class TextractClassificationConfigurator extends sfn.StateMachineFragment
       });
       this.configurationTableName=this.configurationTable.tableName;
       const configurationInitFunction = new TextractConfiguration(this, 'DocTypeConfig', {
-        configurationTable: this.configurationTable,
+        configurationTableName: this.configurationTable.tableName,
+        configurationTableArn: this.configurationTable.tableArn,
       });
       configurationInitFunction.node.addDependency(this.configurationTable);
     } else {
@@ -86,7 +86,6 @@ export class TextractClassificationConfigurator extends sfn.StateMachineFragment
       actions: ['dynamodb:PutItem', 'dynamodb:GetItem'],
       resources: [this.configurationTable.tableArn],
     }));
-    this.configuratorFunctionLogGroupName=(<lambda.Function> this.configuratorFunction).logGroup.logGroupName;
 
     const configuratorLambdaInvoke = new tasks.LambdaInvoke(this, id, {
       lambdaFunction: this.configuratorFunction,

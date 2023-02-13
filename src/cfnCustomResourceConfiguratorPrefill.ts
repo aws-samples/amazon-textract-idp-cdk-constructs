@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as cdk from 'aws-cdk-lib';
-import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+//import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as customResources from 'aws-cdk-lib/custom-resources';
@@ -8,9 +8,10 @@ import { Construct } from 'constructs';
 
 
 export interface TextractConfigurationProps {
-  /** @deprecated - will be removed in the next minor update. Use configurationTable instead */
+  /** @deprecated User configurationTableName in the future */
   readonly configuration_table?:string;
-  readonly configurationTable:dynamodb.ITable;
+  readonly configurationTableArn:string;
+  readonly configurationTableName:string;
   /** Function used to initialize the DynamoDB table for the Classification Configuration
    *  The Function has to implement CloudFormation Custom Resource https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-custom-resources-lambda.html
   */
@@ -43,18 +44,17 @@ export class TextractConfiguration extends Construct {
         timeout: cdk.Duration.seconds(600),
         environment: {
           LOG_LEVEL: 'DEBUG',
-          CONFIGURATION_TABLE: props.configurationTable.tableName,
+          CONFIGURATION_TABLE: props.configurationTableName,
         },
       });
     } else {
       this.configurationInitFunction = props.configurationInitFunction;
     }
 
-
     this.configurationInitFunction.addToRolePolicy(
       new iam.PolicyStatement({
         actions: ['dynamodb:PutItem', 'dynamodb:GetItem'],
-        resources: [props.configurationTable.tableArn],
+        resources: [props.configurationTableArn],
       }));
 
     const provider = new customResources.Provider(this, 'Provider', {

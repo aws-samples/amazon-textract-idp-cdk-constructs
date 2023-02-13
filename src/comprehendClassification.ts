@@ -2,7 +2,6 @@ import * as path from 'path';
 import { Duration, Aws, ArnFormat, Stack } from 'aws-cdk-lib';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
-import { ILogGroup } from 'aws-cdk-lib/aws-logs';
 import * as sfn from 'aws-cdk-lib/aws-stepfunctions';
 import * as tasks from 'aws-cdk-lib/aws-stepfunctions-tasks';
 import { Construct } from 'constructs';
@@ -125,7 +124,6 @@ export class ComprehendGenericSyncSfnTask extends sfn.TaskStateBase {
 
   private readonly integrationPattern : sfn.IntegrationPattern;
   public stateMachine : sfn.IStateMachine;
-  public comprehendSyncLambdaLogGroup:ILogGroup;
   public version:string;
   public comprehendSyncCallFunction:lambda.IFunction;
 
@@ -223,7 +221,6 @@ export class ComprehendGenericSyncSfnTask extends sfn.TaskStateBase {
         this.comprehendSyncCallFunction.addToRolePolicy(policyStatement);
       }
     }
-    this.comprehendSyncLambdaLogGroup=(<lambda.Function> this.comprehendSyncCallFunction).logGroup;
 
     const comprehendInvoke = new tasks.LambdaInvoke(this, id, {
       lambdaFunction: this.comprehendSyncCallFunction,
@@ -236,7 +233,6 @@ export class ComprehendGenericSyncSfnTask extends sfn.TaskStateBase {
     this.stateMachine = new sfn.StateMachine(this, 'StateMachine', {
       definition: workflow_chain,
       timeout: Duration.hours(textractStateMachineTimeoutMinutes),
-      tracingEnabled: true,
     });
 
     this.comprehendSyncCallFunction.addToRolePolicy(new iam.PolicyStatement({

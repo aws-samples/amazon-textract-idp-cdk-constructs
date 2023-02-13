@@ -2,7 +2,6 @@ import * as path from 'path';
 import { Duration, Aws, ArnFormat, Stack } from 'aws-cdk-lib';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda_ from 'aws-cdk-lib/aws-lambda';
-import { ILogGroup } from 'aws-cdk-lib/aws-logs';
 import * as sfn from 'aws-cdk-lib/aws-stepfunctions';
 import * as tasks from 'aws-cdk-lib/aws-stepfunctions-tasks';
 import { Construct } from 'constructs';
@@ -132,7 +131,6 @@ export class TextractGenerateCSV extends sfn.TaskStateBase {
   private readonly integrationPattern : sfn.IntegrationPattern;
   stateMachine : sfn.StateMachine;
 
-  public readonly generateCSVLogGroup: ILogGroup;
   public readonly generateCSVLambda: lambda_.IFunction;
 
   constructor(scope : Construct, id : string, private readonly props : TextractGenerateCSVProps) {
@@ -238,7 +236,6 @@ export class TextractGenerateCSV extends sfn.TaskStateBase {
       ],
       resources: ['*'],
     }));
-    this.generateCSVLogGroup = (<lambda_.Function> this.generateCSVLambda).logGroup;
 
 
     const csvGeneratorLambdaInvoke = new tasks.LambdaInvoke(this, 'csvGeneratorInvoke', {
@@ -252,7 +249,6 @@ export class TextractGenerateCSV extends sfn.TaskStateBase {
 
     this.stateMachine = new sfn.StateMachine(this, 'StateMachine', {
       definition: workflow_chain,
-      tracingEnabled: true,
     });
     this.taskPolicies = this.createScopedAccessPolicy();
   }

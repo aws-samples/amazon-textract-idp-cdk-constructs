@@ -3,7 +3,7 @@ import { Duration, Aws, ArnFormat, Stack } from 'aws-cdk-lib';
 import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
-import { FilterPattern, ILogGroup, MetricFilter } from 'aws-cdk-lib/aws-logs';
+import { FilterPattern, MetricFilter } from 'aws-cdk-lib/aws-logs';
 import * as sfn from 'aws-cdk-lib/aws-stepfunctions';
 import * as tasks from 'aws-cdk-lib/aws-stepfunctions-tasks';
 import { LambdaInvoke } from 'aws-cdk-lib/aws-stepfunctions-tasks';
@@ -147,7 +147,6 @@ export class TextractGenericSyncSfnTask extends sfn.TaskStateBase {
 
   private readonly integrationPattern : sfn.IntegrationPattern;
   public stateMachine : sfn.IStateMachine;
-  public textractSyncLambdaLogGroup:ILogGroup;
   public version:string;
   public textractSyncCallFunction:lambda.IFunction;
   public syncDurationMetric?:cloudwatch.IMetric;
@@ -268,14 +267,12 @@ export class TextractGenericSyncSfnTask extends sfn.TaskStateBase {
         this.textractSyncCallFunction.addToRolePolicy(policyStatement);
       }
     }
-    this.textractSyncLambdaLogGroup=(<lambda.Function> this.textractSyncCallFunction).logGroup;
 
     const workflow_chain = sfn.Chain.start(textractSyncCallTask);
 
     this.stateMachine = new sfn.StateMachine(this, 'StateMachine', {
       definition: workflow_chain,
       timeout: Duration.hours(textractStateMachineTimeoutMinutes),
-      tracingEnabled: true,
     });
 
     if (this.integrationPattern === sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN) {

@@ -8,15 +8,15 @@ beforeEach(() => {
   stack = new Stack();
 });
 
-describe('ClassificationTest', () => {
-  test('ClassificationTest', () => {
-    new TextractGenericSyncSfnTask(stack, 'idp-classification', {
+describe('TextractSyncTest', () => {
+  test('TextractSyncTest', () => {
+    new TextractGenericSyncSfnTask(stack, 'idp-textract-sync-test', {
       integrationPattern: sfn.IntegrationPattern.REQUEST_RESPONSE,
       s3OutputBucket: 'somebucket',
       s3OutputPrefix: 'someprefix',
     });
     expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
     const template = Template.fromStack(stack);
-    template.resourceCountIs('AWS::Lambda::Function', 2);
+    template.resourceCountIs('AWS::Lambda::Function', 1);
   });
 });

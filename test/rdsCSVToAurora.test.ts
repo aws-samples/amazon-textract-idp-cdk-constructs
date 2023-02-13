@@ -34,6 +34,6 @@ describe('ClassificationTest', () => {
     });
     expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
     const template = Template.fromStack(stack);
-    template.resourceCountIs('AWS::Lambda::Function', 4);
+    template.resourceCountIs('AWS::Lambda::Function', 3);
   });
 });
