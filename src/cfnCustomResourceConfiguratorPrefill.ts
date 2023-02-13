@@ -8,7 +8,10 @@ import { Construct } from 'constructs';
 
 
 export interface TextractConfigurationProps {
-  readonly configuration_table:string;
+  /** @deprecated User configurationTableName in the future */
+  readonly configuration_table?:string;
+  readonly configurationTableArn:string;
+  readonly configurationTableName:string;
   /** Function used to initialize the DynamoDB table for the Classification Configuration
    *  The Function has to implement CloudFormation Custom Resource https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-custom-resources-lambda.html
   */
@@ -41,7 +44,7 @@ export class TextractConfiguration extends Construct {
         timeout: cdk.Duration.seconds(600),
         environment: {
           LOG_LEVEL: 'DEBUG',
-          CONFIGURATION_TABLE: props.configuration_table,
+          CONFIGURATION_TABLE: props.configurationTableName,
         },
       });
     } else {
@@ -51,7 +54,7 @@ export class TextractConfiguration extends Construct {
     this.configurationInitFunction.addToRolePolicy(
       new iam.PolicyStatement({
         actions: ['dynamodb:PutItem', 'dynamodb:GetItem'],
-        resources: ['*'],
+        resources: [props.configurationTableArn],
       }));
 
     const provider = new customResources.Provider(this, 'Provider', {

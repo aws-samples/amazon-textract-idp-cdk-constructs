@@ -459,11 +459,7 @@ Add a prefix to the stateId of all States found in a construct tree.
 | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTask.property.startState">startState</a></code> | <code>aws-cdk-lib.aws_stepfunctions.State</code> | First state of this Chainable. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTask.property.stateId">stateId</a></code> | <code>string</code> | Tokenized string that evaluates to the state's ID. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTask.property.comprehendSyncCallFunction">comprehendSyncCallFunction</a></code> | <code>aws-cdk-lib.aws_lambda.IFunction</code> | *No description.* |
-| <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTask.property.comprehendSyncLambdaLogGroup">comprehendSyncLambdaLogGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | *No description.* |
-| <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTask.property.comprehendSyncSQS">comprehendSyncSQS</a></code> | <code>aws-cdk-lib.aws_sqs.IQueue</code> | *No description.* |
-| <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTask.property.putOnSQSLambdaLogGroup">putOnSQSLambdaLogGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTask.property.stateMachine">stateMachine</a></code> | <code>aws-cdk-lib.aws_stepfunctions.IStateMachine</code> | *No description.* |
-| <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTask.property.textractPutOnSQSFunction">textractPutOnSQSFunction</a></code> | <code>aws-cdk-lib.aws_lambda.IFunction</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTask.property.version">version</a></code> | <code>string</code> | *No description.* |
 
 ---
@@ -538,36 +534,6 @@ public readonly comprehendSyncCallFunction: IFunction;
 
 ---
 
-##### `comprehendSyncLambdaLogGroup`<sup>Required</sup> <a name="comprehendSyncLambdaLogGroup" id="amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTask.property.comprehendSyncLambdaLogGroup"></a>
-
-```typescript
-public readonly comprehendSyncLambdaLogGroup: ILogGroup;
-```
-
-- *Type:* aws-cdk-lib.aws_logs.ILogGroup
-
----
-
-##### `comprehendSyncSQS`<sup>Required</sup> <a name="comprehendSyncSQS" id="amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTask.property.comprehendSyncSQS"></a>
-
-```typescript
-public readonly comprehendSyncSQS: IQueue;
-```
-
-- *Type:* aws-cdk-lib.aws_sqs.IQueue
-
----
-
-##### `putOnSQSLambdaLogGroup`<sup>Required</sup> <a name="putOnSQSLambdaLogGroup" id="amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTask.property.putOnSQSLambdaLogGroup"></a>
-
-```typescript
-public readonly putOnSQSLambdaLogGroup: ILogGroup;
-```
-
-- *Type:* aws-cdk-lib.aws_logs.ILogGroup
-
----
-
 ##### `stateMachine`<sup>Required</sup> <a name="stateMachine" id="amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTask.property.stateMachine"></a>
 
 ```typescript
@@ -575,16 +541,6 @@ public readonly stateMachine: IStateMachine;
 ```
 
 - *Type:* aws-cdk-lib.aws_stepfunctions.IStateMachine
-
----
-
-##### `textractPutOnSQSFunction`<sup>Required</sup> <a name="textractPutOnSQSFunction" id="amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTask.property.textractPutOnSQSFunction"></a>
-
-```typescript
-public readonly textractPutOnSQSFunction: IFunction;
-```
-
-- *Type:* aws-cdk-lib.aws_lambda.IFunction
 
 ---
 
@@ -1059,7 +1015,6 @@ Add a prefix to the stateId of all States found in a construct tree.
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTask.property.stateId">stateId</a></code> | <code>string</code> | Tokenized string that evaluates to the state's ID. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTask.property.auroraSecurityGroup">auroraSecurityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTask.property.csvToAuroraFunction">csvToAuroraFunction</a></code> | <code>aws-cdk-lib.aws_lambda.IFunction</code> | *No description.* |
-| <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTask.property.csvToAuroraLambdaLogGroup">csvToAuroraLambdaLogGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTask.property.dbCluster">dbCluster</a></code> | <code>aws-cdk-lib.aws_rds.IServerlessCluster</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTask.property.lambdaSecurityGroup">lambdaSecurityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTask.property.stateMachine">stateMachine</a></code> | <code>aws-cdk-lib.aws_stepfunctions.IStateMachine</code> | *No description.* |
@@ -1145,16 +1100,6 @@ public readonly csvToAuroraFunction: IFunction;
 ```
 
 - *Type:* aws-cdk-lib.aws_lambda.IFunction
-
----
-
-##### `csvToAuroraLambdaLogGroup`<sup>Required</sup> <a name="csvToAuroraLambdaLogGroup" id="amazon-textract-idp-cdk-constructs.CSVToAuroraTask.property.csvToAuroraLambdaLogGroup"></a>
-
-```typescript
-public readonly csvToAuroraLambdaLogGroup: ILogGroup;
-```
-
-- *Type:* aws-cdk-lib.aws_logs.ILogGroup
 
 ---
 
@@ -1368,6 +1313,7 @@ Any object.
 | <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitter.property.endStates">endStates</a></code> | <code>aws-cdk-lib.aws_stepfunctions.INextable[]</code> | The states to chain onto if this fragment is used. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitter.property.id">id</a></code> | <code>string</code> | Descriptive identifier for this chainable. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitter.property.startState">startState</a></code> | <code>aws-cdk-lib.aws_stepfunctions.State</code> | The start state of this state machine fragment. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitter.property.splitterFunction">splitterFunction</a></code> | <code>aws-cdk-lib.aws_lambda.IFunction</code> | *No description.* |
 
 ---
 
@@ -1416,6 +1362,16 @@ public readonly startState: State;
 - *Type:* aws-cdk-lib.aws_stepfunctions.State
 
 The start state of this state machine fragment.
+
+---
+
+##### `splitterFunction`<sup>Required</sup> <a name="splitterFunction" id="amazon-textract-idp-cdk-constructs.DocumentSplitter.property.splitterFunction"></a>
+
+```typescript
+public readonly splitterFunction: IFunction;
+```
+
+- *Type:* aws-cdk-lib.aws_lambda.IFunction
 
 ---
 
@@ -3083,7 +3039,6 @@ Any object.
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractClassificationConfigurator.property.configurationTable">configurationTable</a></code> | <code>aws-cdk-lib.aws_dynamodb.ITable</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractClassificationConfigurator.property.configurationTableName">configurationTableName</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractClassificationConfigurator.property.configuratorFunction">configuratorFunction</a></code> | <code>aws-cdk-lib.aws_lambda.IFunction</code> | *No description.* |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractClassificationConfigurator.property.configuratorFunctionLogGroupName">configuratorFunctionLogGroupName</a></code> | <code>string</code> | *No description.* |
 
 ---
 
@@ -3162,16 +3117,6 @@ public readonly configuratorFunction: IFunction;
 ```
 
 - *Type:* aws-cdk-lib.aws_lambda.IFunction
-
----
-
-##### `configuratorFunctionLogGroupName`<sup>Required</sup> <a name="configuratorFunctionLogGroupName" id="amazon-textract-idp-cdk-constructs.TextractClassificationConfigurator.property.configuratorFunctionLogGroupName"></a>
-
-```typescript
-public readonly configuratorFunctionLogGroupName: string;
-```
-
-- *Type:* string
 
 ---
 
@@ -3635,7 +3580,6 @@ Add a prefix to the stateId of all States found in a construct tree.
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSV.property.startState">startState</a></code> | <code>aws-cdk-lib.aws_stepfunctions.State</code> | First state of this Chainable. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSV.property.stateId">stateId</a></code> | <code>string</code> | Tokenized string that evaluates to the state's ID. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSV.property.generateCSVLambda">generateCSVLambda</a></code> | <code>aws-cdk-lib.aws_lambda.IFunction</code> | *No description.* |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSV.property.generateCSVLogGroup">generateCSVLogGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSV.property.stateMachine">stateMachine</a></code> | <code>aws-cdk-lib.aws_stepfunctions.StateMachine</code> | *No description.* |
 
 ---
@@ -3707,16 +3651,6 @@ public readonly generateCSVLambda: IFunction;
 ```
 
 - *Type:* aws-cdk-lib.aws_lambda.IFunction
-
----
-
-##### `generateCSVLogGroup`<sup>Required</sup> <a name="generateCSVLogGroup" id="amazon-textract-idp-cdk-constructs.TextractGenerateCSV.property.generateCSVLogGroup"></a>
-
-```typescript
-public readonly generateCSVLogGroup: ILogGroup;
-```
-
-- *Type:* aws-cdk-lib.aws_logs.ILogGroup
 
 ---
 
@@ -4204,8 +4138,6 @@ Add a prefix to the stateId of all States found in a construct tree.
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.id">id</a></code> | <code>string</code> | Descriptive identifier for this chainable. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.startState">startState</a></code> | <code>aws-cdk-lib.aws_stepfunctions.State</code> | First state of this Chainable. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.stateId">stateId</a></code> | <code>string</code> | Tokenized string that evaluates to the state's ID. |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.receiveStartSNSLambdaLogGroup">receiveStartSNSLambdaLogGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | *No description.* |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.startTextractLambdaLogGroup">startTextractLambdaLogGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.stateMachine">stateMachine</a></code> | <code>aws-cdk-lib.aws_stepfunctions.IStateMachine</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.taskTokenTable">taskTokenTable</a></code> | <code>aws-cdk-lib.aws_dynamodb.ITable</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.taskTokenTableName">taskTokenTableName</a></code> | <code>string</code> | *No description.* |
@@ -4278,26 +4210,6 @@ public readonly stateId: string;
 - *Type:* string
 
 Tokenized string that evaluates to the state's ID.
-
----
-
-##### `receiveStartSNSLambdaLogGroup`<sup>Required</sup> <a name="receiveStartSNSLambdaLogGroup" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.receiveStartSNSLambdaLogGroup"></a>
-
-```typescript
-public readonly receiveStartSNSLambdaLogGroup: ILogGroup;
-```
-
-- *Type:* aws-cdk-lib.aws_logs.ILogGroup
-
----
-
-##### `startTextractLambdaLogGroup`<sup>Required</sup> <a name="startTextractLambdaLogGroup" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.startTextractLambdaLogGroup"></a>
-
-```typescript
-public readonly startTextractLambdaLogGroup: ILogGroup;
-```
-
-- *Type:* aws-cdk-lib.aws_logs.ILogGroup
 
 ---
 
@@ -4886,7 +4798,6 @@ Add a prefix to the stateId of all States found in a construct tree.
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.property.stateId">stateId</a></code> | <code>string</code> | Tokenized string that evaluates to the state's ID. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.property.stateMachine">stateMachine</a></code> | <code>aws-cdk-lib.aws_stepfunctions.IStateMachine</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.property.textractSyncCallFunction">textractSyncCallFunction</a></code> | <code>aws-cdk-lib.aws_lambda.IFunction</code> | *No description.* |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.property.textractSyncLambdaLogGroup">textractSyncLambdaLogGroup</a></code> | <code>aws-cdk-lib.aws_logs.ILogGroup</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.property.version">version</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.property.syncDurationMetric">syncDurationMetric</a></code> | <code>aws-cdk-lib.aws_cloudwatch.IMetric</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.property.syncNumberPagesMetric">syncNumberPagesMetric</a></code> | <code>aws-cdk-lib.aws_cloudwatch.IMetric</code> | *No description.* |
@@ -4972,16 +4883,6 @@ public readonly textractSyncCallFunction: IFunction;
 ```
 
 - *Type:* aws-cdk-lib.aws_lambda.IFunction
-
----
-
-##### `textractSyncLambdaLogGroup`<sup>Required</sup> <a name="textractSyncLambdaLogGroup" id="amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.property.textractSyncLambdaLogGroup"></a>
-
-```typescript
-public readonly textractSyncLambdaLogGroup: ILogGroup;
-```
-
-- *Type:* aws-cdk-lib.aws_logs.ILogGroup
 
 ---
 
@@ -5289,10 +5190,16 @@ const comprehendGenericSyncSfnTaskProps: ComprehendGenericSyncSfnTaskProps = { .
 | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.comprehendClassifierArn">comprehendClassifierArn</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.associateWithParent">associateWithParent</a></code> | <code>boolean</code> | Pass the execution ID from the context object to the execution input. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.input">input</a></code> | <code>aws-cdk-lib.aws_stepfunctions.TaskInput</code> | The JSON input for the execution, same as that of StartExecution. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.inputPolicyStatements">inputPolicyStatements</a></code> | <code>object</code> | List of PolicyStatements to attach to the Lambda function. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.lambdaLogLevel">lambdaLogLevel</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.lambdaMemory">lambdaMemory</a></code> | <code>number</code> | Memory allocated to Lambda function, default 512. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.lambdaTimeout">lambdaTimeout</a></code> | <code>number</code> | Lambda Function Timeout in seconds, default 300. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.name">name</a></code> | <code>string</code> | The name of the execution, same as that of StartExecution. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.outputPolicyStatements">outputPolicyStatements</a></code> | <code>object</code> | List of PolicyStatements to attach to the Lambda function. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.s3InputBucket">s3InputBucket</a></code> | <code>string</code> | location of input S3 objects - if left empty will generate rule for s3 access to all [*]. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.s3InputPrefix">s3InputPrefix</a></code> | <code>string</code> | prefix for input S3 objects - if left empty will generate rule for s3 access to all in bucket. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.s3OutputBucket">s3OutputBucket</a></code> | <code>string</code> | Bucketname to output data to. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.s3OutputPrefix">s3OutputPrefix</a></code> | <code>string</code> | The prefix to use for the temporary output files (e. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.textractStateMachineTimeoutMinutes">textractStateMachineTimeoutMinutes</a></code> | <code>number</code> | how long can we wait for the process (default is 60 minutes). |
 | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.workflowTracingEnabled">workflowTracingEnabled</a></code> | <code>boolean</code> | *No description.* |
 
@@ -5464,6 +5371,18 @@ The JSON input for the execution, same as that of StartExecution.
 
 ---
 
+##### `inputPolicyStatements`<sup>Optional</sup> <a name="inputPolicyStatements" id="amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.inputPolicyStatements"></a>
+
+```typescript
+public readonly inputPolicyStatements: object;
+```
+
+- *Type:* object
+
+List of PolicyStatements to attach to the Lambda function.
+
+---
+
 ##### `lambdaLogLevel`<sup>Optional</sup> <a name="lambdaLogLevel" id="amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.lambdaLogLevel"></a>
 
 ```typescript
@@ -5510,6 +5429,68 @@ public readonly name: string;
 The name of the execution, same as that of StartExecution.
 
 > [https://docs.aws.amazon.com/step-functions/latest/apireference/API_StartExecution.html](https://docs.aws.amazon.com/step-functions/latest/apireference/API_StartExecution.html)
+
+---
+
+##### `outputPolicyStatements`<sup>Optional</sup> <a name="outputPolicyStatements" id="amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.outputPolicyStatements"></a>
+
+```typescript
+public readonly outputPolicyStatements: object;
+```
+
+- *Type:* object
+
+List of PolicyStatements to attach to the Lambda function.
+
+---
+
+##### `s3InputBucket`<sup>Optional</sup> <a name="s3InputBucket" id="amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.s3InputBucket"></a>
+
+```typescript
+public readonly s3InputBucket: string;
+```
+
+- *Type:* string
+
+location of input S3 objects - if left empty will generate rule for s3 access to all [*].
+
+---
+
+##### `s3InputPrefix`<sup>Optional</sup> <a name="s3InputPrefix" id="amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.s3InputPrefix"></a>
+
+```typescript
+public readonly s3InputPrefix: string;
+```
+
+- *Type:* string
+
+prefix for input S3 objects - if left empty will generate rule for s3 access to all in bucket.
+
+---
+
+##### `s3OutputBucket`<sup>Optional</sup> <a name="s3OutputBucket" id="amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.s3OutputBucket"></a>
+
+```typescript
+public readonly s3OutputBucket: string;
+```
+
+- *Type:* string
+
+Bucketname to output data to.
+
+---
+
+##### `s3OutputPrefix`<sup>Optional</sup> <a name="s3OutputPrefix" id="amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.s3OutputPrefix"></a>
+
+```typescript
+public readonly s3OutputPrefix: string;
+```
+
+- *Type:* string
+
+The prefix to use for the temporary output files (e.
+
+g. output from async process before stiching together)
 
 ---
 
@@ -5901,9 +5882,13 @@ const documentSplitterProps: DocumentSplitterProps = { ... }
 | --- | --- | --- |
 | <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.s3OutputBucket">s3OutputBucket</a></code> | <code>string</code> | Bucketname to output data to. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.s3OutputPrefix">s3OutputPrefix</a></code> | <code>string</code> | The prefix to use to output files to. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.inputPolicyStatements">inputPolicyStatements</a></code> | <code>object</code> | List of PolicyStatements to attach to the Lambda function. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.lambdaLogLevel">lambdaLogLevel</a></code> | <code>string</code> | Lambda log level. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.lambdaMemoryMB">lambdaMemoryMB</a></code> | <code>number</code> | Lambda function memory configuration (may need to increase for larger documents). |
 | <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.lambdaTimeout">lambdaTimeout</a></code> | <code>number</code> | Lambda function timeout (may need to increase for larger documents). |
+| <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.outputPolicyStatements">outputPolicyStatements</a></code> | <code>object</code> | List of PolicyStatements to attach to the Lambda function. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.s3InputBucket">s3InputBucket</a></code> | <code>string</code> | location of input S3 objects - if left empty will generate rule for s3 access to all [*]. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.s3InputPrefix">s3InputPrefix</a></code> | <code>string</code> | prefix for input S3 objects - if left empty will generate rule for s3 access to all in bucket. |
 
 ---
 
@@ -5928,6 +5913,18 @@ public readonly s3OutputPrefix: string;
 - *Type:* string
 
 The prefix to use to output files to.
+
+---
+
+##### `inputPolicyStatements`<sup>Optional</sup> <a name="inputPolicyStatements" id="amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.inputPolicyStatements"></a>
+
+```typescript
+public readonly inputPolicyStatements: object;
+```
+
+- *Type:* object
+
+List of PolicyStatements to attach to the Lambda function.
 
 ---
 
@@ -5964,6 +5961,42 @@ public readonly lambdaTimeout: number;
 - *Type:* number
 
 Lambda function timeout (may need to increase for larger documents).
+
+---
+
+##### `outputPolicyStatements`<sup>Optional</sup> <a name="outputPolicyStatements" id="amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.outputPolicyStatements"></a>
+
+```typescript
+public readonly outputPolicyStatements: object;
+```
+
+- *Type:* object
+
+List of PolicyStatements to attach to the Lambda function.
+
+---
+
+##### `s3InputBucket`<sup>Optional</sup> <a name="s3InputBucket" id="amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.s3InputBucket"></a>
+
+```typescript
+public readonly s3InputBucket: string;
+```
+
+- *Type:* string
+
+location of input S3 objects - if left empty will generate rule for s3 access to all [*].
+
+---
+
+##### `s3InputPrefix`<sup>Optional</sup> <a name="s3InputPrefix" id="amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.s3InputPrefix"></a>
+
+```typescript
+public readonly s3InputPrefix: string;
+```
+
+- *Type:* string
+
+prefix for input S3 objects - if left empty will generate rule for s3 access to all in bucket.
 
 ---
 

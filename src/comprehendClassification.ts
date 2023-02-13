@@ -2,9 +2,6 @@ import * as path from 'path';
 import { Duration, Aws, ArnFormat, Stack } from 'aws-cdk-lib';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
-import { SqsEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
-import { ILogGroup } from 'aws-cdk-lib/aws-logs';
-import * as sqs from 'aws-cdk-lib/aws-sqs';
 import * as sfn from 'aws-cdk-lib/aws-stepfunctions';
 import * as tasks from 'aws-cdk-lib/aws-stepfunctions-tasks';
 import { Construct } from 'constructs';
@@ -44,6 +41,18 @@ export interface ComprehendGenericSyncSfnTaskProps extends sfn.TaskStateBaseProp
   readonly workflowTracingEnabled? : boolean;
   /** how long can we wait for the process (default is 60 minutes) */
   readonly textractStateMachineTimeoutMinutes? : number;
+  /** location of input S3 objects - if left empty will generate rule for s3 access to all [*] */
+  readonly s3InputBucket?: string;
+  /** prefix for input S3 objects - if left empty will generate rule for s3 access to all in bucket */
+  readonly s3InputPrefix?: string;
+  /** Bucketname to output data to */
+  readonly s3OutputBucket? : string;
+  /** The prefix to use for the temporary output files (e. g. output from async process before stiching together) */
+  readonly s3OutputPrefix? : string;
+  /** List of PolicyStatements to attach to the Lambda function.  */
+  readonly inputPolicyStatements?: [iam.PolicyStatement];
+  /** List of PolicyStatements to attach to the Lambda function.  */
+  readonly outputPolicyStatements?: [iam.PolicyStatement];
   /**
        * The JSON input for the execution, same as that of StartExecution.
        *
@@ -115,12 +124,8 @@ export class ComprehendGenericSyncSfnTask extends sfn.TaskStateBase {
 
   private readonly integrationPattern : sfn.IntegrationPattern;
   public stateMachine : sfn.IStateMachine;
-  public putOnSQSLambdaLogGroup:ILogGroup;
-  public comprehendSyncLambdaLogGroup:ILogGroup;
-  public comprehendSyncSQS:sqs.IQueue;
   public version:string;
   public comprehendSyncCallFunction:lambda.IFunction;
-  public textractPutOnSQSFunction: lambda.IFunction;
 
   constructor(scope : Construct, id : string, private readonly props : ComprehendGenericSyncSfnTaskProps) {
     super(scope, id, props);
@@ -142,55 +147,92 @@ export class ComprehendGenericSyncSfnTask extends sfn.TaskStateBase {
     var lambdaLogLevel = props.lambdaLogLevel === undefined ? 'DEBUG' : props.lambdaLogLevel;
     var lambdaTimeout = props.lambdaTimeout === undefined ? 300 : props.lambdaTimeout;
     var lambdaMemory = props.lambdaMemory === undefined ? 256 : props.lambdaMemory;
+    var s3OutputPrefix =
+      props.s3OutputPrefix === undefined ? '' : props.s3OutputPrefix;
+    var s3InputPrefix =
+      props.s3InputPrefix === undefined ? '' : props.s3InputPrefix;
 
-    const duration: number = 20;
-    this.comprehendSyncSQS = new sqs.Queue(this, 'ComprehendRequests', {
-      visibilityTimeout: Duration.seconds(duration),
-    });
-
-    this.textractPutOnSQSFunction = new lambda.DockerImageFunction(this, 'PutOnSQS', {
-      code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/put_on_sqs/')),
-      architecture: lambda.Architecture.X86_64,
+    this.comprehendSyncCallFunction = new lambda.DockerImageFunction(this, 'ComprehendSyncCall', {
+      code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/comprehend_sync/')),
       memorySize: lambdaMemory,
+      architecture: lambda.Architecture.X86_64,
       timeout: Duration.seconds(lambdaTimeout),
       environment: {
         LOG_LEVEL: lambdaLogLevel,
         COMPREHEND_CLASSIFIER_ARN: props.comprehendClassifierArn,
-        SQS_QUEUE_URL: this.comprehendSyncSQS.queueUrl,
       },
     });
-    this.textractPutOnSQSFunction.addToRolePolicy(new iam.PolicyStatement({ actions: ['sqs:SendMessage'], resources: [this.comprehendSyncSQS.queueArn] }));
+    this.comprehendSyncCallFunction.addToRolePolicy(new iam.PolicyStatement({ actions: ['comprehend:ClassifyDocument'], resources: [props.comprehendClassifierArn] }));
+    /** ################ INPUT BUCKET POLICIES */
+    if (props.inputPolicyStatements === undefined) {
+      if (props.s3InputBucket === undefined) {
+        this.comprehendSyncCallFunction.addToRolePolicy(
+          new iam.PolicyStatement({
+            actions: ['s3:GetObject', 's3:ListBucket'],
+            resources: ['*'],
+          }),
+        );
+      } else {
+        this.comprehendSyncCallFunction.addToRolePolicy(
+          new iam.PolicyStatement({
+            actions: ['s3:GetObject'],
+            resources: [
+              path.join(`arn:aws:s3:::${props.s3InputBucket}`, '/*'),
+              path.join(`arn:aws:s3:::${props.s3InputBucket}`, s3InputPrefix, '/*'),
+            ],
+          }),
+        );
+        this.comprehendSyncCallFunction.addToRolePolicy(
+          new iam.PolicyStatement({
+            actions: ['s3:ListBucket'],
+            resources: [
+              path.join(`arn:aws:s3:::${props.s3InputBucket}`),
+            ],
+          }),
+        );
+      }
+    } else {
+      for (var policyStatement of props.inputPolicyStatements) {
+        this.comprehendSyncCallFunction.addToRolePolicy(policyStatement);
+      }
+    }
+    /** ##################### OUTPUT BUCKET POLICIES */
+    if (props.outputPolicyStatements === undefined) {
+      if (props.s3OutputBucket === undefined) {
+        this.comprehendSyncCallFunction.addToRolePolicy(
+          new iam.PolicyStatement({
+            actions: ['s3:PutObject'],
+            resources: ['*'],
+          }),
+        );
+      } else {
+        this.comprehendSyncCallFunction.addToRolePolicy(
+          new iam.PolicyStatement({
+            actions: ['s3:PutObject'],
+            resources: [
+              path.join(`arn:aws:s3:::${props.s3OutputBucket}`, s3OutputPrefix, '/'),
+              path.join(`arn:aws:s3:::${props.s3OutputBucket}`, s3OutputPrefix, '/*'),
+            ],
+          }),
+        );
+      }
+    } else {
+      for (var policyStatement of props.outputPolicyStatements) {
+        this.comprehendSyncCallFunction.addToRolePolicy(policyStatement);
+      }
+    }
 
-    this.putOnSQSLambdaLogGroup = (<lambda.Function> this.textractPutOnSQSFunction).logGroup;
-
-    const putOnSQSFunctionInvoke = new tasks.LambdaInvoke(this, 'PutOnSQSFunctionInvoke', {
-      lambdaFunction: this.textractPutOnSQSFunction,
+    const comprehendInvoke = new tasks.LambdaInvoke(this, id, {
+      lambdaFunction: this.comprehendSyncCallFunction,
+      timeout: Duration.seconds(900),
+      outputPath: '$.Payload',
     });
 
-
-    this.comprehendSyncCallFunction = new lambda.DockerImageFunction(this, 'ComprehendSyncCall', {
-      code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/comprehend_sync/')),
-      memorySize: 128,
-      timeout: Duration.seconds(duration),
-      environment: {
-        LOG_LEVEL: lambdaLogLevel,
-        COMPREHEND_CLASSIFIER_ARN: props.comprehendClassifierArn,
-        SQS_QUEUE_URL: this.comprehendSyncSQS.queueName,
-      },
-    });
-    this.comprehendSyncCallFunction.addEventSource(new SqsEventSource(this.comprehendSyncSQS, { batchSize: 1 }));
-    this.comprehendSyncCallFunction.addToRolePolicy(new iam.PolicyStatement({ actions: ['comprehend:ClassifyDocument'], resources: ['*'] }));
-    this.comprehendSyncCallFunction.addToRolePolicy(new iam.PolicyStatement({
-      actions: ['s3:GetObject', 's3:ListBucket'], resources: ['*'],
-    }));
-    this.comprehendSyncLambdaLogGroup=(<lambda.Function> this.comprehendSyncCallFunction).logGroup;
-
-    const workflow_chain = sfn.Chain.start(putOnSQSFunctionInvoke);
+    const workflow_chain = sfn.Chain.start(comprehendInvoke);
 
     this.stateMachine = new sfn.StateMachine(this, 'StateMachine', {
       definition: workflow_chain,
       timeout: Duration.hours(textractStateMachineTimeoutMinutes),
-      tracingEnabled: true,
     });
 
     this.comprehendSyncCallFunction.addToRolePolicy(new iam.PolicyStatement({

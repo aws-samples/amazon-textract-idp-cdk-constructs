@@ -7,14 +7,14 @@ beforeEach(() => {
   stack = new Stack();
 });
 
-describe('ClassificationTest', () => {
-  test('ClassificationTest', () => {
-    new TextractGenerateCSV(stack, 'idp-classification', {
+describe('GenerateCSVTest', () => {
+  test('GenerateCSVTest', () => {
+    new TextractGenerateCSV(stack, 'idp-generate-csv', {
       csvS3OutputBucket: 'somebucket',
       csvS3OutputPrefix: 'someprefix',
     });
     expect(Template.fromStack(stack).toJSON()).toMatchSnapshot();
     const template = Template.fromStack(stack);
-    template.resourceCountIs('AWS::Lambda::Function', 2);
+    template.resourceCountIs('AWS::Lambda::Function', 1);
   });
 });

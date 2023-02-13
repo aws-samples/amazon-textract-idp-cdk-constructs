@@ -5,7 +5,7 @@ import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { IRole, ManagedPolicy } from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
-import { FilterPattern, ILogGroup, MetricFilter } from 'aws-cdk-lib/aws-logs';
+import { FilterPattern, MetricFilter } from 'aws-cdk-lib/aws-logs';
 import * as sns from 'aws-cdk-lib/aws-sns';
 import { LambdaSubscription } from 'aws-cdk-lib/aws-sns-subscriptions';
 import * as sfn from 'aws-cdk-lib/aws-stepfunctions';
@@ -193,8 +193,6 @@ export class TextractGenericAsyncSfnTask extends sfn.TaskStateBase {
 
   private readonly integrationPattern : sfn.IntegrationPattern;
   public stateMachine : sfn.IStateMachine;
-  public startTextractLambdaLogGroup:ILogGroup;
-  public receiveStartSNSLambdaLogGroup:ILogGroup;
   public taskTokenTable:dynamodb.ITable;
   public taskTokenTableName:string;
   public textractAsyncSNSRole:IRole;
@@ -361,7 +359,6 @@ export class TextractGenericAsyncSfnTask extends sfn.TaskStateBase {
 
     // this.textractAsyncCallFunction.addToRolePolicy(new iam.PolicyStatement({ actions: ['sns:*'], resources: [this.textractAsyncSNS.topicArn] }));
     this.textractAsyncCallFunction.addToRolePolicy(new iam.PolicyStatement({ actions: ['dynamodb:PutItem', 'dynamodb:GetItem'], resources: [this.taskTokenTable.tableArn] }));
-    this.startTextractLambdaLogGroup=(<lambda.Function> this.textractAsyncCallFunction).logGroup;
 
     this.textractAsyncReceiveSNSFunction = new lambda.DockerImageFunction(this, 'TextractAsyncSNSFunction', {
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/textract_async_sns_listener/')),
@@ -377,14 +374,12 @@ export class TextractGenericAsyncSfnTask extends sfn.TaskStateBase {
     });
     this.textractAsyncSNS.addSubscription(new LambdaSubscription(this.textractAsyncReceiveSNSFunction));
     this.textractAsyncReceiveSNSFunction.addToRolePolicy(new iam.PolicyStatement({ actions: ['dynamodb:GetItem'], resources: [this.taskTokenTable.tableArn] }));
-    this.receiveStartSNSLambdaLogGroup=(<lambda.Function> this.textractAsyncReceiveSNSFunction).logGroup;
 
     const workflow_chain = sfn.Chain.start(textractAsyncCallTask);
 
     this.stateMachine = new sfn.StateMachine(this, 'StateMachine', {
       definition: workflow_chain,
       timeout: Duration.hours(textractStateMachineTimeoutMinutes),
-      tracingEnabled: true,
     });
 
     this.textractAsyncReceiveSNSFunction.addToRolePolicy(new iam.PolicyStatement({

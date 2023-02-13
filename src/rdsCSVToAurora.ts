@@ -6,7 +6,7 @@ import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
-import { FilterPattern, ILogGroup, MetricFilter } from 'aws-cdk-lib/aws-logs';
+import { FilterPattern, MetricFilter } from 'aws-cdk-lib/aws-logs';
 import * as rds from 'aws-cdk-lib/aws-rds';
 import * as sfn from 'aws-cdk-lib/aws-stepfunctions';
 import * as tasks from 'aws-cdk-lib/aws-stepfunctions-tasks';
@@ -131,7 +131,6 @@ export class CSVToAuroraTask extends sfn.TaskStateBase {
 
   private readonly integrationPattern: sfn.IntegrationPattern;
   public stateMachine: sfn.IStateMachine;
-  public csvToAuroraLambdaLogGroup: ILogGroup;
   public version: string;
   public csvToAuroraFunction: lambda.IFunction;
   public csvToAuroraNumberRowsInsertedMetric?: cloudwatch.IMetric;
@@ -213,7 +212,6 @@ export class CSVToAuroraTask extends sfn.TaskStateBase {
         LOG_LEVEL: lambdaLogLevel,
       },
     });
-    this.csvToAuroraLambdaLogGroup = (<lambda.Function> this.csvToAuroraFunction).logGroup;
 
     const csvToAuroraTask = new tasks.LambdaInvoke(this, 'TextractSyncCallTask', { lambdaFunction: this.csvToAuroraFunction });
 
@@ -230,7 +228,6 @@ export class CSVToAuroraTask extends sfn.TaskStateBase {
     this.stateMachine = new sfn.StateMachine(this, id + '-SFN', {
       definition: workflow_chain,
       timeout: Duration.hours(textractStateMachineTimeoutMinutes),
-      tracingEnabled: true,
     });
 
     this.csvToAuroraFunction.addToRolePolicy(new iam.PolicyStatement({
@@ -239,11 +236,12 @@ export class CSVToAuroraTask extends sfn.TaskStateBase {
       ],
       resources: ['*'],
     }));
+
     this.csvToAuroraFunction.addToRolePolicy(new iam.PolicyStatement({
       actions: [
         'secretsmanager:GetSecretValue',
       ],
-      resources: ['*'],
+      resources: [(<rds.ServerlessCluster> this.dbCluster).secret!.secretArn],
     }));
     this.csvToAuroraFunction.addToRolePolicy(new iam.PolicyStatement({
       actions: [
