@@ -24,12 +24,12 @@ def parse_manifest(s3_path: str) -> tm.IDPManifest:
 
 
 def lambda_handler(event, _):
-    # Accepts a manifest file (https://github.com/schadem/schadem-tidp-manifest) with an s3Path and will split the document into individual pages
+    # Accepts a manifest file, with an s3Path and will split the document into individual pages
 
     log_level = os.environ.get('LOG_LEVEL', 'INFO')
     logger.setLevel(log_level)
     logger.info(f"version: {version}")
-    logger.info(f"schadem-tidp-manifest version: {tm.__version__}")
+    logger.info(f"amazon-textract-idp-cdk-manifest: {tm.__version__}")
     logger.info(json.dumps(event))
 
     s3_output_bucket = os.environ.get('S3_OUTPUT_BUCKET', None)

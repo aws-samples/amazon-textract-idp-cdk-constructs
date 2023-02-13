@@ -20,7 +20,7 @@ def lambda_handler(event, _):
 
     logger.setLevel(log_level)
     logger.info(f"version: {version}")
-    logger.info(f"schadem-tidp-manifest version: {tm.__version__}")
+    logger.info(f"amazon-textract-idp-cdk-manifest version: {tm.__version__}")
     logger.info(f"table_name: {table_name}")
     logger.info(json.dumps(event))
     if 'classification' in event and 'documentType' in event['classification']:
