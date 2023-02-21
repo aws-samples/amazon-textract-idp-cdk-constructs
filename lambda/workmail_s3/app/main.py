@@ -67,12 +67,8 @@ def lambda_handler(event, context):
                 content_disposition = str(part.get_content_disposition())
                 file_name = part.get_filename()
                 if 'attachment' in content_disposition and part.is_attachment() and "application/pdf" in part.get_content_type():
-                    fp = open('/tmp/' + file_name, 'wb')
-                    fp.write(part.get_payload(decode=True))
-                    fp.close()
-                    print('ATTACHMENT - ' , fp)
+                    s3.put_object(Body=bytes(json.dumps(full_json, indent=4).encode('UTF-8'), Bucket=s3_output_bucket, Key=file_name))
 
-                    s3.upload_file('/tmp/' + file_name,  Bucket=s3_output_bucket, Key=file_name)
                     print('Finished upload to S3 ' , fp)
 
     except ClientError as e:

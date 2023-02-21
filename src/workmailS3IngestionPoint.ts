@@ -48,7 +48,10 @@ export class WorkmailS3IngestionPoint extends Construct {
           resources: [WorkMailARN],
         }),
         new PolicyStatement({
-          resources: ['*'],
+          resources: [
+            path.join(`arn:aws:s3:::${this.s3OutputBucket}`, '/*'),
+            path.join(`arn:aws:s3:::${this.s3OutputBucket}`, this.s3OutputPrefix, '/*'),
+          ],
           actions: [
             's3:Object',
             's3:PutObject',
