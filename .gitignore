@@ -37,6 +37,7 @@ __pycache__
 .nvmrc
 .vscode
 update_dependencies_local.sh
+.idea
 !/.projenrc.js
 /test-reports/
 junit.xml

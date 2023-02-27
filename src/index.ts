@@ -22,7 +22,7 @@ export { ComprehendGenericSyncSfnTask, ComprehendGenericSyncSfnTaskProps } from 
 export { SpacySfnTask, SpacySfnTaskProps } from './spacyClassification';
 export { DocumentSplitter, DocumentSplitterProps } from './documentSplitter';
 export { RDSAuroraServerless, RDSAuroraServerlessProps } from './rdsAuroraServerless';
-
+export { WorkmailS3IngestionPoint, WorkmailS3IngestionPointProps } from './workmailS3IngestionPoint';
 
 export function validatePatternSupported(integrationPattern: sfn.IntegrationPattern, supportedPatterns: sfn.IntegrationPattern[]) {
   if (! supportedPatterns.includes(integrationPattern)) {
