@@ -2,7 +2,7 @@ const { awscdk } = require('projen');
 const project = new awscdk.AwsCdkConstructLibrary({
   author: 'Martin Schade',
   authorAddress: '45048633+schadem@users.noreply.github.com',
-  cdkVersion: '2.1.0',
+  cdkVersion: '2.67.0',
   defaultReleaseBranch: 'main',
   name: 'amazon-textract-idp-cdk-constructs',
   repositoryUrl: 'https://github.com/aws-samples/amazon-textract-idp-cdk-constructs.git',
