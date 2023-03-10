@@ -1,11 +1,11 @@
 import * as path from 'path';
-import { Duration, Aws, ArnFormat, Stack } from 'aws-cdk-lib';
+import { Duration, Aws, Stack } from 'aws-cdk-lib';
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { Architecture, DockerImageCode, DockerImageFunction, IFunction } from 'aws-cdk-lib/aws-lambda';
 import { Chain, FieldUtils, IntegrationPattern, IStateMachine, JsonPath, StateMachine, TaskInput, TaskMetricsConfig, TaskStateBase, TaskStateBaseProps } from 'aws-cdk-lib/aws-stepfunctions';
 import { LambdaInvoke } from 'aws-cdk-lib/aws-stepfunctions-tasks';
 import { Construct } from 'constructs';
-import { handleStepFunctionError } from './commonUtils';
+import { createScopedAccessPolicy, handleStepFunctionError } from './commonUtils';
 
 export function validatePatternSupported(
   integrationPattern: IntegrationPattern,
@@ -68,38 +68,31 @@ export interface ComprehendPiiSyncSfnTaskProps extends TaskStateBaseProps {
   /** List of PolicyStatements to attach to the Lambda function.  */
   readonly outputPolicyStatements?: [PolicyStatement];
   /**
-       * The JSON input for the execution, same as that of StartExecution.
-       *
-       * @see https://docs.aws.amazon.com/step-functions/latest/apireference/API_StartExecution.html
-       *
-       * @default - The state input (JSON path '$')
-       */
+   * The JSON input for the execution, same as that of StartExecution.
+   * @see https://docs.aws.amazon.com/step-functions/latest/apireference/API_StartExecution.html
+   * @default - The state input (JSON path '$')
+   */
   readonly input? : TaskInput;
 
   /**
-          * The name of the execution, same as that of StartExecution.
-          *
-          * @see https://docs.aws.amazon.com/step-functions/latest/apireference/API_StartExecution.html
-          *
-          * @default - None
-          */
+  * The name of the execution, same as that of StartExecution.
+  * @see https://docs.aws.amazon.com/step-functions/latest/apireference/API_StartExecution.html
+  * @default - None
+  */
   readonly name? : string;
 
   /**
-          * Pass the execution ID from the context object to the execution input.
-          * This allows the Step Functions UI to link child executions from parent executions, making it easier to trace execution flow across state machines.
-          *
-          * If you set this property to `true`, the `input` property must be an object (provided by `TaskInput.fromObject`) or omitted entirely.
-          *
-          * @see https://docs.aws.amazon.com/step-functions/latest/dg/concepts-nested-workflows.html#nested-execution-startid
-          *
-          * @default - false
-          */
+   * Pass the execution ID from the context object to the execution input.
+   * This allows the Step Functions UI to link child executions from parent executions, making it easier to trace execution flow across state machines.
+   * If you set this property to `true`, the `input` property must be an object (provided by `TaskInput.fromObject`) or omitted entirely.
+   * @see https://docs.aws.amazon.com/step-functions/latest/dg/concepts-nested-workflows.html#nested-execution-startid
+   * @default - false
+   */
   readonly associateWithParent? : boolean;
 }
 
 /**
- * Calls a Comprehend Classification endpoint and parses the result, filters on > 50 % confidence and sets the highest confidence score classification
+ * Calls a Pii Comprehend Classification endpoint and parses the result, filters on > 50 % confidence and sets the highest confidence score classification
  *
  * Input: "textract_result"."txt_output_location"
  * Output:  { "documentType": "AWS_PAYSTUBS" } (example will be at "classification"."documentType")
@@ -149,8 +142,7 @@ export class ComprehendPiiSyncSfnTask extends TaskStateBase {
     super(scope, id, props);
 
     this.version = '0.0.1';
-    this.integrationPattern =
-            props.integrationPattern || IntegrationPattern.REQUEST_RESPONSE;
+    this.integrationPattern = props.integrationPattern || IntegrationPattern.REQUEST_RESPONSE;
     validatePatternSupported(
       this.integrationPattern,
       ComprehendPiiSyncSfnTask.SUPPORTED_INTEGRATION_PATTERNS,
@@ -167,19 +159,13 @@ export class ComprehendPiiSyncSfnTask extends TaskStateBase {
       s3InputPrefix,
     } = props;
 
-    const stateMachineTimeoutMinutes =
-            textractStateMachineTimeoutMinutes === undefined
-              ? 60
-              : textractStateMachineTimeoutMinutes;
+    const stateMachineTimeoutMinutes = textractStateMachineTimeoutMinutes === undefined
+      ? 60: textractStateMachineTimeoutMinutes;
     const logLevel = lambdaLogLevel === undefined ? 'DEBUG' : lambdaLogLevel;
-    const lambdaTimeoutDuration =
-            lambdaTimeout === undefined ? 300 : lambdaTimeout;
-    const lambdaMemoryConstant =
-            lambdaMemory === undefined ? 256 : lambdaMemory;
-    const s3OutputPrefixValue =
-        s3OutputPrefix === undefined ? '' : s3OutputPrefix;
-    const s3InputPrefixValue =
-        s3InputPrefix === undefined ? '' : s3InputPrefix;
+    const lambdaTimeoutDuration = lambdaTimeout === undefined ? 300 : lambdaTimeout;
+    const lambdaMemoryConstant = lambdaMemory === undefined ? 256 : lambdaMemory;
+    const s3OutputPrefixValue = s3OutputPrefix === undefined ? '' : s3OutputPrefix;
+    const s3InputPrefixValue = s3InputPrefix === undefined ? '' : s3InputPrefix;
 
     this.comprehendSyncPiiCallFunction = new DockerImageFunction(this, 'ComprehendPiiSyncCall', {
       code: DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/comprehend_pii_sync/')),
@@ -278,7 +264,9 @@ export class ComprehendPiiSyncSfnTask extends TaskStateBase {
       resources: ['*'],
     }));
 
-    this.taskPolicies = this.createScopedAccessPolicy();
+    const stack = Stack.of(this);
+
+    this.taskPolicies = createScopedAccessPolicy(this.stateMachine, this.integrationPattern, stack);
   }
   /**
      * @internal
@@ -320,64 +308,5 @@ export class ComprehendPiiSyncSfnTask extends TaskStateBase {
       }),
     };
   }
-  /**
-     * As StateMachineArn is extracted automatically from the state machine object included in the constructor,
-     *
-     * the scoped access policy should be generated accordingly.
-     *
-     * This means the action of StartExecution should be restricted on the given state machine, instead of being granted to all the resources (*).
-     */
-  private createScopedAccessPolicy(): PolicyStatement[] {
-    const stack = Stack.of(this);
 
-    const policyStatements = [
-      new PolicyStatement({
-        actions: ['states:StartExecution'],
-        resources: [this.stateMachine.stateMachineArn],
-      }),
-    ];
-
-    // Step Functions use Cloud Watch managed rules to deal with synchronous tasks.
-    if (this.integrationPattern === IntegrationPattern.RUN_JOB) {
-      policyStatements.push(
-        new PolicyStatement({
-          actions: ['states:DescribeExecution', 'states:StopExecution'],
-          // https://docs.aws.amazon.com/step-functions/latest/dg/concept-create-iam-advanced.html#concept-create-iam-advanced-execution
-          resources: [
-            stack.formatArn({
-              service: 'states',
-              resource: 'execution',
-              arnFormat: ArnFormat.COLON_RESOURCE_NAME,
-              resourceName: `${
-                stack.splitArn(
-                  this.stateMachine.stateMachineArn,
-                  ArnFormat.COLON_RESOURCE_NAME,
-                ).resourceName
-              }*`,
-            }),
-          ],
-        }),
-      );
-
-      policyStatements.push(
-        new PolicyStatement({
-          actions: [
-            'events:PutTargets',
-            'events:PutRule',
-            'events:DescribeRule',
-          ],
-          resources: [
-            stack.formatArn({
-              service: 'events',
-              resource: 'rule',
-              resourceName:
-                                'StepFunctionsGetEventsForStepFunctionsExecutionRule',
-            }),
-          ],
-        }),
-      );
-    }
-
-    return policyStatements;
-  }
 }
