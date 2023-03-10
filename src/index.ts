@@ -19,6 +19,7 @@ export { TextractGenerateCSV, TextractGenerateCSVProps } from './textractGenerat
 export { TextractA2ISfnTask, TextractA2ISfnTaskProps } from './textractA2I';
 export { CSVToAuroraTask, CSVToAuroraTaskProps } from './rdsCSVToAurora';
 export { ComprehendGenericSyncSfnTask, ComprehendGenericSyncSfnTaskProps } from './comprehendClassification';
+export { ComprehendPiiSyncSfnTask, ComprehendPiiSyncSfnTaskProps } from './comprehendClassificationPii';
 export { SpacySfnTask, SpacySfnTaskProps } from './spacyClassification';
 export { DocumentSplitter, DocumentSplitterProps } from './documentSplitter';
 export { RDSAuroraServerless, RDSAuroraServerlessProps } from './rdsAuroraServerless';
