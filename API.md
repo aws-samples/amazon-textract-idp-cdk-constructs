@@ -557,7 +557,7 @@ public readonly version: string;
 
 ### ComprehendPiiSyncSfnTask <a name="ComprehendPiiSyncSfnTask" id="amazon-textract-idp-cdk-constructs.ComprehendPiiSyncSfnTask"></a>
 
-Calls a Comprehend Classification endpoint and parses the result, filters on > 50 % confidence and sets the highest confidence score classification.
+Calls a Pii Comprehend Classification endpoint and parses the result, filters on > 50 % confidence and sets the highest confidence score classification.
 
 Input: "textract_result"."txt_output_location"
 Output:  { "documentType": "AWS_PAYSTUBS" } (example will be at "classification"."documentType")
@@ -6374,7 +6374,6 @@ public readonly associateWithParent: boolean;
 Pass the execution ID from the context object to the execution input.
 
 This allows the Step Functions UI to link child executions from parent executions, making it easier to trace execution flow across state machines.
-
 If you set this property to `true`, the `input` property must be an object (provided by `TaskInput.fromObject`) or omitted entirely.
 
 > [https://docs.aws.amazon.com/step-functions/latest/dg/concepts-nested-workflows.html#nested-execution-startid](https://docs.aws.amazon.com/step-functions/latest/dg/concepts-nested-workflows.html#nested-execution-startid)
