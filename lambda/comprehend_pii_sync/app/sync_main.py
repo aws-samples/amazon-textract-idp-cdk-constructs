@@ -16,7 +16,6 @@ version = "0.0.1"
 
 s3 = boto3.client('s3')
 step_functions_client = boto3.client(service_name='stepfunctions')
-sqs = boto3.client('sqs')
 comprehend = boto3.client("comprehend")
 
 
@@ -63,9 +62,9 @@ def send_success_to_step_function(response, token, event, start_time):
     logger.debug(f"comprehend result: {response}")
 
     classification_result = "NONE"
-    for c in response['Classes']:
+    for c in response['Entities']:
         if c['Score'] > 0.50:
-            classification_result = c['Name']
+            classification_result = c['Type']
             break
 
     call_duration = round(time.time() * 1000) - start_time
@@ -91,15 +90,7 @@ def lambda_handler(event, _):
     logger.info(f"version: {version}")
     logger.info(json.dumps(event))
 
-    comprehend_classifier_arn = os.environ.get('COMPREHEND_CLASSIFIER_ARN',
-                                               None)
     language_code = os.environ.get('LANGUAGE_CODE', 'en')
-
-    if not comprehend_classifier_arn:
-        raise Exception("no COMPREHEND_CLASSIFIER_ARN set")
-
-    logger.debug(f"LOG_LEVEL: {log_level} \n \
-                COMPREHEND_CLASSIFIER_ARN: {comprehend_classifier_arn}")
 
     processing_status: bool = True
     files_with_failures: List[str] = list()
@@ -134,39 +125,9 @@ def lambda_handler(event, _):
         start_time = round(time.time() * 1000)
         response = comprehend.detect_pii_entities(
             Text=text,
-            EndpointArn=comprehend_classifier_arn,
             LanguageCode=language_code,
-            DocumentReaderConfig={
-                'DocumentReadAction': 'TEXTRACT_DETECT_DOCUMENT_TEXT',
-                'DocumentReadMode': 'SERVICE_DEFAULT',
-                'FeatureTypes': [
-                    'TABLES', 'FORMS',
-                ]
-            }
         )
-        logger.debug(f"comprehend result: {response}")
-
-        classification_result = "NONE"
-        for c in response['Classes']:
-            if c['Score'] > 0.50:
-                classification_result = c['Name']
-                break
-
-        call_duration = round(time.time() * 1000) - start_time
-        logger.info(
-            f"comprehend_sync_generic_call_duration_in_ms: {call_duration}")
-        try:
-            step_functions_client.send_task_success(
-                taskToken=token,
-                output=json.dumps({"documentType": classification_result}))
-        except step_functions_client.exceptions.InvalidToken:
-            logger.error(f"InvalidToken for message: {event} ")
-        except step_functions_client.exceptions.TaskDoesNotExist:
-            logger.error(f"TaskDoesNotExist for message: {event} ")
-        except step_functions_client.exceptions.TaskTimedOut:
-            logger.error(f"TaskTimedOut for message: {event} ")
-        except step_functions_client.exceptions.InvalidOutput:
-            logger.error(f"InvalidOutput for message: {event} ")
+        send_success_to_step_function(response, token, event, start_time)
 
     except comprehend.exceptions.TooManyRequestsException:
         # try again, will throw Exception for Lambda and not delete from queue
