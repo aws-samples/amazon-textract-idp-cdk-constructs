@@ -53,6 +53,12 @@ export interface ComprehendGenericSyncSfnTaskProps extends sfn.TaskStateBaseProp
   readonly inputPolicyStatements?: [iam.PolicyStatement];
   /** List of PolicyStatements to attach to the Lambda function.  */
   readonly outputPolicyStatements?: [iam.PolicyStatement];
+  /* number of retries, defaul is 100 */
+  readonly comprehendAsyncCallMaxRetries?: number;
+  /**default is 1.1 */
+  readonly comprehendAsyncCallBackoffRate?: number;
+  /**default is 1 */
+  readonly comprehendAsyncCallInterval?: number;
   /**
        * The JSON input for the execution, same as that of StartExecution.
        *
@@ -151,6 +157,9 @@ export class ComprehendGenericSyncSfnTask extends sfn.TaskStateBase {
       props.s3OutputPrefix === undefined ? '' : props.s3OutputPrefix;
     var s3InputPrefix =
       props.s3InputPrefix === undefined ? '' : props.s3InputPrefix;
+    var comprehendAsyncCallMaxRetries = props.comprehendAsyncCallMaxRetries === undefined ? 100 : props.comprehendAsyncCallMaxRetries;
+    var comprehendAsyncCallBackoffRate = props.comprehendAsyncCallBackoffRate === undefined ? 1.1 : props.comprehendAsyncCallBackoffRate;
+    var comprehendAsyncCallInterval = props.comprehendAsyncCallInterval === undefined ? 1 : props.comprehendAsyncCallInterval;
 
     this.comprehendSyncCallFunction = new lambda.DockerImageFunction(this, 'ComprehendSyncCall', {
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/comprehend_sync/')),
@@ -228,6 +237,12 @@ export class ComprehendGenericSyncSfnTask extends sfn.TaskStateBase {
       outputPath: '$.Payload',
     });
 
+    comprehendInvoke.addRetry({
+      maxAttempts: comprehendAsyncCallMaxRetries,
+      backoffRate: comprehendAsyncCallBackoffRate,
+      interval: Duration.seconds(comprehendAsyncCallInterval),
+      errors: ['ThrottlingException', 'LimitExceededException', 'InternalServerError', 'ProvisionedThroughputExceededException'],
+    });
     const workflow_chain = sfn.Chain.start(comprehendInvoke);
 
     this.stateMachine = new sfn.StateMachine(this, 'StateMachine', {

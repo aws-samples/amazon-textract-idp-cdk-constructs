@@ -55,6 +55,14 @@ def send_failure_to_step_function(exception_class, error, cause, token,
         logger.error(f"TaskTimedOut for message: {message} ")
 
 
+class TooManyRequestsException(Exception):
+    pass
+
+
+class ThrottlingException(Exception):
+    pass
+
+
 def lambda_handler(event, _):
     log_level = os.environ.get('LOG_LEVEL', 'INFO')
     logger.setLevel(log_level)
@@ -68,9 +76,6 @@ def lambda_handler(event, _):
 
     logger.debug(f"LOG_LEVEL: {log_level} \n \
                 COMPREHEND_CLASSIFIER_ARN: {comprehend_classifier_arn}")
-
-    processing_status: bool = True
-    files_with_failures: List[str] = list()
 
     token = event['Token']
     execution_id = event['ExecutionId']
@@ -129,9 +134,8 @@ def lambda_handler(event, _):
 
     except comprehend.exceptions.TooManyRequestsException:
         # try again, will throw Exception for Lambda and not delete from queue
-        processing_status = False
-        files_with_failures.append(s3_path)
-        logger.error(f"TooManyRequestsException for: {s3_path} to Comprehend.")
+        logger.warn(f"TooManyRequestsException for: {s3_path} to Comprehend.")
+        raise TooManyRequestsException('TooManyRequestsException')
     except comprehend.exceptions.TextSizeLimitExceededException as e:
         logger.error(e, exc_info=True)
         send_failure_to_step_function(e, 'TextSizeLimitExceededException',
@@ -142,16 +146,13 @@ def lambda_handler(event, _):
                                       token, event)
     except ClientError as e:
         if e.response['Error']['Code'] == 'ThrottlingException':
-            processing_status = False
-            files_with_failures.append(s3_path)
-            logger.error(
+            logger.warn(
                 f"ThrottlingException - failed to send: {s3_path} to Comprehend."
             )
+            raise ThrottlingException('ThrottlingException')
         else:
             logger.error(e, exc_info=True)
+            send_failure_to_step_function(e, 'ClientError', str(e), token,
+                                          event)
     except Exception as e:
         send_failure_to_step_function(e, 'unhandled', str(e), token, event)
-
-    if not processing_status:
-        raise Exception(
-            f"files with failures: {[x for x in files_with_failures]}")

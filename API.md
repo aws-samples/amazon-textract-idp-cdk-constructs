@@ -5299,6 +5299,9 @@ const comprehendGenericSyncSfnTaskProps: ComprehendGenericSyncSfnTaskProps = { .
 | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.timeout">timeout</a></code> | <code>aws-cdk-lib.Duration</code> | Timeout for the state machine. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.comprehendClassifierArn">comprehendClassifierArn</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.associateWithParent">associateWithParent</a></code> | <code>boolean</code> | Pass the execution ID from the context object to the execution input. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.comprehendAsyncCallBackoffRate">comprehendAsyncCallBackoffRate</a></code> | <code>number</code> | default is 1.1. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.comprehendAsyncCallInterval">comprehendAsyncCallInterval</a></code> | <code>number</code> | default is 1. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.comprehendAsyncCallMaxRetries">comprehendAsyncCallMaxRetries</a></code> | <code>number</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.input">input</a></code> | <code>aws-cdk-lib.aws_stepfunctions.TaskInput</code> | The JSON input for the execution, same as that of StartExecution. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.inputPolicyStatements">inputPolicyStatements</a></code> | <code>object</code> | List of PolicyStatements to attach to the Lambda function. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.lambdaLogLevel">lambdaLogLevel</a></code> | <code>string</code> | *No description.* |
@@ -5463,6 +5466,40 @@ This allows the Step Functions UI to link child executions from parent execution
 If you set this property to `true`, the `input` property must be an object (provided by `sfn.TaskInput.fromObject`) or omitted entirely.
 
 > [https://docs.aws.amazon.com/step-functions/latest/dg/concepts-nested-workflows.html#nested-execution-startid](https://docs.aws.amazon.com/step-functions/latest/dg/concepts-nested-workflows.html#nested-execution-startid)
+
+---
+
+##### `comprehendAsyncCallBackoffRate`<sup>Optional</sup> <a name="comprehendAsyncCallBackoffRate" id="amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.comprehendAsyncCallBackoffRate"></a>
+
+```typescript
+public readonly comprehendAsyncCallBackoffRate: number;
+```
+
+- *Type:* number
+
+default is 1.1.
+
+---
+
+##### `comprehendAsyncCallInterval`<sup>Optional</sup> <a name="comprehendAsyncCallInterval" id="amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.comprehendAsyncCallInterval"></a>
+
+```typescript
+public readonly comprehendAsyncCallInterval: number;
+```
+
+- *Type:* number
+
+default is 1.
+
+---
+
+##### `comprehendAsyncCallMaxRetries`<sup>Optional</sup> <a name="comprehendAsyncCallMaxRetries" id="amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.comprehendAsyncCallMaxRetries"></a>
+
+```typescript
+public readonly comprehendAsyncCallMaxRetries: number;
+```
+
+- *Type:* number
 
 ---
 
