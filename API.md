@@ -7022,6 +7022,7 @@ const textractGenerateCSVProps: TextractGenerateCSVProps = { ... }
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.lambdaTimeout">lambdaTimeout</a></code> | <code>number</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.metaDataToAppend">metaDataToAppend</a></code> | <code>string[]</code> | The generated CSV can have any meta-data from the manifest file included. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.name">name</a></code> | <code>string</code> | The name of the execution, same as that of StartExecution. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.outputFeatures">outputFeatures</a></code> | <code>string</code> | supports FORMS, TABLES, QUERIES, SIGNATURES as a comma seperated string and generates CSV files for the output from those default is "FORMS,TABLES,QUERIES,SIGNATURES". |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.outputPolicyStatements">outputPolicyStatements</a></code> | <code>object</code> | List of PolicyStatements to attach to the Lambda function. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.outputType">outputType</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.s3InputBucket">s3InputBucket</a></code> | <code>string</code> | Bucketname and prefix to read document from /** location of input S3 objects - if left empty will generate rule for s3 access to all [*]. |
@@ -7278,6 +7279,18 @@ public readonly name: string;
 The name of the execution, same as that of StartExecution.
 
 > [https://docs.aws.amazon.com/step-functions/latest/apireference/API_StartExecution.html](https://docs.aws.amazon.com/step-functions/latest/apireference/API_StartExecution.html)
+
+---
+
+##### `outputFeatures`<sup>Optional</sup> <a name="outputFeatures" id="amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.outputFeatures"></a>
+
+```typescript
+public readonly outputFeatures: string;
+```
+
+- *Type:* string
+
+supports FORMS, TABLES, QUERIES, SIGNATURES as a comma seperated string and generates CSV files for the output from those default is "FORMS,TABLES,QUERIES,SIGNATURES".
 
 ---
 

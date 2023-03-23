@@ -9,8 +9,9 @@ import csv
 import boto3
 from typing import Tuple, List
 import json
-from textractprettyprinter.t_pretty_print import convert_queries_to_list_trp2, convert_form_to_list_trp2, convert_lending_from_trp2
+from textractprettyprinter.t_pretty_print import convert_queries_to_list_trp2, convert_form_to_list_trp2, convert_lending_from_trp2, convert_signatures_to_list_trp2, convert_table_to_list
 import trp.trp2 as t2
+import trp as t1
 import trp.trp2_lending as tl
 import datetime
 import textractmanifest as tm
@@ -49,10 +50,15 @@ def create_meta_data_dict(manifest: tm.IDPManifest) -> dict:
     return meta_data_dict
 
 
+# TODO: This method gets way too big, have to modularize it
 def lambda_handler(event, _):
-    # takes and even which includes a location to a Textract JSON schema file and generates CSV based on Query results + FORMS results
-    # in the form of
-    # filename, page, datetime, key, value
+    """ takes and even which includes a location to a Textract JSON schema file and generates CSV based on Query results + FORMS results
+     in the form of
+     filename, page, datetime, key, value
+     The OUTPUT_FEATURES include FORMS, QUERIES, TABLES, SIGNATURES
+     The output files for FORMS and QUERIES and SIGNATURES are combined into one single CSV
+     The output files for TABLES are individual csv's with a counter starting at 1 for the top most CSV file
+     """
 
     log_level = os.environ.get('LOG_LEVEL', 'INFO')
     logger.setLevel(log_level)
@@ -60,6 +66,8 @@ def lambda_handler(event, _):
     logger.debug(json.dumps(event))
     csv_s3_output_prefix = os.environ.get('CSV_S3_OUTPUT_PREFIX')
     output_type = os.environ.get('OUTPUT_TYPE', 'CSV')
+    output_features = os.environ.get('OUTPUT_FEATURES', 'FORMS,QUERIES,TABLES,SIGNATURES')
+    output_features_list = [x.strip() for x in output_features.split(',')]
     csv_s3_output_bucket = os.environ.get('CSV_S3_OUTPUT_BUCKET')
     textract_api = os.environ.get('TEXTRACT_API', 'GENERIC')
     meta_data_to_append = os.environ.get('META_DATA_TO_APPEND', '')
@@ -69,6 +77,7 @@ def lambda_handler(event, _):
     logger.debug(f"CSV_S3_OUTPUT_PREFIX: {csv_s3_output_prefix} \n\
         CSV_S3_OUTPUT_BUCKET: {csv_s3_output_bucket} \n\
             OUTPUT_TYPE: {output_type} \n \
+            OUTPUT_FEATURES: {output_features_list} \n \
     TEXTRACT_API: {textract_api} \n\
     META_DATA_TO_APPEND: {meta_data_to_append}")
 
@@ -112,9 +121,21 @@ def lambda_handler(event, _):
             timestamp = datetime.datetime.now().astimezone().replace(
                 microsecond=0).isoformat()
             if output_type == 'CSV':
-                key_value_list = convert_form_to_list_trp2(trp2_doc=trp2_doc)
-                queries_value_list = convert_queries_to_list_trp2(
-                    trp2_doc=trp2_doc)  #type: ignore
+                key_value_list = list()
+                if 'FORMS' in output_features_list:
+                    logger.debug("creating FORMS")
+                    key_value_list = convert_form_to_list_trp2(
+                        trp2_doc=trp2_doc)
+                queries_value_list = list()
+                if 'QUERIES' in output_features_list:
+                    logger.debug("creating QUERIES")
+                    queries_value_list = convert_queries_to_list_trp2(
+                        trp2_doc=trp2_doc)  #type: ignore
+                signatures_value_list = list()
+                if 'SIGNATURES' in output_features_list:
+                    logger.debug("creating SIGNATURES")
+                    signatures_value_list = convert_signatures_to_list_trp2(
+                        trp2_doc=trp2_doc)  #type: ignore
                 csv_output = io.StringIO()
                 csv_writer = csv.writer(csv_output,
                                         delimiter=",",
@@ -128,8 +149,34 @@ def lambda_handler(event, _):
                     csv_writer.writerows(
                         [[timestamp, classification, base_filename] + x +
                          values_to_append for x in page])
+                for page in signatures_value_list:
+                    csv_writer.writerows(
+                        [[timestamp, classification, base_filename] + x +
+                         values_to_append for x in page])
                 s3_output_key = f"{csv_s3_output_prefix}/{timestamp}/{base_filename_no_suffix}.csv"
                 result_value = csv_output.getvalue()
+                if 'TABLES' in output_features_list:
+                    logger.debug("creating TABLES")
+                    t1_doc = t1.Document(json.loads(file_json))
+                    page_index = 0
+                    for page in t1_doc.pages:
+                        page_index += 1
+                        table_index = 0
+                        for table in page.tables:
+                            table_index += 1
+                            table_list = convert_table_to_list(
+                                table)  #type: ignore
+                            csv_output = io.StringIO()
+                            csv_writer = csv.writer(csv_output,
+                                                    delimiter=",",
+                                                    quotechar='"',
+                                                    quoting=csv.QUOTE_MINIMAL)
+                            csv_writer.writerows(table_list)
+                            s3_table_output_key = f"{csv_s3_output_prefix}/{timestamp}/{base_filename_no_suffix}_table_p{page_index}_n{table_index}.csv"
+                            s3_client.put_object(Body=bytes(
+                                csv_output.getvalue().encode('UTF-8')),
+                                                 Bucket=csv_s3_output_bucket,
+                                                 Key=s3_table_output_key)
             elif output_type == 'LINES':
                 s3_output_key = f"{csv_s3_output_prefix}/{timestamp}/{base_filename_no_suffix}.txt"
                 for page in trp2_doc.pages:

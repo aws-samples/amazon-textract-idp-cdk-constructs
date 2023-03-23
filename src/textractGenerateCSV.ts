@@ -58,6 +58,11 @@ export interface TextractGenerateCSVProps extends sfn.TaskStateBaseProps{
   readonly s3InputBucket?: string;
   /** prefix for input S3 objects - if left empty will generate rule for s3 access to all in bucket */
   readonly s3InputPrefix?: string;
+  /** supports FORMS, TABLES, QUERIES, SIGNATURES as a comma seperated string
+   * and generates CSV files for the output from those
+   * default is "FORMS,TABLES,QUERIES,SIGNATURES"
+  */
+  readonly outputFeatures?:string;
   /**
        * The JSON input for the execution, same as that of StartExecution.
        *
@@ -151,6 +156,7 @@ export class TextractGenerateCSV extends sfn.TaskStateBase {
     var lambdaMemoryMB = props.lambdaMemoryMB === undefined ? 1048 : props.lambdaMemoryMB;
     var textractAPI = props.textractAPI === undefined ? 'GENERIC' : props.textractAPI;
     var outputType= props.outputType === undefined ? 'CSV' : props.outputType;
+    var outputFeatures= props.outputFeatures === undefined ? 'FORMS,QUERIES,SIGNATURES,TABLES' : props.outputFeatures;
     var metaDataToAppend= props.metaDataToAppend === undefined ? '' : props.metaDataToAppend;
     var s3TempOutputPrefix =
       props.csvS3OutputPrefix === undefined ? '' : props.csvS3OutputPrefix;
@@ -167,6 +173,7 @@ export class TextractGenerateCSV extends sfn.TaskStateBase {
         CSV_S3_OUTPUT_PREFIX: props.csvS3OutputPrefix,
         LOG_LEVEL: lambdaLogLevel,
         OUTPUT_TYPE: outputType,
+        OUTPUT_FEATURES: outputFeatures,
         TEXTRACT_API: textractAPI,
         META_DATA_TO_APPEND: metaDataToAppend?.toString(),
       },
