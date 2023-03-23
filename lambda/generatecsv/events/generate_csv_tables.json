@@ -1,0 +1,16 @@
+{
+    "Token": "AQCYAAAAKgAAAAMAAAAAAAAAAXYRfnURt30xLbFyrPzvSu0F/MzTZPaB7OcE0oG9ZJbfkG5qJhCmLpoVVPvMae2np7t0hSAO16ApqotmGSQWITWblmpb71IlMaqrBtxnVVG/eSpsgtYlIkHIhGo5+nFaIQ==R8NjOTyDECmXkx62V/mR1DTl4i7weSfiqzZMauiwaOIPRuf19+ljL0cBdUlG/tx8IaFWpqBqt5lix2O8ff+8Ia6vuVdM413DGlrszM//+KaUZl3+rfeAQix5ttHOZTR99v/rq1HNxmnRwWZsM+JRqL5s8LNGiRvPZsOpNPlvSoLCTOlDRd3WOmq9FQf55WLb53Mjv4RC2R68kv6bZtq+1lf0sWFZGrDUN07HMAJYpNGVCPfM4OmrB9D0da57DN25HMLqNeV9fYOumddQaEQcFU6bw1RpnE+tQyYbfm4kGGOXrPPM6bZFk6hp/nkEyrBgecnKOAHUC6RrYHBcVfMh2hGLrdLzOGHFECuAdkG1/FuE+oYKAjnXD7YD2YUVxZisAKE6NvyRUqBWEOeOgwcY0a7V7WjJ2uW9RicFXgs8xNMQfRUBInoZRfhVZ2DGehz12Q/QIqWDRzoUdjnkZvkkEqiZOcyizXVpNxaJ/M+c+Nruu7l9TlD5PYnOW25F/LxcRiOV6AKBKzRaKeJRxI6W",
+    "Payload": {
+        "manifest": {
+            "s3Path": "s3://generatecsvworkflow-textractsimpleasyncworkflow2d-5za69kjbyg6r/uploads/paystub-small.png"
+        },
+        "mime": "image/png",
+        "classification": null,
+        "numberOfPages": 1,
+        "textract_result": {
+            "TextractTempOutputJsonPath": "s3://generatecsvworkflow-textractsimpleasyncworkflow2d-5za69kjbyg6r/textract-temp-output/d7badd34c3dd14350c20be65459f143fcf8398723f4e962aa63f07feb0f07cb2",
+            "TextractOutputJsonPath": "s3://generatecsvworkflow-textractsimpleasyncworkflow2d-5za69kjbyg6r/textract-output/paystub-small2023-03-22T23:35:20.108256/paystub-small.json"
+        }
+    },
+    "ExecutionId": "arn:aws:states:us-east-1:913165245630:execution:GenerateCSVWorkflowF9F71ED0-uV6wzLRfulLT:paystub-smallpng2023-03-22T233507050420"
+}
