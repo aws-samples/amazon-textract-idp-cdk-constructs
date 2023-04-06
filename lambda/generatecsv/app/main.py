@@ -8,7 +8,6 @@ import io
 import csv
 import boto3
 from typing import Tuple, List
-import json
 from textractprettyprinter.t_pretty_print import convert_queries_to_list_trp2, convert_form_to_list_trp2, convert_lending_from_trp2, convert_signatures_to_list_trp2, convert_table_to_list
 import trp.trp2 as t2
 import trp as t1

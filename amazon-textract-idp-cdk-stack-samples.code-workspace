@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "../amazon-textract-idp-cdk-stack-samples"
+		},
+		{
+			"path": "."
+		}
+	],
+	"settings": {}
+}
