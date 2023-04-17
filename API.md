@@ -1519,6 +1519,222 @@ public readonly lambdaSecurityGroup: ISecurityGroup;
 ---
 
 
+### SearchablePDF <a name="SearchablePDF" id="amazon-textract-idp-cdk-constructs.SearchablePDF"></a>
+
+This construct takes in a JSON with two s3 Paths, s3TextractOutput, s3PDFBucket.
+
+example s3Path:
+{"s3TextractOutput": "s3://bucketname/prefix/1"}
+{"s3PDFBucket": "s3://bucketname/prefix/document.pdf"}
+```
+
+#### Initializers <a name="Initializers" id="amazon-textract-idp-cdk-constructs.SearchablePDF.Initializer"></a>
+
+```typescript
+import { SearchablePDF } from 'amazon-textract-idp-cdk-constructs'
+
+new SearchablePDF(parent: Construct, id: string, props: SearchablePDFProps)
+```
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SearchablePDF.Initializer.parameter.parent">parent</a></code> | <code>constructs.Construct</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SearchablePDF.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SearchablePDF.Initializer.parameter.props">props</a></code> | <code><a href="#amazon-textract-idp-cdk-constructs.SearchablePDFProps">SearchablePDFProps</a></code> | *No description.* |
+
+---
+
+##### `parent`<sup>Required</sup> <a name="parent" id="amazon-textract-idp-cdk-constructs.SearchablePDF.Initializer.parameter.parent"></a>
+
+- *Type:* constructs.Construct
+
+---
+
+##### `id`<sup>Required</sup> <a name="id" id="amazon-textract-idp-cdk-constructs.SearchablePDF.Initializer.parameter.id"></a>
+
+- *Type:* string
+
+---
+
+##### `props`<sup>Required</sup> <a name="props" id="amazon-textract-idp-cdk-constructs.SearchablePDF.Initializer.parameter.props"></a>
+
+- *Type:* <a href="#amazon-textract-idp-cdk-constructs.SearchablePDFProps">SearchablePDFProps</a>
+
+---
+
+#### Methods <a name="Methods" id="Methods"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SearchablePDF.toString">toString</a></code> | Returns a string representation of this construct. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SearchablePDF.next">next</a></code> | Continue normal execution with the given state. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SearchablePDF.prefixStates">prefixStates</a></code> | Prefix the IDs of all states in this state machine fragment. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SearchablePDF.toSingleState">toSingleState</a></code> | Wrap all states in this state machine fragment up into a single state. |
+
+---
+
+##### `toString` <a name="toString" id="amazon-textract-idp-cdk-constructs.SearchablePDF.toString"></a>
+
+```typescript
+public toString(): string
+```
+
+Returns a string representation of this construct.
+
+##### `next` <a name="next" id="amazon-textract-idp-cdk-constructs.SearchablePDF.next"></a>
+
+```typescript
+public next(next: IChainable): Chain
+```
+
+Continue normal execution with the given state.
+
+###### `next`<sup>Required</sup> <a name="next" id="amazon-textract-idp-cdk-constructs.SearchablePDF.next.parameter.next"></a>
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.IChainable
+
+---
+
+##### `prefixStates` <a name="prefixStates" id="amazon-textract-idp-cdk-constructs.SearchablePDF.prefixStates"></a>
+
+```typescript
+public prefixStates(prefix?: string): StateMachineFragment
+```
+
+Prefix the IDs of all states in this state machine fragment.
+
+Use this to avoid multiple copies of the state machine all having the
+same state IDs.
+
+###### `prefix`<sup>Optional</sup> <a name="prefix" id="amazon-textract-idp-cdk-constructs.SearchablePDF.prefixStates.parameter.prefix"></a>
+
+- *Type:* string
+
+The prefix to add.
+
+Will use construct ID by default.
+
+---
+
+##### `toSingleState` <a name="toSingleState" id="amazon-textract-idp-cdk-constructs.SearchablePDF.toSingleState"></a>
+
+```typescript
+public toSingleState(options?: SingleStateOptions): Parallel
+```
+
+Wrap all states in this state machine fragment up into a single state.
+
+This can be used to add retry or error handling onto this state
+machine fragment.
+
+Be aware that this changes the result of the inner state machine
+to be an array with the result of the state machine in it. Adjust
+your paths accordingly. For example, change 'outputPath' to
+'$[0]'.
+
+###### `options`<sup>Optional</sup> <a name="options" id="amazon-textract-idp-cdk-constructs.SearchablePDF.toSingleState.parameter.options"></a>
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.SingleStateOptions
+
+---
+
+#### Static Functions <a name="Static Functions" id="Static Functions"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SearchablePDF.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
+
+---
+
+##### ~~`isConstruct`~~ <a name="isConstruct" id="amazon-textract-idp-cdk-constructs.SearchablePDF.isConstruct"></a>
+
+```typescript
+import { SearchablePDF } from 'amazon-textract-idp-cdk-constructs'
+
+SearchablePDF.isConstruct(x: any)
+```
+
+Checks if `x` is a construct.
+
+###### `x`<sup>Required</sup> <a name="x" id="amazon-textract-idp-cdk-constructs.SearchablePDF.isConstruct.parameter.x"></a>
+
+- *Type:* any
+
+Any object.
+
+---
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SearchablePDF.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SearchablePDF.property.endStates">endStates</a></code> | <code>aws-cdk-lib.aws_stepfunctions.INextable[]</code> | The states to chain onto if this fragment is used. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SearchablePDF.property.id">id</a></code> | <code>string</code> | Descriptive identifier for this chainable. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SearchablePDF.property.startState">startState</a></code> | <code>aws-cdk-lib.aws_stepfunctions.State</code> | The start state of this state machine fragment. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SearchablePDF.property.searchablePDFFunction">searchablePDFFunction</a></code> | <code>aws-cdk-lib.aws_lambda.IFunction</code> | *No description.* |
+
+---
+
+##### `node`<sup>Required</sup> <a name="node" id="amazon-textract-idp-cdk-constructs.SearchablePDF.property.node"></a>
+
+```typescript
+public readonly node: Node;
+```
+
+- *Type:* constructs.Node
+
+The tree node.
+
+---
+
+##### `endStates`<sup>Required</sup> <a name="endStates" id="amazon-textract-idp-cdk-constructs.SearchablePDF.property.endStates"></a>
+
+```typescript
+public readonly endStates: INextable[];
+```
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.INextable[]
+
+The states to chain onto if this fragment is used.
+
+---
+
+##### `id`<sup>Required</sup> <a name="id" id="amazon-textract-idp-cdk-constructs.SearchablePDF.property.id"></a>
+
+```typescript
+public readonly id: string;
+```
+
+- *Type:* string
+
+Descriptive identifier for this chainable.
+
+---
+
+##### `startState`<sup>Required</sup> <a name="startState" id="amazon-textract-idp-cdk-constructs.SearchablePDF.property.startState"></a>
+
+```typescript
+public readonly startState: State;
+```
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.State
+
+The start state of this state machine fragment.
+
+---
+
+##### `searchablePDFFunction`<sup>Required</sup> <a name="searchablePDFFunction" id="amazon-textract-idp-cdk-constructs.SearchablePDF.property.searchablePDFFunction"></a>
+
+```typescript
+public readonly searchablePDFFunction: IFunction;
+```
+
+- *Type:* aws-cdk-lib.aws_lambda.IFunction
+
+---
+
+
 ### SpacySfnTask <a name="SpacySfnTask" id="amazon-textract-idp-cdk-constructs.SpacySfnTask"></a>
 
 Deploys a Lambda Container with a Spacy NLP model to call textcat.
@@ -6174,6 +6390,108 @@ public readonly vpc: IVpc;
 - *Type:* aws-cdk-lib.aws_ec2.IVpc
 
 VPC to install the database into.
+
+---
+
+### SearchablePDFProps <a name="SearchablePDFProps" id="amazon-textract-idp-cdk-constructs.SearchablePDFProps"></a>
+
+#### Initializer <a name="Initializer" id="amazon-textract-idp-cdk-constructs.SearchablePDFProps.Initializer"></a>
+
+```typescript
+import { SearchablePDFProps } from 'amazon-textract-idp-cdk-constructs'
+
+const searchablePDFProps: SearchablePDFProps = { ... }
+```
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SearchablePDFProps.property.inputPolicyStatements">inputPolicyStatements</a></code> | <code>object</code> | List of PolicyStatements to attach to the Lambda function for S3 GET and LIST. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SearchablePDFProps.property.lambdaMemoryMB">lambdaMemoryMB</a></code> | <code>number</code> | memory of Lambda function (may need to increase for larger documents). |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SearchablePDFProps.property.lambdaTimeout">lambdaTimeout</a></code> | <code>number</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SearchablePDFProps.property.s3InputPrefix">s3InputPrefix</a></code> | <code>string</code> | prefix for the incoming document. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SearchablePDFProps.property.s3PDFBucket">s3PDFBucket</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SearchablePDFProps.property.s3TextractOutputBucket">s3TextractOutputBucket</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SearchablePDFProps.property.searchablePDFFunction">searchablePDFFunction</a></code> | <code>aws-cdk-lib.aws_lambda.IFunction</code> | *No description.* |
+
+---
+
+##### `inputPolicyStatements`<sup>Optional</sup> <a name="inputPolicyStatements" id="amazon-textract-idp-cdk-constructs.SearchablePDFProps.property.inputPolicyStatements"></a>
+
+```typescript
+public readonly inputPolicyStatements: object;
+```
+
+- *Type:* object
+
+List of PolicyStatements to attach to the Lambda function for S3 GET and LIST.
+
+---
+
+##### `lambdaMemoryMB`<sup>Optional</sup> <a name="lambdaMemoryMB" id="amazon-textract-idp-cdk-constructs.SearchablePDFProps.property.lambdaMemoryMB"></a>
+
+```typescript
+public readonly lambdaMemoryMB: number;
+```
+
+- *Type:* number
+
+memory of Lambda function (may need to increase for larger documents).
+
+---
+
+##### `lambdaTimeout`<sup>Optional</sup> <a name="lambdaTimeout" id="amazon-textract-idp-cdk-constructs.SearchablePDFProps.property.lambdaTimeout"></a>
+
+```typescript
+public readonly lambdaTimeout: number;
+```
+
+- *Type:* number
+
+---
+
+##### `s3InputPrefix`<sup>Optional</sup> <a name="s3InputPrefix" id="amazon-textract-idp-cdk-constructs.SearchablePDFProps.property.s3InputPrefix"></a>
+
+```typescript
+public readonly s3InputPrefix: string;
+```
+
+- *Type:* string
+
+prefix for the incoming document.
+
+Will be used to create role
+
+---
+
+##### `s3PDFBucket`<sup>Optional</sup> <a name="s3PDFBucket" id="amazon-textract-idp-cdk-constructs.SearchablePDFProps.property.s3PDFBucket"></a>
+
+```typescript
+public readonly s3PDFBucket: string;
+```
+
+- *Type:* string
+
+---
+
+##### `s3TextractOutputBucket`<sup>Optional</sup> <a name="s3TextractOutputBucket" id="amazon-textract-idp-cdk-constructs.SearchablePDFProps.property.s3TextractOutputBucket"></a>
+
+```typescript
+public readonly s3TextractOutputBucket: string;
+```
+
+- *Type:* string
+
+---
+
+##### `searchablePDFFunction`<sup>Optional</sup> <a name="searchablePDFFunction" id="amazon-textract-idp-cdk-constructs.SearchablePDFProps.property.searchablePDFFunction"></a>
+
+```typescript
+public readonly searchablePDFFunction: IFunction;
+```
+
+- *Type:* aws-cdk-lib.aws_lambda.IFunction
 
 ---
 
