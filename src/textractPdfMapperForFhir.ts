@@ -10,13 +10,18 @@ export interface TextractPdfMapperForFhirProps {
   /** memory of Lambda function (may need to increase for larger documents) */
   readonly lambdaMemoryMB?: number;
   readonly lambdaTimeout?: number;
-  readonly deciderFunction?: lambda.IFunction;
+  readonly pdfMapperForFhirFunction?: lambda.IFunction;
+  readonly lambdaLogLevel?: string;
+  readonly healthlakeEndpoint?: string;
+  readonly snsArn?: string;
+  readonly roleArn?: string;
   readonly s3InputBucket?: string;
   /** prefix for the incoming document. Will be used to create role */
   readonly s3InputPrefix?: string;
   /** List of PolicyStatements to attach to the Lambda function for S3 GET and LIST. */
   readonly inputPolicyStatements?: [iam.PolicyStatement];
 }
+
 /**
  * This construct takes in a manifest definition or a plain JSON with a s3Path:
  *
@@ -29,30 +34,31 @@ export interface TextractPdfMapperForFhirProps {
  *
  * Example (Python)
  * ```python
-   decider_task_id = tcdk.TextractPOCDecider(
-        self,
-        f"InsuranceDecider",
-   )
-  ```
+ decider_task_id = tcdk.TextractPOCDecider(
+ self,
+ f"InsuranceDecider",
+ )
+ ```
 
  *
  */
 export class TextractPdfMapperForFhir extends sfn.StateMachineFragment {
   public readonly startState: sfn.State;
   public readonly endStates: sfn.INextable[];
-  public readonly deciderFunction: lambda.IFunction;
+  public readonly pdfMapperForFhirFunction: lambda.IFunction;
 
   constructor(parent: Construct, id: string, props: TextractPdfMapperForFhirProps) {
     super(parent, id);
 
-    var lambdaMemoryMB =
-      props.lambdaMemoryMB === undefined ? 1024 : props.lambdaMemoryMB;
-    var lambdaTimeout =
-      props.lambdaTimeout === undefined ? 900 : props.lambdaTimeout;
-    var s3InputPrefix =
-      props.s3InputPrefix === undefined ? '' : props.s3InputPrefix;
+    var lambdaMemoryMB = props.lambdaMemoryMB === undefined ? 1024 : props.lambdaMemoryMB;
+    var lambdaTimeout = props.lambdaTimeout === undefined ? 900 : props.lambdaTimeout;
+    var lambdaLogLevel = props.lambdaLogLevel === undefined ? 'INFO' : props.lambdaLogLevel;
+    var s3InputPrefix = props.s3InputPrefix === undefined ? '' : props.s3InputPrefix;
+    var healthlakeEndpoint = props.healthlakeEndpoint === undefined ? '' : props.healthlakeEndpoint;
+    var snsArn = props.snsArn === undefined ? '' : props.snsArn;
+    var roleArn = props.roleArn === undefined ? '' : props.roleArn;
 
-    this.deciderFunction = new lambda.DockerImageFunction(
+    this.pdfMapperForFhirFunction = new lambda.DockerImageFunction(
       this,
       'TextractPdfMapperForFhir',
       {
@@ -62,19 +68,25 @@ export class TextractPdfMapperForFhir extends sfn.StateMachineFragment {
         architecture: lambda.Architecture.X86_64,
         memorySize: lambdaMemoryMB,
         timeout: Duration.seconds(lambdaTimeout),
+        environment: {
+          HEALTHLAKE_ENDPOINT: healthlakeEndpoint,
+          SNS_ARN: snsArn,
+          ROLE_ARN: roleArn,
+          LOG_LEVEL: lambdaLogLevel,
+        },
       },
     );
 
     if (props.inputPolicyStatements === undefined) {
       if (props.s3InputBucket === undefined) {
-        this.deciderFunction.addToRolePolicy(
+        this.pdfMapperForFhirFunction.addToRolePolicy(
           new iam.PolicyStatement({
             actions: ['s3:GetObject', 's3:ListBucket'],
             resources: ['*'],
           }),
         );
       } else {
-        this.deciderFunction.addToRolePolicy(
+        this.pdfMapperForFhirFunction.addToRolePolicy(
           new iam.PolicyStatement({
             actions: ['s3:GetObject', 's3:ListBucket'],
             resources: [
@@ -86,15 +98,15 @@ export class TextractPdfMapperForFhir extends sfn.StateMachineFragment {
       }
     } else {
       for (var policyStatement of props.inputPolicyStatements) {
-        this.deciderFunction.addToRolePolicy(policyStatement);
+        this.pdfMapperForFhirFunction.addToRolePolicy(policyStatement);
       }
     }
-    const deciderLambdaInvoke = new tasks.LambdaInvoke(this, id, {
-      lambdaFunction: this.deciderFunction,
-      timeout: Duration.seconds(100),
+    const pdfMapperForFhirLambdaInvoke = new tasks.LambdaInvoke(this, id, {
+      lambdaFunction: this.pdfMapperForFhirFunction,
+      timeout: Duration.seconds(600),
       outputPath: '$.Payload',
     });
-    this.startState = deciderLambdaInvoke;
-    this.endStates = [deciderLambdaInvoke];
+    this.startState = pdfMapperForFhirLambdaInvoke;
+    this.endStates = [pdfMapperForFhirLambdaInvoke];
   }
 }

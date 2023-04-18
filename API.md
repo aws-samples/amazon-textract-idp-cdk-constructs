@@ -4951,8 +4951,8 @@ The mime types checked against the supported mime types for Textract and if fail
 Example (Python)
 ```python
 decider_task_id = tcdk.TextractPOCDecider(
-      self,
-      f"InsuranceDecider",
+self,
+f"InsuranceDecider",
 )
 ```
 
@@ -5100,7 +5100,7 @@ Any object.
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhir.property.endStates">endStates</a></code> | <code>aws-cdk-lib.aws_stepfunctions.INextable[]</code> | The states to chain onto if this fragment is used. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhir.property.id">id</a></code> | <code>string</code> | Descriptive identifier for this chainable. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhir.property.startState">startState</a></code> | <code>aws-cdk-lib.aws_stepfunctions.State</code> | The start state of this state machine fragment. |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhir.property.deciderFunction">deciderFunction</a></code> | <code>aws-cdk-lib.aws_lambda.IFunction</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhir.property.pdfMapperForFhirFunction">pdfMapperForFhirFunction</a></code> | <code>aws-cdk-lib.aws_lambda.IFunction</code> | *No description.* |
 
 ---
 
@@ -5152,10 +5152,10 @@ The start state of this state machine fragment.
 
 ---
 
-##### `deciderFunction`<sup>Required</sup> <a name="deciderFunction" id="amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhir.property.deciderFunction"></a>
+##### `pdfMapperForFhirFunction`<sup>Required</sup> <a name="pdfMapperForFhirFunction" id="amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhir.property.pdfMapperForFhirFunction"></a>
 
 ```typescript
-public readonly deciderFunction: IFunction;
+public readonly pdfMapperForFhirFunction: IFunction;
 ```
 
 - *Type:* aws-cdk-lib.aws_lambda.IFunction
@@ -8432,22 +8432,26 @@ const textractPdfMapperForFhirProps: TextractPdfMapperForFhirProps = { ... }
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhirProps.property.deciderFunction">deciderFunction</a></code> | <code>aws-cdk-lib.aws_lambda.IFunction</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhirProps.property.healthlakeEndpoint">healthlakeEndpoint</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhirProps.property.inputPolicyStatements">inputPolicyStatements</a></code> | <code>object</code> | List of PolicyStatements to attach to the Lambda function for S3 GET and LIST. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhirProps.property.lambdaLogLevel">lambdaLogLevel</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhirProps.property.lambdaMemoryMB">lambdaMemoryMB</a></code> | <code>number</code> | memory of Lambda function (may need to increase for larger documents). |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhirProps.property.lambdaTimeout">lambdaTimeout</a></code> | <code>number</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhirProps.property.pdfMapperForFhirFunction">pdfMapperForFhirFunction</a></code> | <code>aws-cdk-lib.aws_lambda.IFunction</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhirProps.property.roleArn">roleArn</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhirProps.property.s3InputBucket">s3InputBucket</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhirProps.property.s3InputPrefix">s3InputPrefix</a></code> | <code>string</code> | prefix for the incoming document. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhirProps.property.snsArn">snsArn</a></code> | <code>string</code> | *No description.* |
 
 ---
 
-##### `deciderFunction`<sup>Optional</sup> <a name="deciderFunction" id="amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhirProps.property.deciderFunction"></a>
+##### `healthlakeEndpoint`<sup>Optional</sup> <a name="healthlakeEndpoint" id="amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhirProps.property.healthlakeEndpoint"></a>
 
 ```typescript
-public readonly deciderFunction: IFunction;
+public readonly healthlakeEndpoint: string;
 ```
 
-- *Type:* aws-cdk-lib.aws_lambda.IFunction
+- *Type:* string
 
 ---
 
@@ -8460,6 +8464,16 @@ public readonly inputPolicyStatements: object;
 - *Type:* object
 
 List of PolicyStatements to attach to the Lambda function for S3 GET and LIST.
+
+---
+
+##### `lambdaLogLevel`<sup>Optional</sup> <a name="lambdaLogLevel" id="amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhirProps.property.lambdaLogLevel"></a>
+
+```typescript
+public readonly lambdaLogLevel: string;
+```
+
+- *Type:* string
 
 ---
 
@@ -8485,6 +8499,26 @@ public readonly lambdaTimeout: number;
 
 ---
 
+##### `pdfMapperForFhirFunction`<sup>Optional</sup> <a name="pdfMapperForFhirFunction" id="amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhirProps.property.pdfMapperForFhirFunction"></a>
+
+```typescript
+public readonly pdfMapperForFhirFunction: IFunction;
+```
+
+- *Type:* aws-cdk-lib.aws_lambda.IFunction
+
+---
+
+##### `roleArn`<sup>Optional</sup> <a name="roleArn" id="amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhirProps.property.roleArn"></a>
+
+```typescript
+public readonly roleArn: string;
+```
+
+- *Type:* string
+
+---
+
 ##### `s3InputBucket`<sup>Optional</sup> <a name="s3InputBucket" id="amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhirProps.property.s3InputBucket"></a>
 
 ```typescript
@@ -8506,6 +8540,16 @@ public readonly s3InputPrefix: string;
 prefix for the incoming document.
 
 Will be used to create role
+
+---
+
+##### `snsArn`<sup>Optional</sup> <a name="snsArn" id="amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhirProps.property.snsArn"></a>
+
+```typescript
+public readonly snsArn: string;
+```
+
+- *Type:* string
 
 ---
 
