@@ -18,8 +18,10 @@ Resources:
         - x86_64
       Environment:
         Variables:
-          S3_OUTPUT_PREFIX: textract-output
-          S3_OUTPUT_BUCKET: textract-console-us-east-2-03abb712-4c98-4c0c-8152-27f707c07ecc
+          HEALTHLAKE_ENDPOINT: https://healthlake.us-east-2.amazonaws.com/datastore/83c10afe8566667ac2489c8d989b2c14/r4/
+          SNS_ARN: arn:aws:sns:us-east-2:109881088269:Textract
+          ROLE_ARN: arn:aws:iam::109881088269:role/Role_Textract
+          LOG_LEVEL: INFO
     Metadata:
       Dockerfile: Dockerfile
       DockerContext: .
