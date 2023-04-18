@@ -26,8 +26,8 @@ def handler(event, context):
             sns_arn = os.environ.get('SNS_ARN')
             role_arn = os.environ.get('ROLE_ARN')
             logger.info('Lambda invoked by an S3 event trigger')
-            print(f'SNS ARN: {sns_arn}')
-            print(f'Role ARN: {role_arn}')
+            logger.debug(f'SNS ARN: {sns_arn}')
+            logger.debug(f'Role ARN: {role_arn}')
             jobs = []
             for record in event["Records"]:
                 if not (bucket := record['s3']['bucket']['name']):
