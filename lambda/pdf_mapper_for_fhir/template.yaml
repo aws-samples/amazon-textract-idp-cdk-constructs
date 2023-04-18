@@ -3,14 +3,14 @@ Transform: AWS::Serverless-2016-10-31
 Description: >
   python3.9
 
-  Sample SAM Template for sam-app
+  Lambda function for PDF Mapper for FHIR
 
 Globals:
   Function:
     Timeout: 900
 
 Resources:
-  DeciderFunction:
+  PdfMapperForFhirFunction:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Image

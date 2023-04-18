@@ -1,2 +1,2 @@
 sam build
-sam local invoke -e events/event.json -n env.json
+sam local invoke -n env.json -e events/event.json

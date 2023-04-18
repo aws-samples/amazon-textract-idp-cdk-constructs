@@ -1,3 +1,2 @@
-filetype
-pypdf[full]
-Pillow
+requests
+requests_auth_aws_sigv4
