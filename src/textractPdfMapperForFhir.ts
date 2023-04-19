@@ -13,8 +13,6 @@ export interface TextractPdfMapperForFhirProps {
   readonly pdfMapperForFhirFunction?: lambda.IFunction;
   readonly lambdaLogLevel?: string;
   readonly healthlakeEndpoint?: string;
-  readonly snsArn?: string;
-  readonly roleArn?: string;
   readonly s3InputBucket?: string;
   /** prefix for the incoming document. Will be used to create role */
   readonly s3InputPrefix?: string;
@@ -53,10 +51,8 @@ export class TextractPdfMapperForFhir extends sfn.StateMachineFragment {
     var lambdaMemoryMB = props.lambdaMemoryMB === undefined ? 1024 : props.lambdaMemoryMB;
     var lambdaTimeout = props.lambdaTimeout === undefined ? 900 : props.lambdaTimeout;
     var lambdaLogLevel = props.lambdaLogLevel === undefined ? 'INFO' : props.lambdaLogLevel;
-    var s3InputPrefix = props.s3InputPrefix === undefined ? '' : props.s3InputPrefix;
     var healthlakeEndpoint = props.healthlakeEndpoint === undefined ? '' : props.healthlakeEndpoint;
-    var snsArn = props.snsArn === undefined ? '' : props.snsArn;
-    var roleArn = props.roleArn === undefined ? '' : props.roleArn;
+    var s3InputPrefix = props.s3InputPrefix === undefined ? 'uploads' : props.s3InputPrefix;
 
     this.pdfMapperForFhirFunction = new lambda.DockerImageFunction(
       this,
@@ -70,8 +66,6 @@ export class TextractPdfMapperForFhir extends sfn.StateMachineFragment {
         timeout: Duration.seconds(lambdaTimeout),
         environment: {
           HEALTHLAKE_ENDPOINT: healthlakeEndpoint,
-          SNS_ARN: snsArn,
-          ROLE_ARN: roleArn,
           LOG_LEVEL: lambdaLogLevel,
         },
       },

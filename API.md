@@ -8438,10 +8438,8 @@ const textractPdfMapperForFhirProps: TextractPdfMapperForFhirProps = { ... }
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhirProps.property.lambdaMemoryMB">lambdaMemoryMB</a></code> | <code>number</code> | memory of Lambda function (may need to increase for larger documents). |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhirProps.property.lambdaTimeout">lambdaTimeout</a></code> | <code>number</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhirProps.property.pdfMapperForFhirFunction">pdfMapperForFhirFunction</a></code> | <code>aws-cdk-lib.aws_lambda.IFunction</code> | *No description.* |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhirProps.property.roleArn">roleArn</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhirProps.property.s3InputBucket">s3InputBucket</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhirProps.property.s3InputPrefix">s3InputPrefix</a></code> | <code>string</code> | prefix for the incoming document. |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhirProps.property.snsArn">snsArn</a></code> | <code>string</code> | *No description.* |
 
 ---
 
@@ -8509,16 +8507,6 @@ public readonly pdfMapperForFhirFunction: IFunction;
 
 ---
 
-##### `roleArn`<sup>Optional</sup> <a name="roleArn" id="amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhirProps.property.roleArn"></a>
-
-```typescript
-public readonly roleArn: string;
-```
-
-- *Type:* string
-
----
-
 ##### `s3InputBucket`<sup>Optional</sup> <a name="s3InputBucket" id="amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhirProps.property.s3InputBucket"></a>
 
 ```typescript
@@ -8540,16 +8528,6 @@ public readonly s3InputPrefix: string;
 prefix for the incoming document.
 
 Will be used to create role
-
----
-
-##### `snsArn`<sup>Optional</sup> <a name="snsArn" id="amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhirProps.property.snsArn"></a>
-
-```typescript
-public readonly snsArn: string;
-```
-
-- *Type:* string
 
 ---
 

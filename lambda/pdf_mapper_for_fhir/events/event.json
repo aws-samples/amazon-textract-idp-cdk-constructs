@@ -1,28 +1,14 @@
 {
-    "Records": [
-        {
-            "eventVersion": "2.0",
-            "eventSource": "aws:s3",
-            "awsRegion": "us-east-1",
-            "eventTime": "1970-01-01T00:00:00.000Z",
-            "eventName": "ObjectCreated:Put",
-            "s3": {
-                "s3SchemaVersion": "1.0",
-                "configurationId": "testConfigRule",
-                "bucket": {
-                    "name": "textract-console-us-east-2-03abb712-4c98-4c0c-8152-27f707c07ecc",
-                    "ownerIdentity": {
-                        "principalId": "EXAMPLE"
-                    },
-                    "arn": "arn:aws:s3:::example-bucket"
-                },
-                "object": {
-                    "key": "uploads/fax-190220084533-6784593329-1_Redacted.pdf",
-                    "size": 357400,
-                    "eTag": "0123456789abcdef0123456789abcdef",
-                    "sequencer": "0A1B2C3D4E5F678901"
-                }
-            }
-        }
-    ]
+  "manifest":
+  {
+    "s3Path": "s3://pdfmappertofhirworkflow-textractsimplesyncworkflo-13ne9s3betcpj/uploads/fax-190517121115-6784593217-11_Redacted.pdf"
+  },
+  "mime": "application/pdf",
+  "classification": null,
+  "numberOfPages": 2,
+  "textract_result":
+  {
+    "TextractTempOutputJsonPath": "s3://pdfmappertofhirworkflow-textractsimplesyncworkflo-13ne9s3betcpj/temp/a8cdb100b8414882978cef68cf49c7ed1e47a68680ffa9fd442a69ae8c05bf4c",
+    "TextractOutputJsonPath": "s3://pdfmappertofhirworkflow-textractsimplesyncworkflo-13ne9s3betcpj/textract-output/fax-190517121115-6784593217-11_Redacted2023-04-19T18:49:29.225383/fax-190517121115-6784593217-11_Redacted.json"
+  }
 }
