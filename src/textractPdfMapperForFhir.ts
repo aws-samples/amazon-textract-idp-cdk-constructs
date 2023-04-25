@@ -90,6 +90,12 @@ export class TextractPdfMapperForFhir extends sfn.StateMachineFragment {
           }),
         );
       }
+      this.pdfMapperForFhirFunction.addToRolePolicy(
+        new iam.PolicyStatement({
+          actions: ['healthlake:CreateResource'],
+          resources: ['*'],
+        }),
+      );
     } else {
       for (var policyStatement of props.inputPolicyStatements) {
         this.pdfMapperForFhirFunction.addToRolePolicy(policyStatement);
