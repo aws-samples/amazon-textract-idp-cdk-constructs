@@ -82,12 +82,8 @@ def lambda_handler(event, _):
              } 
             for line in lines for word in line.words
             ]
-        num_seen = 0
         for word in words:
-            if "covenant" in word.get('text').lower():
-                num_seen += 1
-                page.draw_rect([word.get('xmin'), word.get('ymin'), word.get('xmax'), word.get('ymax')], color=(0, 1, 0), width=2)                           
-                tw.append(pos=(word.get('xmin'), word.get('ymax')), text=str(num_seen), font=font, fontsize=20)                
+            tw.append(pos=(word.get('xmin'), word.get('ymax')), text=word.get('text'), font=font, fontsize=font_size)                
         tw.write_text(page, render_mode=0, color=(0, 1, 0))
     s3_bucket, s3_key = split_s3_path_to_bucket_and_key(manifest.get('s3Path'))
     outputKey = f"pdf_output/{s3_key.split('/')[-1].split('.')[0]}_searchable.pdf"
