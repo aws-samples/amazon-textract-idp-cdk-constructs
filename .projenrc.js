@@ -19,7 +19,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
     module: 'amazon_textract_idp_cdk_constructs',
     prePublishSteps: [
       { run: 'mv dist .repo' },
-      { run: 'cd .repo && yarn install --check-files --frozen-lockfile' },
+      { run: 'cd .repo && yarn install --check-files' },
       { run: 'python -m pip install --upgrade pip' },
       { run: 'pip install --upgrade setuptools' },
       { run: 'cd .repo && npx projen package:python' },
