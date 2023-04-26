@@ -1,0 +1,12 @@
+{
+    "manifest": {
+        "s3Path": "s3://simplesearchpdf-textractsimpleasyncworkflow2d7d5b-1heheo1ldfzj/uploads/13930114010.pdf"
+    },
+    "mime": "application/pdf",
+    "classification": null,
+    "numberOfPages": 6,
+    "textract_result": {
+        "TextractTempOutputJsonPath": "s3://simplesearchpdf-textractsimpleasyncworkflow2d7d5b-1heheo1ldfzj/textract-temp-output/a5a6f907848cb5e27cd6236fb4ff13084c57e76b9d4a2382d9b11570adaabc2d",
+        "TextractOutputJsonPath": "s3://simplesearchpdf-textractsimpleasyncworkflow2d7d5b-1heheo1ldfzj/textract-output/139301140102023-04-05T17:07:35.220485/13930114010.json"
+    }
+}

@@ -3,5 +3,6 @@
         "lambda"
     ],
     "python.testing.unittestEnabled": false,
-    "python.testing.pytestEnabled": true
+    "python.testing.pytestEnabled": true,
+    "python.defaultInterpreterPath": "~/.pyenv/versions/3.11.2/envs/samples/bin/python"
 }
