@@ -1,0 +1,14 @@
+{
+  "manifest":
+  {
+    "s3Path": "s3://pdfmappertofhirworkflow-textractsimplesyncworkflo-13ne9s3betcpj/uploads/fax-190517121115-6784593217-11_Redacted.pdf"
+  },
+  "mime": "application/pdf",
+  "classification": null,
+  "numberOfPages": 2,
+  "textract_result":
+  {
+    "TextractTempOutputJsonPath": "s3://pdfmappertofhirworkflow-textractsimplesyncworkflo-13ne9s3betcpj/temp/a8cdb100b8414882978cef68cf49c7ed1e47a68680ffa9fd442a69ae8c05bf4c",
+    "TextractOutputJsonPath": "s3://pdfmappertofhirworkflow-textractsimplesyncworkflo-13ne9s3betcpj/textract-output/fax-190517121115-6784593217-11_Redacted2023-04-19T18:49:29.225383/fax-190517121115-6784593217-11_Redacted.json"
+  }
+}
