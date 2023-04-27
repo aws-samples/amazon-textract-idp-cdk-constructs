@@ -130,6 +130,24 @@
         }
       ]
     },
+    "install": {
+      "name": "install",
+      "description": "Install project dependencies and update lockfile (non-frozen)",
+      "steps": [
+        {
+          "exec": "yarn install --check-files"
+        }
+      ]
+    },
+    "install:ci": {
+      "name": "install:ci",
+      "description": "Install project dependencies using frozen lockfile",
+      "steps": [
+        {
+          "exec": "yarn install --check-files --frozen-lockfile"
+        }
+      ]
+    },
     "package": {
       "name": "package",
       "description": "Creates the distribution package",
@@ -147,7 +165,19 @@
           "spawn": "package:js"
         },
         {
+          "spawn": "package:java"
+        },
+        {
           "spawn": "package:python"
+        }
+      ]
+    },
+    "package:java": {
+      "name": "package:java",
+      "description": "Create java language bindings",
+      "steps": [
+        {
+          "exec": "jsii-pacmak -v --target java"
         }
       ]
     },
