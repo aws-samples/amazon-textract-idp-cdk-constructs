@@ -1260,7 +1260,7 @@ available-typed-arrays@^1.0.5:
 
 aws-cdk-lib@2.1.0:
   version "2.1.0"
-  resolved "https://registry.npmjs.org/aws-cdk-lib/-/aws-cdk-lib-2.1.0.tgz"
+  resolved "https://registry.yarnpkg.com/aws-cdk-lib/-/aws-cdk-lib-2.1.0.tgz#2497484cfd4e2eeaba99b070bbfa54486d52ae34"
   integrity sha512-W607G3aSrWpawpcqzIuUYKlU+grfvkbszyqikyVYqJgMHFCCQXq0S1ynPMzfQ49CwjlwZsu4LIsPM+dNR+Yj6g==
   dependencies:
     "@balena/dockerignore" "^1.0.2"
