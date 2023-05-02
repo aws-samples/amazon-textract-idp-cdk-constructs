@@ -12,7 +12,7 @@ from trp.t_pipeline import order_blocks_by_geo
 from trp.trp2 import TDocument, TDocumentSchema
 
 logger = logging.getLogger(__name__)
-version = "0.0.4"
+version = "0.0.5"
 s3 = boto3.client('s3')
 step_functions_client = boto3.client(service_name='stepfunctions')
 
