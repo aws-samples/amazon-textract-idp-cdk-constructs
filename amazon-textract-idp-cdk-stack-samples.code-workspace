@@ -7,5 +7,13 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"python.analysis.autoImportCompletions": true,
+		"python.analysis.extraPaths": [
+			"~/.pyenv/versions/3.11.2/envs/samples/bin/python"
+		],
+		"python.analysis.include": [
+			"~/.pyenv/versions/3.11.2/envs/samples/bin/python"
+		]
+	}
 }
