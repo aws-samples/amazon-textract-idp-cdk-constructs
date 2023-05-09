@@ -33,9 +33,7 @@ def lambda_handler(event, _):
         boto3 version: {boto3.__version__}\n \
         textractcaller version: {tc.__version__}.")
 
-    textract_api = os.environ.get('TEXTRACT_API', None)
-    if not textract_api:
-        textract_api = 'GENERIC'
+    textract_api = os.environ.get('TEXTRACT_API', "GENERIC")
     s3_output_bucket = os.environ.get('S3_OUTPUT_BUCKET', None)
     if not s3_output_bucket:
         raise Exception("no S3_OUTPUT_BUCKET set")
@@ -47,6 +45,7 @@ def lambda_handler(event, _):
     logger.info(f"LOG_LEVEL: {log_level} \n \
                 S3_OUTPUT_PREFIX: {s3_output_prefix} \n \
                 S3_OUTPUT_BUCKET: {s3_output_bucket} \n \
+                TEXTRACT_API: {textract_api} \
                 ")
 
     manifest: tm.IDPManifest = tm.IDPManifestSchema().load(
@@ -73,9 +72,12 @@ def lambda_handler(event, _):
     logger.info(f"textract_async_to_json_call_duration_in_ms: {call_duration}")
     output_bucket_key = s3_output_prefix + "/" + s3_filename + datetime.utcnow(
     ).isoformat() + "/" + s3_filename + ".json"
+
+    logger.info("before saving to S3")
     s3.put_object(Body=bytes(json.dumps(full_json, indent=4).encode('UTF-8')),
                   Bucket=s3_output_bucket,
                   Key=output_bucket_key)
+    logger.info("after saving to S3")
 
     event["textract_result"]["TextractOutputJsonPath"]=f"s3://{s3_output_bucket}/{output_bucket_key}"
 

@@ -1,2 +1,0 @@
-amazon-textract-caller
-schadem-tidp-manifest

@@ -8,6 +8,7 @@ Description: >
 Globals:
   Function:
     Timeout: 900
+    MemorySize: 10240
 
 Resources:
   SyncFunction:
@@ -19,7 +20,7 @@ Resources:
       Environment:
         Variables:
           S3_OUTPUT_PREFIX: textract-output
-          S3_OUTPUT_BUCKET: my-stack-dev-documentbucket04c71448-7en8gx904sk5
+          S3_OUTPUT_BUCKET: simplesearchpdf-textractsimpleasyncworkflow2d7d5b-j392r3sveake
           LOG_LEVEL: DEBUG
     Metadata:
       Dockerfile: Dockerfile
