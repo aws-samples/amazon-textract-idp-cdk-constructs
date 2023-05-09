@@ -1,12 +1,11 @@
 {
     "manifest": {
-        "s3Path": "s3://schademcdkstackpaystuban-schademcdkidpstackpaystu-bt0j5wq0zftu/uploads/w2-example.png"
+        "s3Path": "s3://simplesearchpdf-textractsimpleasyncworkflow2d7d5b-j392r3sveake/uploads/moby-dick-hidden-paystub-and-w2.pdf"
     },
-    "mime": "image/png",
+    "mime": "application/pdf",
     "classification": null,
-    "numberOfPages": 1,
-    "Random": "{\"randomNumber\": 60}",
+    "numberOfPages": 488,
     "textract_result": {
-        "TextractTempOutputJsonPath": "s3://schademcdkstackpaystuban-schademcdkidpstackpaystu-bt0j5wq0zftu/textract-temp-output/a37c3b6dd0f3c55a3b05c84bd972a2395b15bda61c77850c54c29fd6b1f8bcf2"
+        "TextractTempOutputJsonPath": "s3://simplesearchpdf-textractsimpleasyncworkflow2d7d5b-j392r3sveake/textract-temp-output/1a016bc3203ac32c0b8c5f587cc58949f2abb0f8612057168dda877a351eff3a"
     }
-} 
+}
