@@ -23,19 +23,6 @@ def split_s3_path_to_bucket_and_key(s3_path: str) -> Tuple[str, str]:
         )
     s3_bucket, s3_key = s3_path.replace("s3://", "").split("/", 1)
     return (s3_bucket, s3_key)
-
-def calculateFontSize(word, bbWidth, bbHeight):
-    textWidth = getStringWidth(text)
-    textHeight = getStringHeight(text)
-    
-    if (textWidth > bbWidth):
-        fontSize -= 1
-        textWidth = getStringWidth(text)
-        textHeight = getStringHeight(text)
-    elif (textWidth < bbWidth):
-        fontSize += 1
-        textWidth = getStringWidth(text)
-        textHeight = getStringHeight(text)
         
 
 def get_file_from_s3(s3_path: str, range=None) -> bytes:
@@ -57,10 +44,10 @@ def lambda_handler(event, _):
     # Get the files
     pdf_obj = get_file_from_s3(manifest.get('s3Path'))    
 
-    logger.info(f"Get File {manifest.get('s3Path')}")
+    logger.info(f"Get PDF {manifest.get('s3Path')}")
 
     textract_s3_byte = get_file_from_s3(tesxtract_result.get('TextractOutputJsonPath'))
-    logger.info(f"Get File {tesxtract_result.get('TextractOutputJsonPath')}")
+    logger.info(f"Get Textract JSON {tesxtract_result.get('TextractOutputJsonPath')}")
 
     logger.info("Reading PDF")
     # Read the PDF 
@@ -74,13 +61,15 @@ def lambda_handler(event, _):
     logger.info("Loading into TRP and Ordering Blocks by Geo")
     #Load into TRP and Order Blocks
     ordered_doc = order_blocks_by_geo(temp_doc)
+
     trp_doc = trp.Document(TDocumentSchema().dump(ordered_doc))
 
     logger.info("Parsing the Text and writing to PDF Hidden Layer")
     # parse the detect text into words and write to PDF
         
     font= fitz.Font("Courier")
-    for i, page in enumerate(pdfdoc):
+    # enumerate the textract .pages class to get it ordered by page
+    for i,page in enumerate(pdfdoc):
         tPage = trp_doc.pages[i]
         tw = fitz.TextWriter(page.rect)
         lines = list(tPage.lines)
