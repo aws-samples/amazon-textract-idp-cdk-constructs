@@ -21,6 +21,7 @@ For samples on usage, look at [Amazon Textact IDP CDK Stack Samples](https://git
 
 ## Input
 
+
 Expects a Manifest JSON at 'Payload'.
 Manifest description: https://pypi.org/project/schadem-tidp-manifest/
 
@@ -46,6 +47,48 @@ Example call in Python
             result_path="$.textract_result")
 ```
 
+#### Query Parameter
+
+Example: 
+```python
+
+            input=sfn.TaskInput.from_object({
+                "Token":
+                sfn.JsonPath.task_token,
+                "ExecutionId":
+                sfn.JsonPath.string_at('$$.Execution.Id'),
+                "Payload":
+                sfn.JsonPath.entire_payload,
+                "Query": [
+                           {
+                                'Text': 'string',
+                                'Alias': 'string',
+                                'Pages': [
+                                    'string',
+                                ]
+                            },
+                                {
+                                "Text": "What is the name of the realestate company",
+                                "Alias": "APP_COMPANY_NAME"
+                            },
+                            {
+                                "Text": "What is the name of the applicant or the prospective tenant",
+                                "Alias": "APP_APPLICANT_NAME"
+                            },
+                ]
+            }),
+
+```
+Documentation: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/textract/client/start_document_analysis.html
+
+To add a query parameter to the Manifest JSON, we are going to leverage the 'convert_manifest_queries_config_to_caller'. It transforms a list of Query objects (as indicated by the type hint List[tm.Query]) into a QueriesConfig object (as indicated by the return type tc.QueriesConfig).
+
+The function expects a list of Query objects as input. Each Query object should have the following attributes: 
+- text (required)
+- alias (opt)
+- pages (opt)
+
+The function creates a new QueriesConfig object. If the input list is not empty, it creates a list comprehension that generates a new Query object for each Query object in the input list, maintaining the same text, alias, and pages values. If the input list is empty, it simply creates a QueriesConfig object with an empty queries list.
 
 
 ## Output
