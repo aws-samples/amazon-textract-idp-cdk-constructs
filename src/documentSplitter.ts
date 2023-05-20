@@ -21,6 +21,10 @@ export interface DocumentSplitterProps {
   readonly s3InputBucket?: string;
   /** prefix for input S3 objects - if left empty will generate rule for s3 access to all in bucket */
   readonly s3InputPrefix?: string;
+  /** maxNumberOfPagesPerDoc - defines in which chunks to split up the document.
+   * Default is 1
+   */
+  readonly maxNumberOfPagesPerDoc?: number;
   /** List of PolicyStatements to attach to the Lambda function.  */
   readonly inputPolicyStatements?: [iam.PolicyStatement];
   /** List of PolicyStatements to attach to the Lambda function.  */
@@ -52,6 +56,7 @@ export class DocumentSplitter extends sfn.StateMachineFragment {
 
     var lambdaMemoryMB = props.lambdaMemoryMB === undefined ? 10240 : props.lambdaMemoryMB;
     var lambdaTimeout = props.lambdaTimeout === undefined ? 900 : props.lambdaTimeout;
+    var maxNumberOfPagesPerDoc = props.maxNumberOfPagesPerDoc === undefined ? 1 : props.maxNumberOfPagesPerDoc;
     var lambdaLogLevel = props.lambdaLogLevel === undefined ? 'DEBUG' : props.lambdaLogLevel;
     var s3OutputPrefix =
       props.s3OutputPrefix === undefined ? '' : props.s3OutputPrefix;
@@ -67,6 +72,7 @@ export class DocumentSplitter extends sfn.StateMachineFragment {
         S3_OUTPUT_BUCKET: props.s3OutputBucket,
         S3_OUTPUT_PREFIX: props.s3OutputPrefix,
         LOG_LEVEL: lambdaLogLevel,
+        MAX_NUMBER_OF_PAGES_PER_DOC: maxNumberOfPagesPerDoc.toString(),
       },
     });
     /** ################ INPUT BUCKET POLICIES */

@@ -31,23 +31,48 @@ def get_file_from_s3(s3_path: str, range=None) -> bytes:
     return o.get('Body').read()
 
 
-def split_and_save_pages(s3_path: str, mime: str, s3_output_bucket: str,
-                         s3_output_prefix: str) -> List[str]:
+def split_and_save_pages(s3_path: str,
+                         mime: str,
+                         s3_output_bucket: str,
+                         s3_output_prefix: str,
+                         max_number_of_pages=1) -> List[str]:
     """takes a document ('application/pdf', 'image/tiff', 'image/png', 'image/jpeg') then stores single page files to s3_output_bucket under the s3_output_prefix with a _<page_number> and returns the list of file names """
     output_file_list: List[str] = list()
     if mime == 'application/pdf':
         file_bytes = get_file_from_s3(s3_path=s3_path)
         with io.BytesIO(file_bytes) as input_pdf_file:
             pdf_reader = PdfReader(input_pdf_file)
+            current_number_of_pages_collected = 0
+            current_start_page = 0
+            writer = PdfWriter()
             for page_number in range(0, len(pdf_reader.pages)):
                 page_in_mem = io.BytesIO()
-                writer = PdfWriter()
                 writer.add_page(pdf_reader.pages[page_number])
                 writer.write(page_in_mem)
                 logger.debug(f"len page_in_mem: {sys.getsizeof(page_in_mem)}")
-                file_name = f"{page_number+1}.pdf"
-                output_bucket_key = os.path.join(s3_output_prefix,
-                                                 file_name)
+                current_number_of_pages_collected += 1
+                if current_number_of_pages_collected == max_number_of_pages:
+                    if max_number_of_pages == 1:
+                        file_name = f"{page_number+1}.pdf"
+                    else:
+                        file_name = f"{current_start_page}-{page_number}.pdf"
+                    output_bucket_key = os.path.join(s3_output_prefix,
+                                                     file_name)
+                    page_in_mem.seek(0)
+                    s3.put_object(Body=page_in_mem,
+                                  Bucket=s3_output_bucket,
+                                  Key=output_bucket_key)
+                    output_file_list.append(file_name)
+                    # reset the counters
+                    writer = PdfWriter()
+                    current_start_page = page_number
+                    current_number_of_pages_collected = 0
+            else:
+                if max_number_of_pages == 1:
+                    file_name = f"{page_number+1}.pdf"
+                else:
+                    file_name = f"{current_start_page}-{page_number}.pdf"
+                output_bucket_key = os.path.join(s3_output_prefix, file_name)
                 page_in_mem.seek(0)
                 s3.put_object(Body=page_in_mem,
                               Bucket=s3_output_bucket,
@@ -63,8 +88,7 @@ def split_and_save_pages(s3_path: str, mime: str, s3_output_bucket: str,
             page.save(page_in_mem, format="tiff")
             file_name = f"{page_number+1}.tiff"
             page_in_mem.seek(0)
-            output_bucket_key = os.path.join(s3_output_prefix,
-                                             file_name)
+            output_bucket_key = os.path.join(s3_output_prefix, file_name)
             s3.put_object(Body=page_in_mem,
                           Bucket=s3_output_bucket,
                           Key=output_bucket_key)

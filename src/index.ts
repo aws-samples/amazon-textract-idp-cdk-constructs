@@ -289,7 +289,8 @@ export class TextractGenericAsyncSfnTask extends sfn.TaskStateBase {
       maxAttempts: textractAsyncCallMaxRetries,
       backoffRate: textractAsyncCallBackoffRate,
       interval: Duration.seconds(textractAsyncCallInterval),
-      errors: ['ThrottlingException', 'LimitExceededException', 'InternalServerError', 'ProvisionedThroughputExceededException'],
+      errors: ['ThrottlingException', 'LimitExceededException', 'InternalServerError',
+        'ProvisionedThroughputExceededException', 'Lambda.TooManyRequestsException', 'ConnectionClosedException'],
     });
 
 

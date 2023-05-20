@@ -14,9 +14,10 @@ import trp as t1
 import trp.trp2_lending as tl
 import datetime
 import textractmanifest as tm
+import uuid
 
 logger = logging.getLogger(__name__)
-version = "0.0.3"
+version = "0.0.4"
 s3_client = boto3.client('s3')
 step_functions_client = boto3.client(service_name='stepfunctions')
 
@@ -49,6 +50,11 @@ def create_meta_data_dict(manifest: tm.IDPManifest) -> dict:
     return meta_data_dict
 
 
+def create_bulk_import_line(index, action, doc_id, doc):
+    action_line = {action: {"_index": index, "_id": doc_id}}
+    return json.dumps(action_line) + "\n" + json.dumps(doc) + "\n"
+
+
 # TODO: This method gets way too big, have to modularize it
 def lambda_handler(event, _):
     """ takes and even which includes a location to a Textract JSON schema file and generates CSV based on Query results + FORMS results
@@ -65,11 +71,13 @@ def lambda_handler(event, _):
     logger.debug(json.dumps(event))
     csv_s3_output_prefix = os.environ.get('CSV_S3_OUTPUT_PREFIX')
     output_type = os.environ.get('OUTPUT_TYPE', 'CSV')
-    output_features = os.environ.get('OUTPUT_FEATURES', 'FORMS,QUERIES,TABLES,SIGNATURES')
+    output_features = os.environ.get('OUTPUT_FEATURES',
+                                     'FORMS,QUERIES,TABLES,SIGNATURES')
     output_features_list = [x.strip() for x in output_features.split(',')]
     csv_s3_output_bucket = os.environ.get('CSV_S3_OUTPUT_BUCKET')
     textract_api = os.environ.get('TEXTRACT_API', 'GENERIC')
     meta_data_to_append = os.environ.get('META_DATA_TO_APPEND', '')
+    opensearch_index = os.environ.get('OPENSEARCH_INDEX', 'my-index')
     meta_data_to_append_list = meta_data_to_append.split(',')
     logger.debug(f"meta_data_to_append_list: {meta_data_to_append_list}")
 
@@ -119,7 +127,48 @@ def lambda_handler(event, _):
                 json.loads(file_json))  #type: ignore
             timestamp = datetime.datetime.now().astimezone().replace(
                 microsecond=0).isoformat()
-            if output_type == 'CSV':
+            if output_type == 'OPENSEARCH_BATCH':
+                logger.debug('OPENSEARCH_BATCH')
+                # generate a structure for indexing
+                # https://opensearch.org/docs/1.2/opensearch/rest-api/document-apis/bulk/
+                # { "index": { "_index": "my_index", "_id": "document_name_page" } }
+                # { "content": "text_of_the_page", "page": 2, "url": "https://URL_to_PDF"}
+                # The _id we generate is the document_id we take from meta_data ORIGIN_FILE_NAME and the START_PAGE_NUMBER
+                # the page number we get from the meta-data START_PAGE_NUMBER
+                # The URL we have to get from the context as well, if available at ORIGIN_FILE_URI
+                # The index-name we have to get from the context as well INDEX_NAME
+                s3_output_key = f"{csv_s3_output_prefix}/{timestamp}/{base_filename_no_suffix}.json"
+                index = opensearch_index
+                origin_file_name = meta_data_dict.get('ORIGIN_FILE_NAME',
+                                                      str(uuid.uuid4()))
+                start_page_number = int(
+                    meta_data_dict.get('START_PAGE_NUMBER', "0"))
+                origin_file_uri = meta_data_dict.get('ORIGIN_FILE_URI', "")
+
+                for idx, page in enumerate(trp2_doc.pages):
+                    page_number = start_page_number + idx
+                    page_text = t2.TDocument.get_text_for_tblocks(
+                        trp2_doc.lines(page=page))
+                    doc_id = f"{origin_file_name}_{page_number}"
+                    doc = {
+                        "content":
+                        page_text,
+                        "page":
+                        page_number,
+                        "uri":
+                        origin_file_uri,
+                        "timestamp":
+                        datetime.datetime.utcnow().strftime(
+                            '%Y-%m-%dT%H:%M:%SZ')
+                    }
+                    if meta_data_dict:
+                        doc.update(meta_data_dict)
+
+                    result_value += create_bulk_import_line(index=index,
+                                                            action="index",
+                                                            doc_id=doc_id,
+                                                            doc=doc)
+            elif output_type == 'CSV':
                 key_value_list = list()
                 if 'FORMS' in output_features_list:
                     logger.debug("creating FORMS")
