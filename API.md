@@ -6475,6 +6475,7 @@ const documentSplitterProps: DocumentSplitterProps = { ... }
 | <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.lambdaLogLevel">lambdaLogLevel</a></code> | <code>string</code> | Lambda log level. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.lambdaMemoryMB">lambdaMemoryMB</a></code> | <code>number</code> | Lambda function memory configuration (may need to increase for larger documents). |
 | <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.lambdaTimeout">lambdaTimeout</a></code> | <code>number</code> | Lambda function timeout (may need to increase for larger documents). |
+| <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.maxNumberOfPagesPerDoc">maxNumberOfPagesPerDoc</a></code> | <code>number</code> | maxNumberOfPagesPerDoc - defines in which chunks to split up the document. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.outputPolicyStatements">outputPolicyStatements</a></code> | <code>object</code> | List of PolicyStatements to attach to the Lambda function. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.s3InputBucket">s3InputBucket</a></code> | <code>string</code> | location of input S3 objects - if left empty will generate rule for s3 access to all [*]. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.s3InputPrefix">s3InputPrefix</a></code> | <code>string</code> | prefix for input S3 objects - if left empty will generate rule for s3 access to all in bucket. |
@@ -6550,6 +6551,20 @@ public readonly lambdaTimeout: number;
 - *Type:* number
 
 Lambda function timeout (may need to increase for larger documents).
+
+---
+
+##### `maxNumberOfPagesPerDoc`<sup>Optional</sup> <a name="maxNumberOfPagesPerDoc" id="amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.maxNumberOfPagesPerDoc"></a>
+
+```typescript
+public readonly maxNumberOfPagesPerDoc: number;
+```
+
+- *Type:* number
+
+maxNumberOfPagesPerDoc - defines in which chunks to split up the document.
+
+Default is 1
 
 ---
 
@@ -7566,6 +7581,7 @@ const textractGenerateCSVProps: TextractGenerateCSVProps = { ... }
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.lambdaTimeout">lambdaTimeout</a></code> | <code>number</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.metaDataToAppend">metaDataToAppend</a></code> | <code>string[]</code> | The generated CSV can have any meta-data from the manifest file included. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.name">name</a></code> | <code>string</code> | The name of the execution, same as that of StartExecution. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.opensearchIndexName">opensearchIndexName</a></code> | <code>string</code> | in case of export to OPENSEARCH_BATCH, this defines the index. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.outputFeatures">outputFeatures</a></code> | <code>string</code> | supports FORMS, TABLES, QUERIES, SIGNATURES as a comma seperated string and generates CSV files for the output from those default is "FORMS,TABLES,QUERIES,SIGNATURES". |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.outputPolicyStatements">outputPolicyStatements</a></code> | <code>object</code> | List of PolicyStatements to attach to the Lambda function. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.outputType">outputType</a></code> | <code>string</code> | *No description.* |
@@ -7823,6 +7839,20 @@ public readonly name: string;
 The name of the execution, same as that of StartExecution.
 
 > [https://docs.aws.amazon.com/step-functions/latest/apireference/API_StartExecution.html](https://docs.aws.amazon.com/step-functions/latest/apireference/API_StartExecution.html)
+
+---
+
+##### `opensearchIndexName`<sup>Optional</sup> <a name="opensearchIndexName" id="amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.opensearchIndexName"></a>
+
+```typescript
+public readonly opensearchIndexName: string;
+```
+
+- *Type:* string
+
+in case of export to OPENSEARCH_BATCH, this defines the index.
+
+Default is my-index
 
 ---
 

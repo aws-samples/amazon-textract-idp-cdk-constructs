@@ -11,6 +11,7 @@ import textractmanifest as tm
 
 from datetime import datetime
 from botocore.config import Config
+import botocore.exceptions 
 from typing import List
 
 logger = logging.getLogger(__name__)
@@ -56,6 +57,8 @@ class InternalServerError(Exception):
 class ProvisionedThroughputExceededException(Exception):
     pass
 
+class ConnectionClosedException(Exception):
+    pass
 
 def lambda_handler(event, _):
     log_level = os.environ.get('LOG_LEVEL', 'INFO')
@@ -252,6 +255,9 @@ def lambda_handler(event, _):
     except textract.exceptions.LimitExceededException:
         logger.warning(f"textract.exceptions.LimitExceededException")
         raise LimitExceededException('LimitExceededException')
+    except botocore.exceptions.ConnectionClosedError:
+        logger.warning(f"ConnectionClosedException")
+        raise ConnectionClosedException('ConnectionClosedException')
     except Exception as e:
         error = "not_handled_exception"
         cause = str(e)

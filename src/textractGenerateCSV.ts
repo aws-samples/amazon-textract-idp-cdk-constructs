@@ -35,7 +35,7 @@ export interface TextractGenerateCSVProps extends sfn.TaskStateBaseProps{
   readonly csvS3OutputPrefix:string;
   /** memory of Lambda function (may need to increase for larger documents) */
   readonly lambdaMemoryMB?:number;
-  //TODO: make enum, supports CSV, LINES
+  //TODO: make enum, supports CSV, LINES, OPENSEARCH_BATCH
   readonly outputType?:string;
   readonly lambdaTimeout?:number;
   readonly lambdaLogLevel?:string;
@@ -47,6 +47,10 @@ export interface TextractGenerateCSVProps extends sfn.TaskStateBaseProps{
   /** List of PolicyStatements to attach to the Lambda function.  */
   readonly outputPolicyStatements?: [iam.PolicyStatement];
   readonly textractAPI?: 'GENERIC' | 'ANALYZEID' | 'LENDING';
+  /** in case of export to OPENSEARCH_BATCH, this defines the index.
+   * Default is my-index
+   */
+  readonly opensearchIndexName?:string;
   /** The generated CSV can have any meta-data from the manifest file included.
    * This is a list of all meta-data names to include
    * If they are missed they will be ""
@@ -156,6 +160,7 @@ export class TextractGenerateCSV extends sfn.TaskStateBase {
     var lambdaMemoryMB = props.lambdaMemoryMB === undefined ? 1048 : props.lambdaMemoryMB;
     var textractAPI = props.textractAPI === undefined ? 'GENERIC' : props.textractAPI;
     var outputType= props.outputType === undefined ? 'CSV' : props.outputType;
+    var opensearchIndexName= props.opensearchIndexName === undefined ? 'my-index' : props.opensearchIndexName;
     var outputFeatures= props.outputFeatures === undefined ? 'FORMS,QUERIES,SIGNATURES,TABLES' : props.outputFeatures;
     var metaDataToAppend= props.metaDataToAppend === undefined ? '' : props.metaDataToAppend;
     var s3TempOutputPrefix =
@@ -174,6 +179,7 @@ export class TextractGenerateCSV extends sfn.TaskStateBase {
         LOG_LEVEL: lambdaLogLevel,
         OUTPUT_TYPE: outputType,
         OUTPUT_FEATURES: outputFeatures,
+        OPENSEARCH_INDEX: opensearchIndexName,
         TEXTRACT_API: textractAPI,
         META_DATA_TO_APPEND: metaDataToAppend?.toString(),
       },

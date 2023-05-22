@@ -40,6 +40,9 @@ def lambda_handler(event, _):
     if not s3_output_prefix:
         raise Exception("no S3_OUTPUT_PREFIX set")
 
+    max_number_of_pages_per_doc = int(
+        os.environ.get('MAX_NUMBER_OF_PAGES_PER_DOC', "1"))
+
     supported_mime_types = [
         'application/pdf', 'image/png', 'image/jpeg', 'image/tiff'
     ]
@@ -52,15 +55,17 @@ def lambda_handler(event, _):
         mime = event['mime']
 
     if mime and mime in supported_mime_types:
-        timestamp=datetime.utcnow().isoformat()
-        s3_path=manifest.s3_path
+        timestamp = datetime.utcnow().isoformat()
+        s3_path = manifest.s3_path
         s3_filename, _ = os.path.splitext(os.path.basename(manifest.s3_path))
-        full_output_prefix = os.path.join(s3_output_prefix, s3_filename, timestamp)
+        full_output_prefix = os.path.join(s3_output_prefix, s3_filename,
+                                          timestamp)
         output_file_list = split_and_save_pages(
             s3_path=s3_path,
             mime=mime,
             s3_output_bucket=s3_output_bucket,
-            s3_output_prefix=full_output_prefix)
+            s3_output_prefix=full_output_prefix,
+            max_number_of_pages=max_number_of_pages_per_doc)
     else:
         raise Exception(f"not supported Mime type: {mime}")
     logger.info(f"return: {manifest}")
@@ -69,7 +74,8 @@ def lambda_handler(event, _):
         "documentSplitterS3OutputPath": full_output_prefix,
         "documentSplitterS3OutputBucket": s3_output_bucket,
         "pages": output_file_list,
-        "mime": mime
+        "mime": mime,
+        "originFileURI": manifest.s3_path
     }
 
     return result_value
