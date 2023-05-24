@@ -18,7 +18,6 @@ pids
 *.pid
 *.seed
 *.pid.lock
-*.code-workspace
 lib-cov
 coverage
 *.lcov
