@@ -30,14 +30,14 @@ const project = new awscdk.AwsCdkConstructLibrary({
     distName: 'amazon-textract-idp-cdk-constructs',
     module: 'amazon_textract_idp_cdk_constructs',
   },
-  // publishToMaven: {
-  //   javaPackage: 'software.amazon.textract.idp',
-  //   mavenArtifactId: 'idp-cdk-constructs',
-  //   mavenGroupId: 'software.amazon.textract.idp',
-  //   mavenServerId: 'ossrh',
-  //   serverId: 'MavenCentral',
-  //   mavenEndpoint: 'https://aws.oss.sonatype.org/',
-  //   mavenRepositoryUrl: 'https://aws.oss.sonatype.org/',
-  // },
+  publishToMaven: {
+    javaPackage: 'software.amazon.textract.idp',
+    mavenArtifactId: 'idp-cdk-constructs',
+    mavenGroupId: 'software.amazon.textract.idp',
+    mavenServerId: 'ossrh',
+    serverId: 'MavenCentral',
+    mavenEndpoint: 'https://aws.oss.sonatype.org/',
+    mavenRepositoryUrl: 'https://aws.oss.sonatype.org/',
+  },
 });
 project.synth();
