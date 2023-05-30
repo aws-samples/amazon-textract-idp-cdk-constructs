@@ -12,9 +12,9 @@ from trp.t_pipeline import order_blocks_by_geo
 from trp.trp2 import TDocument, TDocumentSchema
 
 logger = logging.getLogger(__name__)
-version = "0.0.5"
+version = "0.0.6"
 s3 = boto3.client('s3')
-step_functions_client = boto3.client(service_name='stepfunctions')
+
 
 def split_s3_path_to_bucket_and_key(s3_path: str) -> Tuple[str, str]:
     if len(s3_path) <= 7 or not s3_path.lower().startswith("s3://"):
@@ -23,7 +23,7 @@ def split_s3_path_to_bucket_and_key(s3_path: str) -> Tuple[str, str]:
         )
     s3_bucket, s3_key = s3_path.replace("s3://", "").split("/", 1)
     return (s3_bucket, s3_key)
-
+        
 
 def get_file_from_s3(s3_path: str, range=None) -> bytes:
     s3_bucket, s3_key = split_s3_path_to_bucket_and_key(s3_path)
@@ -44,10 +44,10 @@ def lambda_handler(event, _):
     # Get the files
     pdf_obj = get_file_from_s3(manifest.get('s3Path'))    
 
-    logger.info(f"Get File {manifest.get('s3Path')}")
+    logger.info(f"Get PDF {manifest.get('s3Path')}")
 
     textract_s3_byte = get_file_from_s3(tesxtract_result.get('TextractOutputJsonPath'))
-    logger.info(f"Get File {tesxtract_result.get('TextractOutputJsonPath')}")
+    logger.info(f"Get Textract JSON {tesxtract_result.get('TextractOutputJsonPath')}")
 
     logger.info("Reading PDF")
     # Read the PDF 
@@ -61,14 +61,15 @@ def lambda_handler(event, _):
     logger.info("Loading into TRP and Ordering Blocks by Geo")
     #Load into TRP and Order Blocks
     ordered_doc = order_blocks_by_geo(temp_doc)
+
     trp_doc = trp.Document(TDocumentSchema().dump(ordered_doc))
 
     logger.info("Parsing the Text and writing to PDF Hidden Layer")
     # parse the detect text into words and write to PDF
         
-    font = fitz.Font("Courier")
-    font_size = 12
-    for i, page in enumerate(pdfdoc):
+    font= fitz.Font("Courier")
+    # enumerate the textract .pages class to get it ordered by page
+    for i,page in enumerate(pdfdoc):
         tPage = trp_doc.pages[i]
         tw = fitz.TextWriter(page.rect)
         lines = list(tPage.lines)
@@ -83,7 +84,13 @@ def lambda_handler(event, _):
             for line in lines for word in line.words
             ]
         for word in words:
-            tw.append(pos=(word.get('xmin'), word.get('ymax')), text=word.get('text'), font=font, fontsize=font_size)                
+            font_size = 10
+            PDF_Width = fitz.get_text_length(text=word.get('text'), fontname="Courier", fontsize=font_size)
+            OCR_Width = (word.get('xmax') - word.get('xmin'))
+            while PDF_Width > OCR_Width:
+                font_size = font_size - 1
+                PDF_Width = fitz.get_text_length(text=word.get('text'), fontname="Courier", fontsize=font_size)
+            tw.append(pos=(word.get('xmin'), word.get('ymax')), text=word.get('text'), font=font, fontsize=font_size)             
         tw.write_text(page, render_mode=0, color=(0, 1, 0))
     s3_bucket, s3_key = split_s3_path_to_bucket_and_key(manifest.get('s3Path'))
     outputKey = f"pdf_output/{s3_key.split('/')[-1].split('.')[0]}_searchable.pdf"

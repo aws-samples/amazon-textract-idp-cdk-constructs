@@ -80,11 +80,11 @@ export class SearchablePDF extends sfn.StateMachineFragment {
         this.searchablePDFFunction.addToRolePolicy(policyStatement);
       }
     }
-    // TODO I don't think I am calling this correctly here.....
+
     const searchablePDFLambdaInvoke = new tasks.LambdaInvoke(this, id, {
       lambdaFunction: this.searchablePDFFunction,
       timeout: Duration.seconds(100),
-      // do I need to pass the event info in here?
+
       outputPath: '$.Payload',
     });
     this.startState = searchablePDFLambdaInvoke;
