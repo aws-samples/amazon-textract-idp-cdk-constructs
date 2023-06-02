@@ -1,4 +1,3 @@
-import cfnresponse
 import logging
 import os
 import boto3
@@ -10,6 +9,14 @@ __version__ = "0.0.1"
 
 dynamodb = boto3.resource('dynamodb')
 
+def on_event(event, context):
+  print(f"event: {event}")
+  print(f"context: {context}")
+  request_type = event['RequestType']
+  if request_type == 'Create': return on_create(event)
+  if request_type == 'Update': return on_update(event)
+  if request_type == 'Delete': return on_delete(event)
+  raise Exception("Invalid request type: %s" % request_type)
 
 def put_item(table, document_type: str, manifest: str):
     ddb_response = table.put_item(Item={
@@ -20,26 +27,27 @@ def put_item(table, document_type: str, manifest: str):
 
 
 def on_create(event, context, table_name):
+    logger.info(f"event: {event}\ncontext: {context}")
     physical_id = 'initConfiguration'
     table = dynamodb.Table(table_name)
     with open('default_config.csv') as default_config_file:
         csv_reader = csv.reader(default_config_file)
         for row in csv_reader:
             put_item(table, row[0], row[1])
-    cfnresponse.send(event, context, cfnresponse.SUCCESS,
-                     {'Response': "created"}, physical_id)
+    return { 'PhysicalResourceId': physical_id }
 
 
 def on_update(event, context):
-    physical_id = 'initConfiguration'
-    cfnresponse.send(event, context, cfnresponse.SUCCESS,
-                     {'Response': "created"}, physical_id)
+    
+    physical_id = event["PhysicalResourceId"]
+    props = event["ResourceProperties"]
+    print("update resource %s with props %s" % (physical_id))
+
 
 
 def on_delete(event, context):
-    physical_id = 'initConfiguration'
-    cfnresponse.send(event, context, cfnresponse.SUCCESS,
-                     {'Response': "created"}, physical_id)
+    physical_id = event["PhysicalResourceId"]
+    print("delete resource %s" % physical_id)
 
 
 def lambda_handler(event, context):

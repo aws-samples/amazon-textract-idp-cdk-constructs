@@ -1,4 +1,3 @@
-import cfnresponse
 import logging
 import os
 import boto3
@@ -35,8 +34,7 @@ def on_create(event, context, secret_arn, cluster_arn):
 
         #     page_number, key_name, key_confidence, value_name, value_confidence, key-bounding-box.top, key-bounding-box.height, k-bb.width, k-bb.left, value-bounding-box.top, v-bb.height, v-bb.width, v-bb.left
     )
-    cfnresponse.send(event, context, cfnresponse.SUCCESS,
-                     {'Response': "created"}, physical_id)
+    return { 'PhysicalResourceId': physical_id }
 
 
 def on_update(event, context, secret_arn, cluster_arn):
@@ -64,15 +62,12 @@ def on_update(event, context, secret_arn, cluster_arn):
 
         #     page_number, key_name, key_confidence, value_name, value_confidence, key-bounding-box.top, key-bounding-box.height, k-bb.width, k-bb.left, value-bounding-box.top, v-bb.height, v-bb.width, v-bb.left
     )
-    cfnresponse.send(event, context, cfnresponse.SUCCESS,
-                     {'Response': "created"}, physical_id)
+    print("update resource %s with props %s" % (physical_id))
 
 
 def on_delete(event, context):
     physical_id = 'initPostgresql'
-    cfnresponse.send(event, context, cfnresponse.SUCCESS,
-                     {'Response': "created"}, physical_id)
-
+    print("delete resource %s" % physical_id)
 
 def lambda_handler(event, context):
     log_level = os.environ.get('LOG_LEVEL', 'INFO')
