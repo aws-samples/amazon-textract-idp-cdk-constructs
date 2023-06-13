@@ -7953,6 +7953,8 @@ const textractGenericAsyncSfnTaskProps: TextractGenericAsyncSfnTaskProps = { ...
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.input">input</a></code> | <code>aws-cdk-lib.aws_stepfunctions.TaskInput</code> | The JSON input for the execution, same as that of StartExecution. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.inputPolicyStatements">inputPolicyStatements</a></code> | <code>aws-cdk-lib.aws_iam.PolicyStatement[]</code> | List of PolicyStatements to attach to the Lambda function. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.lambdaLogLevel">lambdaLogLevel</a></code> | <code>string</code> | log level for Lambda function, supports DEBUG\|INFO\|WARNING\|ERROR\|FATAL. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.lambdaMemory">lambdaMemory</a></code> | <code>number</code> | Memory allocated to Lambda function, default 160. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.lambdaTimeout">lambdaTimeout</a></code> | <code>number</code> | Lambda Function Timeout in seconds, default 300. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.name">name</a></code> | <code>string</code> | The name of the execution, same as that of StartExecution. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.outputPolicyStatements">outputPolicyStatements</a></code> | <code>aws-cdk-lib.aws_iam.PolicyStatement[]</code> | List of PolicyStatements to attach to the Lambda function. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.s3InputBucket">s3InputBucket</a></code> | <code>string</code> | Bucketname and prefix to read document from /** location of input S3 objects - if left empty will generate rule for s3 access to all [*]. |
@@ -8181,6 +8183,30 @@ public readonly lambdaLogLevel: string;
 - *Default:* = DEBUG
 
 log level for Lambda function, supports DEBUG|INFO|WARNING|ERROR|FATAL.
+
+---
+
+##### `lambdaMemory`<sup>Optional</sup> <a name="lambdaMemory" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.lambdaMemory"></a>
+
+```typescript
+public readonly lambdaMemory: number;
+```
+
+- *Type:* number
+
+Memory allocated to Lambda function, default 160.
+
+---
+
+##### `lambdaTimeout`<sup>Optional</sup> <a name="lambdaTimeout" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.lambdaTimeout"></a>
+
+```typescript
+public readonly lambdaTimeout: number;
+```
+
+- *Type:* number
+
+Lambda Function Timeout in seconds, default 300.
 
 ---
 
