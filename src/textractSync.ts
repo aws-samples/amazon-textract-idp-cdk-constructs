@@ -178,7 +178,7 @@ export class TextractGenericSyncSfnTask extends sfn.TaskStateBase {
     var textractStateMachineTimeoutMinutes = props.textractStateMachineTimeoutMinutes === undefined ? 2880 : props.textractStateMachineTimeoutMinutes;
     var lambdaLogLevel = props.lambdaLogLevel === undefined ? 'DEBUG' : props.lambdaLogLevel;
     var lambdaTimeout = props.lambdaTimeout === undefined ? 300 : props.lambdaTimeout;
-    var lambdaMemory = props.lambdaMemory === undefined ? 300 : props.lambdaMemory;
+    var lambdaMemory = props.lambdaMemory === undefined ? 160 : props.lambdaMemory;
     var textractAsyncCallMaxRetries = props.textractAsyncCallMaxRetries === undefined ? 100 : props.textractAsyncCallMaxRetries;
     var textractAsyncCallBackoffRate = props.textractAsyncCallBackoffRate === undefined ? 1.1 : props.textractAsyncCallBackoffRate;
     var textractAsyncCallInterval = props.textractAsyncCallInterval === undefined ? 1 : props.textractAsyncCallInterval;
@@ -207,7 +207,7 @@ export class TextractGenericSyncSfnTask extends sfn.TaskStateBase {
       backoffRate: textractAsyncCallBackoffRate,
       interval: Duration.seconds(textractAsyncCallInterval),
       errors: ['ThrottlingException', 'LimitExceededException', 'InternalServerError',
-        'ProvisionedThroughputExceededException', 'Lambda.TooManyRequestsException', 'ConnectionClosedException'],
+        'ProvisionedThroughputExceededException', 'Lambda.TooManyRequestsException', 'ConnectionClosedException', 'Lambda.Unknown'],
     });
     this.textractSyncCallFunction.addToRolePolicy(new iam.PolicyStatement(
       {
