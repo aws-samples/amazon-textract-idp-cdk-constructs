@@ -79,6 +79,10 @@ export interface TextractGenericAsyncSfnTaskProps extends sfn.TaskStateBaseProps
    * @default = DEBUG
   */
   readonly lambdaLogLevel? : 'DEBUG'|'INFO'|'WARNING'|'ERROR'|'FATAL';
+  /** Lambda Function Timeout in seconds, default 300 */
+  readonly lambdaTimeout? : number;
+  /** Memory allocated to Lambda function, default 160 */
+  readonly lambdaMemory? : number;
   /**time in seconds to wait before next retry
    * @default is 1 */
   readonly textractAsyncCallInterval?: number;
@@ -231,6 +235,8 @@ export class TextractGenericAsyncSfnTask extends sfn.TaskStateBase {
     var textractAPI = props.textractAPI === undefined ? 'GENERIC' : props.textractAPI;
     var textractAsyncCallMaxRetries = props.textractAsyncCallMaxRetries === undefined ? 100 : props.textractAsyncCallMaxRetries;
     var textractAsyncCallBackoffRate = props.textractAsyncCallBackoffRate === undefined ? 1.1 : props.textractAsyncCallBackoffRate;
+    var lambdaTimeout = props.lambdaTimeout === undefined ? 300 : props.lambdaTimeout;
+    var lambdaMemory = props.lambdaMemory === undefined ? 160 : props.lambdaMemory;
     var textractAsyncCallInterval = props.textractAsyncCallInterval === undefined ? 1 : props.textractAsyncCallInterval;
     var s3TempOutputPrefix =
       props.s3TempOutputPrefix === undefined ? '' : props.s3TempOutputPrefix;
@@ -272,7 +278,8 @@ export class TextractGenericAsyncSfnTask extends sfn.TaskStateBase {
     this.textractAsyncSNS = new sns.Topic(this, 'TextractAsyncSNS');
     this.textractAsyncCallFunction = new lambda.DockerImageFunction(this, 'TextractAsyncCall', {
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/textract_async/')),
-      memorySize: 128,
+      memorySize: lambdaMemory,
+      timeout: Duration.seconds(lambdaTimeout),
       architecture: lambda.Architecture.X86_64,
       environment: {
         NOTIFICATION_SNS: this.textractAsyncSNS.topicArn,
@@ -290,7 +297,7 @@ export class TextractGenericAsyncSfnTask extends sfn.TaskStateBase {
       backoffRate: textractAsyncCallBackoffRate,
       interval: Duration.seconds(textractAsyncCallInterval),
       errors: ['ThrottlingException', 'LimitExceededException', 'InternalServerError',
-        'ProvisionedThroughputExceededException', 'Lambda.TooManyRequestsException', 'ConnectionClosedException'],
+        'ProvisionedThroughputExceededException', 'Lambda.TooManyRequestsException', 'ConnectionClosedException', 'Lambda.Unknown'],
     });
 
 
