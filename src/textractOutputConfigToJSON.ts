@@ -27,9 +27,9 @@ export interface TextractAsyncToJSONProps {
   /** prefix for input S3 objects - if left empty will generate rule for s3 access to all in bucket */
   readonly s3InputPrefix?: string;
   /** List of PolicyStatements to attach to the Lambda function.  */
-  readonly inputPolicyStatements?: [iam.PolicyStatement];
+  readonly inputPolicyStatements?: iam.PolicyStatement[];
   /** List of PolicyStatements to attach to the Lambda function.  */
-  readonly outputPolicyStatements?: [iam.PolicyStatement];
+  readonly outputPolicyStatements?: iam.PolicyStatement[];
 }
 
 /**

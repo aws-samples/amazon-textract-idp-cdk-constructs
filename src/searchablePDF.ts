@@ -16,7 +16,7 @@ export interface SearchablePDFProps {
   /** prefix for the incoming document. Will be used to create role */
   readonly s3InputPrefix?: string;
   /** List of PolicyStatements to attach to the Lambda function for S3 GET and LIST. */
-  readonly inputPolicyStatements?: [iam.PolicyStatement];
+  readonly inputPolicyStatements?: iam.PolicyStatement[];
 }
 /**
  * This construct takes in a JSON with two s3 Paths, s3TextractOutput, s3PDFBucket

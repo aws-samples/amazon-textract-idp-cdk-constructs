@@ -43,9 +43,9 @@ export interface TextractGenerateCSVProps extends sfn.TaskStateBaseProps{
    * GENERIC and AnalyzeID and LENDING are supported.
    * @default - GENERIC */
   /** List of PolicyStatements to attach to the Lambda function.  */
-  readonly inputPolicyStatements?: [iam.PolicyStatement];
+  readonly inputPolicyStatements?: iam.PolicyStatement[];
   /** List of PolicyStatements to attach to the Lambda function.  */
-  readonly outputPolicyStatements?: [iam.PolicyStatement];
+  readonly outputPolicyStatements?: iam.PolicyStatement[];
   readonly textractAPI?: 'GENERIC' | 'ANALYZEID' | 'LENDING';
   /** in case of export to OPENSEARCH_BATCH, this defines the index.
    * Default is my-index
