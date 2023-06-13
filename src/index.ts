@@ -89,9 +89,9 @@ export interface TextractGenericAsyncSfnTaskProps extends sfn.TaskStateBaseProps
    * @default - false
    */
   /** List of PolicyStatements to attach to the Lambda function.  */
-  readonly inputPolicyStatements?: [iam.PolicyStatement];
+  readonly inputPolicyStatements?: iam.PolicyStatement[];
   /** List of PolicyStatements to attach to the Lambda function.  */
-  readonly outputPolicyStatements?: [iam.PolicyStatement];
+  readonly outputPolicyStatements?: iam.PolicyStatement[];
   readonly enableCloudWatchMetricsAndDashboard? : boolean;
   /** task token table to use for mapping of Textract [JobTag](https://docs.aws.amazon.com/textract/latest/dg/API_StartDocumentTextDetection.html#Textract-StartDocumentTextDetection-request-JobTag)
    * to the [TaskToken](https://docs.aws.amazon.com/step-functions/latest/dg/connect-to-resource.html)

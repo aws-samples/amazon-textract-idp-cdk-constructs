@@ -26,9 +26,9 @@ export interface DocumentSplitterProps {
    */
   readonly maxNumberOfPagesPerDoc?: number;
   /** List of PolicyStatements to attach to the Lambda function.  */
-  readonly inputPolicyStatements?: [iam.PolicyStatement];
+  readonly inputPolicyStatements?: iam.PolicyStatement[];
   /** List of PolicyStatements to attach to the Lambda function.  */
-  readonly outputPolicyStatements?: [iam.PolicyStatement];
+  readonly outputPolicyStatements?: iam.PolicyStatement[];
 }
 /**
  * This construct takes in a manifest definition with just the s3Path:

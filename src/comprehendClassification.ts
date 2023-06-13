@@ -50,9 +50,9 @@ export interface ComprehendGenericSyncSfnTaskProps extends sfn.TaskStateBaseProp
   /** The prefix to use for the temporary output files (e. g. output from async process before stiching together) */
   readonly s3OutputPrefix? : string;
   /** List of PolicyStatements to attach to the Lambda function.  */
-  readonly inputPolicyStatements?: [iam.PolicyStatement];
+  readonly inputPolicyStatements?: iam.PolicyStatement[];
   /** List of PolicyStatements to attach to the Lambda function.  */
-  readonly outputPolicyStatements?: [iam.PolicyStatement];
+  readonly outputPolicyStatements?: iam.PolicyStatement[];
   /* number of retries, defaul is 100 */
   readonly comprehendAsyncCallMaxRetries?: number;
   /**default is 1.1 */

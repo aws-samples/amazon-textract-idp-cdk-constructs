@@ -69,9 +69,9 @@ export interface TextractGenericSyncSfnTaskProps extends sfn.TaskStateBaseProps 
    */
   readonly enableCloudWatchMetricsAndDashboard? : boolean;
   /** List of PolicyStatements to attach to the Lambda function.  */
-  readonly inputPolicyStatements?: [iam.PolicyStatement];
+  readonly inputPolicyStatements?: iam.PolicyStatement[];
   /** List of PolicyStatements to attach to the Lambda function.  */
-  readonly outputPolicyStatements?: [iam.PolicyStatement];
+  readonly outputPolicyStatements?: iam.PolicyStatement[];
   /**
        * The JSON input for the execution, same as that of StartExecution.
        *
