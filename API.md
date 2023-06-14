@@ -7953,7 +7953,7 @@ const textractGenericAsyncSfnTaskProps: TextractGenericAsyncSfnTaskProps = { ...
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.input">input</a></code> | <code>aws-cdk-lib.aws_stepfunctions.TaskInput</code> | The JSON input for the execution, same as that of StartExecution. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.inputPolicyStatements">inputPolicyStatements</a></code> | <code>aws-cdk-lib.aws_iam.PolicyStatement[]</code> | List of PolicyStatements to attach to the Lambda function. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.lambdaLogLevel">lambdaLogLevel</a></code> | <code>string</code> | log level for Lambda function, supports DEBUG\|INFO\|WARNING\|ERROR\|FATAL. |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.lambdaMemory">lambdaMemory</a></code> | <code>number</code> | Memory allocated to Lambda function, default 160. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.lambdaMemory">lambdaMemory</a></code> | <code>number</code> | Memory allocated to Lambda function, default 512. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.lambdaTimeout">lambdaTimeout</a></code> | <code>number</code> | Lambda Function Timeout in seconds, default 300. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.name">name</a></code> | <code>string</code> | The name of the execution, same as that of StartExecution. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.outputPolicyStatements">outputPolicyStatements</a></code> | <code>aws-cdk-lib.aws_iam.PolicyStatement[]</code> | List of PolicyStatements to attach to the Lambda function. |
@@ -8194,7 +8194,7 @@ public readonly lambdaMemory: number;
 
 - *Type:* number
 
-Memory allocated to Lambda function, default 160.
+Memory allocated to Lambda function, default 512.
 
 ---
 
