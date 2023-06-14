@@ -107,7 +107,12 @@ def lambda_handler(event, _):
 
     if not mime or mime not in supported_mime_types:
         # could be a manifest file
-        manifest = parse_manifest(s3_path=s3_path)
+        try:
+            manifest = parse_manifest(s3_path=s3_path)
+        except json.decoder.JSONDecodeError:
+            raise Exception(
+                f"Document is not supported mime type '{mime}' and also not a manifest file"
+            )
 
         if manifest.classification == 'IDENTITY':
             file_bytes = get_file_from_s3(s3_path=manifest.document_pages[0])
