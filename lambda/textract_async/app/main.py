@@ -8,25 +8,76 @@ import os
 import time
 import uuid
 import boto3
-
-from botocore.config import Config
-import botocore.exceptions 
-
-from typing import List
-
+import io
+import filetype
+import botocore.exceptions
 import textractcaller as tc
 import textractmanifest as tm
 
+from pypdf import PdfReader
+from PIL import Image, ImageSequence
+from botocore.config import Config
+from typing import List, Optional, Tuple
+
 logger = logging.getLogger(__name__)
 
-config = Config(retries={'max_attempts': 0, 'mode': 'standard'})
+config = Config(retries={'max_attempts': 3, 'mode': 'standard'})
 
 region = os.environ['AWS_REGION']
 dynamo_db_client = boto3.client("dynamodb")
 step_functions_client = boto3.client(service_name='stepfunctions')
 textract = boto3.client("textract", config=config)
+s3_client = boto3.client('s3')
 
-__version__ = "0.0.4"
+__version__ = "0.0.5"
+
+
+def split_s3_path_to_bucket_and_key(s3_path: str) -> Tuple[str, str]:
+    if len(s3_path) > 7 and s3_path.lower().startswith("s3://"):
+        s3_bucket, s3_key = s3_path.replace("s3://", "").split("/", 1)
+        return (s3_bucket, s3_key)
+    else:
+        raise ValueError(
+            f"s3_path: {s3_path} is no s3_path in the form of s3://bucket/key."
+        )
+
+
+def get_file_from_s3(s3_path: str, range=None) -> bytes:
+    s3_bucket, s3_key = split_s3_path_to_bucket_and_key(s3_path)
+    if range:
+        o = s3_client.get_object(Bucket=s3_bucket, Key=s3_key, Range=range)
+    else:
+        o = s3_client.get_object(Bucket=s3_bucket, Key=s3_key)
+    return o.get('Body').read()
+
+
+def get_mime_for_file(file_bytes: bytes) -> Optional[str]:
+    """
+    possible formats: image/tiff, image/jpeg, application/pdf, image/png or 
+    """
+    kind = filetype.guess(file_bytes)
+    if kind is None:
+        return None
+    else:
+        return kind.mime
+
+
+def get_number_of_pages(file_bytes: bytes, mime: str) -> int:
+    if mime == 'application/pdf':
+        with io.BytesIO(file_bytes) as input_pdf_file:
+            pdf_reader = PdfReader(input_pdf_file)
+            return len(pdf_reader.pages)
+    elif mime == 'image/tiff':
+        num_pages = 0
+        f = io.BytesIO(file_bytes)
+        img = Image.open(f)
+        for _, _ in enumerate(ImageSequence.Iterator(img)):
+            num_pages += 1
+        return num_pages
+    elif mime in ['image/png', 'image/jpeg']:
+        return 1
+    else:
+        raise ValueError(f"unsupported mime type: {mime}")
 
 
 def convert_manifest_queries_config_to_caller(
@@ -63,8 +114,10 @@ class InternalServerError(Exception):
 class ProvisionedThroughputExceededException(Exception):
     pass
 
+
 class ConnectionClosedException(Exception):
     pass
+
 
 def lambda_handler(event, _):
     log_level = os.environ.get('LOG_LEVEL', 'INFO')
@@ -111,14 +164,29 @@ def lambda_handler(event, _):
     if not "Payload" in event:
         raise ValueError("Need Payload with manifest to process message.")
 
-    manifest: tm.IDPManifest = tm.IDPManifestSchema().load(
-        event["Payload"]['manifest'])  #type: ignore
-
-    number_of_pages: int = 1
-    if 'numberOfPages' in event["Payload"]:
-        number_of_pages = int(event['Payload']['numberOfPages'])
+    # first look for manifest in Payload
+    if 'manifest' in event["Payload"]:
+        manifest: tm.IDPManifest = tm.IDPManifestSchema().load(
+            event["Payload"]['manifest'])  #type: ignore
+    # if not, try reading as if Payload is the manifest
+    else:
+        manifest: tm.IDPManifest = tm.IDPManifestSchema().load(
+            event["Payload"])  #type: ignore
 
     s3_path = manifest.s3_path
+
+    if 'numberOfPages' in event["Payload"]:
+        number_of_pages = int(event['Payload']['numberOfPages'])
+    else:
+        file_bytes = get_file_from_s3(s3_path=s3_path)
+        mime = get_mime_for_file(file_bytes=file_bytes)
+        if mime and file_bytes:
+            number_of_pages = get_number_of_pages(file_bytes=file_bytes,
+                                                  mime=mime)
+        else:
+            raise Exception(
+                f"could not get number of pages. Either mime '{mime}' or file_bytes '{file_bytes}' were empty."
+            )
 
     logger.info(f"s3_path: {s3_path} \n \
                 token: {token} \n \

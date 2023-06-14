@@ -81,7 +81,7 @@ export interface TextractGenericAsyncSfnTaskProps extends sfn.TaskStateBaseProps
   readonly lambdaLogLevel? : 'DEBUG'|'INFO'|'WARNING'|'ERROR'|'FATAL';
   /** Lambda Function Timeout in seconds, default 300 */
   readonly lambdaTimeout? : number;
-  /** Memory allocated to Lambda function, default 160 */
+  /** Memory allocated to Lambda function, default 512 */
   readonly lambdaMemory? : number;
   /**time in seconds to wait before next retry
    * @default is 1 */
@@ -206,6 +206,7 @@ export class TextractGenericAsyncSfnTask extends sfn.TaskStateBase {
   public textractAsyncCallFunction:lambda.IFunction;
   public textractAsyncReceiveSNSFunction:lambda.IFunction;
   public asyncDurationMetric?:cloudwatch.IMetric;
+  public asyncJobFailureMetric?:cloudwatch.IMetric;
   public asyncNumberPagesMetric?:cloudwatch.IMetric;
   public asyncJobFinshedMetric?:cloudwatch.IMetric;
   public asyncJobStartedMetric?:cloudwatch.IMetric;
@@ -236,7 +237,7 @@ export class TextractGenericAsyncSfnTask extends sfn.TaskStateBase {
     var textractAsyncCallMaxRetries = props.textractAsyncCallMaxRetries === undefined ? 100 : props.textractAsyncCallMaxRetries;
     var textractAsyncCallBackoffRate = props.textractAsyncCallBackoffRate === undefined ? 1.1 : props.textractAsyncCallBackoffRate;
     var lambdaTimeout = props.lambdaTimeout === undefined ? 300 : props.lambdaTimeout;
-    var lambdaMemory = props.lambdaMemory === undefined ? 160 : props.lambdaMemory;
+    var lambdaMemory = props.lambdaMemory === undefined ? 512 : props.lambdaMemory;
     var textractAsyncCallInterval = props.textractAsyncCallInterval === undefined ? 1 : props.textractAsyncCallInterval;
     var s3TempOutputPrefix =
       props.s3TempOutputPrefix === undefined ? '' : props.s3TempOutputPrefix;
@@ -379,6 +380,7 @@ export class TextractGenericAsyncSfnTask extends sfn.TaskStateBase {
         TOKEN_STORE_DDB: this.taskTokenTableName,
         S3_OUTPUT_BUCKET: props.s3OutputBucket,
         S3_TEMP_OUTPUT_PREFIX: props.s3TempOutputPrefix,
+        TEXTRACT_API: textractAPI,
         LOG_LEVEL: lambdaLogLevel,
       },
     });
@@ -423,10 +425,21 @@ export class TextractGenericAsyncSfnTask extends sfn.TaskStateBase {
       });
       this.asyncDurationMetric = asyncDurationMetricFilter.metric({ statistic: 'avg' });
 
+      const asyncJobFailureMetricFilter = new MetricFilter(this, `${appName}-JobFailureFilter`, {
+        logGroup: (<lambda.Function> this.textractAsyncReceiveSNSFunction).logGroup,
+        metricNamespace: customMetricNamespace,
+        metricName: 'JobFailure',
+        filterPattern: FilterPattern.spaceDelimited('INFO', 'timestamp', 'id', 'message', 'durationMs')
+          .whereString('message', '=', `textract_async_${textractAPI}_failed_job`),
+        metricValue: '1',
+      });
+      this.asyncJobFailureMetric = asyncJobFailureMetricFilter.metric({ statistic: 'sum' });
+
+      this.asyncDurationMetric = asyncDurationMetricFilter.metric({ statistic: 'avg' });
       const asyncNumberPagesMetricFilter = new MetricFilter(this, `${appName}-NumberPagesFilter`, {
         logGroup: (<lambda.Function> this.textractAsyncReceiveSNSFunction).logGroup,
         metricNamespace: customMetricNamespace,
-        metricName: 'NumberPages',
+        metricName: 'NumberPagesProcessed',
         filterPattern: FilterPattern.spaceDelimited('INFO', 'timestamp', 'id', 'message', 'pages')
           .whereString('message', '=', `textract_async_${textractAPI}_number_of_pages_processed:`),
         metricValue: '$pages',
@@ -457,7 +470,7 @@ export class TextractGenericAsyncSfnTask extends sfn.TaskStateBase {
       const asyncNumberPagesSendMetricFilter = new MetricFilter(this, `${appName}-NumberPagesSendFilter`, {
         logGroup: (<lambda.Function> this.textractAsyncCallFunction).logGroup,
         metricNamespace: customMetricNamespace,
-        metricName: 'NumberPages',
+        metricName: 'NumberPagesSend',
         filterPattern: FilterPattern.spaceDelimited('INFO', 'timestamp', 'id', 'message', 'pages')
           .whereString('message', '=', `textract_async_${textractAPI}_number_of_pages_send_to_process:`),
         metricValue: '$pages',
@@ -474,13 +487,13 @@ export class TextractGenericAsyncSfnTask extends sfn.TaskStateBase {
           duration: this.asyncDurationMetric,
         },
       });
-      const openJobs = new cloudwatch.MathExpression({
-        expression: 'startedJobs - finishedJobs',
-        usingMetrics: {
-          startedJobs: this.asyncJobStartedMetric,
-          finishedJobs: this.asyncJobFinshedMetric,
-        },
-      });
+      // const openJobs = new cloudwatch.MathExpression({
+      //   expression: 'startedJobs - finishedJobs',
+      //   usingMetrics: {
+      //     startedJobs: this.asyncJobStartedMetric,
+      //     finishedJobs: this.asyncJobFinshedMetric,
+      //   },
+      // });
       // CALCUATED OPERATIONAL METRICS STOP
 
       const errorFilterMetric = new MetricFilter(this, `${appName}-ErrorFilter`, {
@@ -551,13 +564,12 @@ export class TextractGenericAsyncSfnTask extends sfn.TaskStateBase {
           ],
           [
             new cloudwatch.Column(new cloudwatch.GraphWidget({ title: 'PagesPerSecond', left: [pagesPerSecond], width: Math.floor(dashboardWidth/2) })),
-            new cloudwatch.Column(new cloudwatch.GraphWidget({ title: 'OpenJobs', left: [openJobs], width: Math.floor(dashboardWidth/2) })),
+            new cloudwatch.Column(new cloudwatch.GraphWidget({ title: 'JobsStartedAndFinished', left: [this.asyncJobFinshedMetric, this.asyncJobFailureMetric, this.asyncJobStartedMetric], width: Math.floor(dashboardWidth/2) })),
           ],
           [
-            new cloudwatch.Column(new cloudwatch.GraphWidget({ title: 'Duration', left: [this.asyncDurationMetric], width: Math.floor(dashboardWidth/4) })),
-            new cloudwatch.Column(new cloudwatch.GraphWidget({ title: 'NumberPages', left: [this.asyncNumberPagesMetric], width: Math.floor(dashboardWidth/4) })),
-            new cloudwatch.Column(new cloudwatch.GraphWidget({ title: 'NumberPages', left: [this.asyncNumberPagesSendMetric], width: Math.floor(dashboardWidth/4) })),
-            new cloudwatch.Column(new cloudwatch.GraphWidget({ title: 'JobsStartedAndFinished', left: [this.asyncJobFinshedMetric], right: [this.asyncJobStartedMetric], width: Math.floor(dashboardWidth/4) })),
+            new cloudwatch.Column(new cloudwatch.GraphWidget({ title: 'Duration', left: [this.asyncDurationMetric], width: Math.floor(dashboardWidth/3) })),
+            new cloudwatch.Column(new cloudwatch.GraphWidget({ title: 'NumberPagesProcessed', left: [this.asyncNumberPagesMetric], width: Math.floor(dashboardWidth/3) })),
+            new cloudwatch.Column(new cloudwatch.GraphWidget({ title: 'NumberPagesSendToProcess', left: [this.asyncNumberPagesSendMetric], width: Math.floor(dashboardWidth/3) })),
           ],
           [
             new cloudwatch.Column(new cloudwatch.TextWidget({ markdown: '# Async Textract Exceptions Row', width: dashboardWidth })),

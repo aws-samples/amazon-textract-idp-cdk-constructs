@@ -25,6 +25,8 @@ def lambda_handler(event, _):
     logger.debug(f"this lambda version: {__version__}")
     logger.debug(f"boto3_version: {boto3.__version__}")
 
+    textract_api = os.environ.get('TEXTRACT_API', 'GENERIC')
+
     token_store_ddb = os.environ.get('TOKEN_STORE_DDB', None)
     if not token_store_ddb:
         raise Exception("no TOKEN_STORE_DDB set")
@@ -41,6 +43,7 @@ def lambda_handler(event, _):
     logger.info(f"LOG_LEVEL: {log_level} \n \
                 TOKEN_STORE_DDB: {token_store_ddb} \n \
                 OUTPUT_BUCKET: {s3_output_bucket} \n \
+                TEXTRACT_API: {textract_api} \n \
                 S3_TEMP_OUTPUT_PREFIX: {s3_temp_output_prefix}")
 
     for record in event['Records']:
@@ -73,14 +76,15 @@ def lambda_handler(event, _):
         if 'numberOfPages' in ddb_response['Item']:
             number_of_pages = ddb_response['Item']['numberOfPages']['N']
 
-        logger.info(
-            f"textract_async_generic_job_duration_in_ms: {job_duration_in_ms}")
-        logger.info(
-            f"textract_async_generic_number_of_pages_processed: {number_of_pages}"
-        )
         task_token = ddb_response['Item']['Token']['S']
 
         if job_status == 'SUCCEEDED':
+            logger.info(
+                f"textract_async_{textract_api}_job_duration_in_ms: {job_duration_in_ms}"
+            )
+            logger.info(
+                f"textract_async_{textract_api}_number_of_pages_processed: {number_of_pages}"
+            )
             logger.debug(f"job SUCCEEDED")
             result_location = f"s3://{s3_output_bucket}/{s3_temp_output_prefix}/{job_id}"
             try:
@@ -98,6 +102,12 @@ def lambda_handler(event, _):
                 logger.error(f"InvalidOutput for message: {message} ")
         else:
             logger.error(f"task failure: {job_status}")
+            logger.info(
+                f"textract_async_{textract_api}_job_duration_in_ms: {job_duration_in_ms}"
+            )
+            logger.info(
+                f"textract_async_{textract_api}_number_of_pages_processed: 0")
+            logger.info(f"textract_async_{textract_api}_failed_job")
             try:
                 step_functions_client.send_task_failure(taskToken=task_token,
                                                         error=job_status,
