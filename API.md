@@ -4362,6 +4362,7 @@ Add a prefix to the stateId of all States found in a construct tree.
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.textractAsyncSNS">textractAsyncSNS</a></code> | <code>aws-cdk-lib.aws_sns.ITopic</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.textractAsyncSNSRole">textractAsyncSNSRole</a></code> | <code>aws-cdk-lib.aws_iam.IRole</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.asyncDurationMetric">asyncDurationMetric</a></code> | <code>aws-cdk-lib.aws_cloudwatch.IMetric</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.asyncJobFailureMetric">asyncJobFailureMetric</a></code> | <code>aws-cdk-lib.aws_cloudwatch.IMetric</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.asyncJobFinshedMetric">asyncJobFinshedMetric</a></code> | <code>aws-cdk-lib.aws_cloudwatch.IMetric</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.asyncJobStartedMetric">asyncJobStartedMetric</a></code> | <code>aws-cdk-lib.aws_cloudwatch.IMetric</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.asyncNumberPagesMetric">asyncNumberPagesMetric</a></code> | <code>aws-cdk-lib.aws_cloudwatch.IMetric</code> | *No description.* |
@@ -4503,6 +4504,16 @@ public readonly textractAsyncSNSRole: IRole;
 
 ```typescript
 public readonly asyncDurationMetric: IMetric;
+```
+
+- *Type:* aws-cdk-lib.aws_cloudwatch.IMetric
+
+---
+
+##### `asyncJobFailureMetric`<sup>Optional</sup> <a name="asyncJobFailureMetric" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.property.asyncJobFailureMetric"></a>
+
+```typescript
+public readonly asyncJobFailureMetric: IMetric;
 ```
 
 - *Type:* aws-cdk-lib.aws_cloudwatch.IMetric

@@ -17,7 +17,7 @@ import textractmanifest as tm
 from pypdf import PdfReader
 from PIL import Image, ImageSequence
 from botocore.config import Config
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +27,7 @@ region = os.environ['AWS_REGION']
 dynamo_db_client = boto3.client("dynamodb")
 step_functions_client = boto3.client(service_name='stepfunctions')
 textract = boto3.client("textract", config=config)
+s3_client = boto3.client('s3')
 
 __version__ = "0.0.5"
 
@@ -163,8 +164,15 @@ def lambda_handler(event, _):
     if not "Payload" in event:
         raise ValueError("Need Payload with manifest to process message.")
 
-    manifest: tm.IDPManifest = tm.IDPManifestSchema().load(
-        event["Payload"]['manifest'])  #type: ignore
+    # first look for manifest in Payload
+    if 'manifest' in event["Payload"]:
+        manifest: tm.IDPManifest = tm.IDPManifestSchema().load(
+            event["Payload"]['manifest'])  #type: ignore
+    # if not, try reading as if Payload is the manifest
+    else:
+        manifest: tm.IDPManifest = tm.IDPManifestSchema().load(
+            event["Payload"])  #type: ignore
+
     s3_path = manifest.s3_path
 
     if 'numberOfPages' in event["Payload"]:
@@ -172,7 +180,13 @@ def lambda_handler(event, _):
     else:
         file_bytes = get_file_from_s3(s3_path=s3_path)
         mime = get_mime_for_file(file_bytes=file_bytes)
-        number_of_pages = get_number_of_pages(file_bytes=file_bytes, mime=mime)
+        if mime and file_bytes:
+            number_of_pages = get_number_of_pages(file_bytes=file_bytes,
+                                                  mime=mime)
+        else:
+            raise Exception(
+                f"could not get number of pages. Either mime '{mime}' or file_bytes '{file_bytes}' were empty."
+            )
 
     logger.info(f"s3_path: {s3_path} \n \
                 token: {token} \n \

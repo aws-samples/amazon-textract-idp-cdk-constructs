@@ -113,16 +113,16 @@ export class DocumentSplitter extends sfn.StateMachineFragment {
       if (props.s3OutputBucket === undefined) {
         this.splitterFunction.addToRolePolicy(
           new iam.PolicyStatement({
-            actions: ['s3:PutObject'],
+            actions: ['s3:PutObject', 's3:AbortMultipartUpload', 's3:ListMultipartUploadParts', 's3:ListBucketMultipartUploads', 's3:CreateMultipartUpload'],
             resources: ['*'],
           }),
         );
       } else {
         this.splitterFunction.addToRolePolicy(
           new iam.PolicyStatement({
-            actions: ['s3:PutObject'],
+            actions: ['s3:PutObject', 's3:AbortMultipartUpload', 's3:ListMultipartUploadParts', 's3:ListBucketMultipartUploads', 's3:CreateMultipartUpload'],
             resources: [
-              path.join(`arn:aws:s3:::${props.s3OutputBucket}`, s3OutputPrefix, '/'),
+              path.join(`arn:aws:s3:::${props.s3OutputBucket}`, s3OutputPrefix),
               path.join(`arn:aws:s3:::${props.s3OutputBucket}`, s3OutputPrefix, '/*'),
             ],
           }),
