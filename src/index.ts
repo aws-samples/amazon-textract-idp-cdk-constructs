@@ -81,7 +81,7 @@ export interface TextractGenericAsyncSfnTaskProps extends sfn.TaskStateBaseProps
   readonly lambdaLogLevel? : 'DEBUG'|'INFO'|'WARNING'|'ERROR'|'FATAL';
   /** Lambda Function Timeout in seconds, default 300 */
   readonly lambdaTimeout? : number;
-  /** Memory allocated to Lambda function, default 160 */
+  /** Memory allocated to Lambda function, default 512 */
   readonly lambdaMemory? : number;
   /**time in seconds to wait before next retry
    * @default is 1 */
@@ -236,7 +236,7 @@ export class TextractGenericAsyncSfnTask extends sfn.TaskStateBase {
     var textractAsyncCallMaxRetries = props.textractAsyncCallMaxRetries === undefined ? 100 : props.textractAsyncCallMaxRetries;
     var textractAsyncCallBackoffRate = props.textractAsyncCallBackoffRate === undefined ? 1.1 : props.textractAsyncCallBackoffRate;
     var lambdaTimeout = props.lambdaTimeout === undefined ? 300 : props.lambdaTimeout;
-    var lambdaMemory = props.lambdaMemory === undefined ? 160 : props.lambdaMemory;
+    var lambdaMemory = props.lambdaMemory === undefined ? 512 : props.lambdaMemory;
     var textractAsyncCallInterval = props.textractAsyncCallInterval === undefined ? 1 : props.textractAsyncCallInterval;
     var s3TempOutputPrefix =
       props.s3TempOutputPrefix === undefined ? '' : props.s3TempOutputPrefix;
@@ -379,6 +379,7 @@ export class TextractGenericAsyncSfnTask extends sfn.TaskStateBase {
         TOKEN_STORE_DDB: this.taskTokenTableName,
         S3_OUTPUT_BUCKET: props.s3OutputBucket,
         S3_TEMP_OUTPUT_PREFIX: props.s3TempOutputPrefix,
+        TEXTRACT_API: textractAPI,
         LOG_LEVEL: lambdaLogLevel,
       },
     });
