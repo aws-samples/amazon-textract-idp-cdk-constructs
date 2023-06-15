@@ -115,6 +115,7 @@ def lambda_handler(event, _):
         file_json = get_file_from_s3(s3_path=s3_path).decode('utf-8')
 
         result_value = ""
+        unique_identifier = str(uuid.uuid4())
         if textract_api == 'GENERIC':
             classification = ""
             if 'classification' in event['Payload'] and event['Payload'][
@@ -137,7 +138,7 @@ def lambda_handler(event, _):
                 # the page number we get from the meta-data START_PAGE_NUMBER
                 # The URL we have to get from the context as well, if available at ORIGIN_FILE_URI
                 # The index-name we have to get from the context as well INDEX_NAME
-                s3_output_key = f"{csv_s3_output_prefix}/{timestamp}/{base_filename_no_suffix}.json"
+                s3_output_key = f"{csv_s3_output_prefix}/{unique_identifier}/{base_filename_no_suffix}.json"
                 index = opensearch_index
                 origin_file_name = meta_data_dict.get('ORIGIN_FILE_NAME',
                                                       str(uuid.uuid4()))
@@ -201,7 +202,7 @@ def lambda_handler(event, _):
                     csv_writer.writerows(
                         [[timestamp, classification, base_filename] + x +
                          values_to_append for x in page])
-                s3_output_key = f"{csv_s3_output_prefix}/{timestamp}/{base_filename_no_suffix}.csv"
+                s3_output_key = f"{csv_s3_output_prefix}/{unique_identifier}/{base_filename_no_suffix}.csv"
                 result_value = csv_output.getvalue()
                 if 'TABLES' in output_features_list:
                     logger.debug("creating TABLES")
@@ -220,13 +221,13 @@ def lambda_handler(event, _):
                                                     quotechar='"',
                                                     quoting=csv.QUOTE_MINIMAL)
                             csv_writer.writerows(table_list)
-                            s3_table_output_key = f"{csv_s3_output_prefix}/{timestamp}/{base_filename_no_suffix}_table_p{page_index}_n{table_index}.csv"
+                            s3_table_output_key = f"{csv_s3_output_prefix}/{unique_identifier}/{base_filename_no_suffix}_table_p{page_index}_n{table_index}.csv"
                             s3_client.put_object(Body=bytes(
                                 csv_output.getvalue().encode('UTF-8')),
                                                  Bucket=csv_s3_output_bucket,
                                                  Key=s3_table_output_key)
             elif output_type == 'LINES':
-                s3_output_key = f"{csv_s3_output_prefix}/{timestamp}/{base_filename_no_suffix}.txt"
+                s3_output_key = f"{csv_s3_output_prefix}/{unique_identifier}/{base_filename_no_suffix}.txt"
                 for page in trp2_doc.pages:
                     result_value += t2.TDocument.get_text_for_tblocks(
                         trp2_doc.lines(page=page))
@@ -236,8 +237,6 @@ def lambda_handler(event, _):
         elif textract_api == 'LENDING':
             trp2_lending_doc: tl.TFullLendingDocument = tl.TFullLendingDocumentSchema(
             ).load(json.loads(file_json))  #type: ignore
-            timestamp = datetime.datetime.now().astimezone().replace(
-                microsecond=0).isoformat()
             result_value = ""
             if output_type == 'CSV':
                 lending_array = convert_lending_from_trp2(trp2_lending_doc)
@@ -249,7 +248,7 @@ def lambda_handler(event, _):
                                         quotechar='"',
                                         quoting=csv.QUOTE_MINIMAL)
                 csv_writer.writerows(lending_array)
-                s3_output_key = f"{csv_s3_output_prefix}/{timestamp}/{base_filename_no_suffix}.csv"
+                s3_output_key = f"{csv_s3_output_prefix}/{unique_identifier}/{base_filename_no_suffix}.csv"
                 result_value = csv_output.getvalue()
             elif output_type == 'LINES':
                 raise Exception(

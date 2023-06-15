@@ -5,10 +5,10 @@ import json
 import logging
 import os
 import time
-from datetime import datetime
 import boto3
 import textractcaller as tc
 import textractmanifest as tm
+import uuid
 
 from urllib.parse import urlparse
 from botocore.config import Config
@@ -57,28 +57,33 @@ def lambda_handler(event, _):
     output_config = tc.OutputConfig(s3_bucket=oc_s3_bucket,
                                     s3_prefix=oc_s3_prefix)
     start_time = round(time.time() * 1000)
-    if textract_api=='GENERIC':
+    full_json = None
+    if textract_api == 'GENERIC':
         full_json = tc.get_full_json_from_output_config(
             output_config=output_config, job_id=job_id, s3_client=s3)
-    elif textract_api=='LENDING':
+    elif textract_api == 'LENDING':
         full_json = tc.get_full_json_lending_from_output_config(
-            output_config=output_config, job_id=job_id, s3_client=s3,
-            subfolder="detailedResponse"
-        )
+            output_config=output_config,
+            job_id=job_id,
+            s3_client=s3,
+            subfolder="detailedResponse")
 
     s3_filename, _ = os.path.splitext(os.path.basename(manifest.s3_path))
 
     call_duration = round(time.time() * 1000) - start_time
     logger.info(f"textract_async_to_json_call_duration_in_ms: {call_duration}")
-    output_bucket_key = s3_output_prefix + "/" + s3_filename + datetime.utcnow(
-    ).isoformat() + "/" + s3_filename + ".json"
+    output_bucket_key = os.path.join(s3_output_prefix, str(uuid.uuid4()),
+                                     s3_filename + ".json")
 
     logger.info("before saving to S3")
+    if not full_json:
+        raise Exception("no JSON was generated")
     s3.put_object(Body=bytes(json.dumps(full_json, indent=4).encode('UTF-8')),
                   Bucket=s3_output_bucket,
                   Key=output_bucket_key)
     logger.info("after saving to S3")
 
-    event["textract_result"]["TextractOutputJsonPath"]=f"s3://{s3_output_bucket}/{output_bucket_key}"
+    event["textract_result"][
+        "TextractOutputJsonPath"] = f"s3://{s3_output_bucket}/{output_bucket_key}"
 
     return event
