@@ -228,9 +228,6 @@ def lambda_handler(event, _):
     logger.debug(f"NotificationChannel: {nc}")
     logger.debug(f"OutputConfig: {output_config}")
     try:
-        logger.info(
-            f"textract_async_{textract_api}_number_of_pages_send_to_process: {number_of_pages}"
-        )
         if textract_api == 'GENERIC':
             response = tc.call_textract(
                 input_document=s3_path,
@@ -265,6 +262,9 @@ def lambda_handler(event, _):
             )
         else:
             raise ValueError(f"unsupported Textract API: {textract_api}")
+        logger.info(
+            f"textract_async_{textract_api}_number_of_pages_send_to_process: {number_of_pages}"
+        )
 
         logger.info(f"textract_async_{textract_api}_job_started")
         logger.debug(f"Textract-response: {response}")
