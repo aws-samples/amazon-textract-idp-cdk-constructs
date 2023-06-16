@@ -75,6 +75,13 @@ def get_number_of_pages(file_bytes: bytes, mime: str) -> int:
         raise ValueError(f"unsupported mime type: {mime}")
 
 
+def get_file_size_s3(s3_path: str) -> int:
+    s3_bucket, s3_key = split_s3_path_to_bucket_and_key(s3_path)
+    response = s3_client.head_object(Bucket=s3_bucket, Key=s3_key)
+    file_size = int(response['ContentLength'])
+    return file_size
+
+
 def lambda_handler(event, _):
     # Accepts a manifest file, will enrich with information if possible
     # add
@@ -101,6 +108,11 @@ def lambda_handler(event, _):
     else:
         s3_path = original_manifest.s3_path
 
+    file_size = get_file_size_s3(s3_path=s3_path)
+    if file_size < 2000:
+        raise Exception(
+            f"File size is very small with '{file_size}' bytes. Most likely not a valid file"
+        )
     first_file_bytes = get_file_from_s3(s3_path=s3_path, range='bytes=0-2000')
     mime = get_mime_for_file(file_bytes=first_file_bytes)
     logger.debug(f"initial mime: {mime}")
@@ -136,7 +148,8 @@ def lambda_handler(event, _):
         "manifest": tm.IDPManifestSchema().dump(manifest),
         "mime": mime,
         "classification": manifest.classification,
-        "numberOfPages": numberOfPages
+        "numberOfPages": numberOfPages,
+        "fileSize": file_size
     }
 
     if manifest and manifest.queries_config:

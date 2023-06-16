@@ -11,6 +11,14 @@ export interface TextractDPPOCDeciderProps {
   readonly lambdaMemoryMB?: number;
   readonly lambdaTimeout?: number;
   readonly deciderFunction?: lambda.IFunction;
+  /** number of retries in Step Function flow
+   * @default is 100 */
+  readonly textractDeciderMaxRetries?: number;
+  /**retyr backoff rate
+   * @default is 1.1 */
+  readonly textractDeciderBackoffRate?: number;
+  /* @default is 1 */
+  readonly textractDeciderInterval?: number;
   readonly s3InputBucket?: string;
   /** prefix for the incoming document. Will be used to create role */
   readonly s3InputPrefix?: string;
@@ -51,6 +59,10 @@ export class TextractPOCDecider extends sfn.StateMachineFragment {
       props.lambdaTimeout === undefined ? 900 : props.lambdaTimeout;
     var s3InputPrefix =
       props.s3InputPrefix === undefined ? '' : props.s3InputPrefix;
+
+    var textractDeciderMaxRetries = props.textractDeciderMaxRetries === undefined ? 100 : props.textractDeciderMaxRetries;
+    var textractDeciderBackoffRate = props.textractDeciderBackoffRate === undefined ? 1.1 : props.textractDeciderBackoffRate;
+    var textractDeciderInterval = props.textractDeciderInterval === undefined ? 1 : props.textractDeciderInterval;
 
     this.deciderFunction = new lambda.DockerImageFunction(
       this,
@@ -94,6 +106,14 @@ export class TextractPOCDecider extends sfn.StateMachineFragment {
       timeout: Duration.seconds(100),
       outputPath: '$.Payload',
     });
+
+    deciderLambdaInvoke.addRetry({
+      maxAttempts: textractDeciderMaxRetries,
+      backoffRate: textractDeciderBackoffRate,
+      interval: Duration.seconds(textractDeciderInterval),
+      errors: ['Lambda.TooManyRequestsException', 'Lambda.Unknown'],
+    });
+
     this.startState = deciderLambdaInvoke;
     this.endStates = [deciderLambdaInvoke];
   }
