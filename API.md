@@ -6486,10 +6486,13 @@ const documentSplitterProps: DocumentSplitterProps = { ... }
 | <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.lambdaLogLevel">lambdaLogLevel</a></code> | <code>string</code> | Lambda log level. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.lambdaMemoryMB">lambdaMemoryMB</a></code> | <code>number</code> | Lambda function memory configuration (may need to increase for larger documents). |
 | <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.lambdaTimeout">lambdaTimeout</a></code> | <code>number</code> | Lambda function timeout (may need to increase for larger documents). |
-| <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.maxNumberOfPagesPerDoc">maxNumberOfPagesPerDoc</a></code> | <code>number</code> | maxNumberOfPagesPerDoc - defines in which chunks to split up the document. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.maxNumberOfPagesPerDoc">maxNumberOfPagesPerDoc</a></code> | <code>number</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.outputPolicyStatements">outputPolicyStatements</a></code> | <code>aws-cdk-lib.aws_iam.PolicyStatement[]</code> | List of PolicyStatements to attach to the Lambda function. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.s3InputBucket">s3InputBucket</a></code> | <code>string</code> | location of input S3 objects - if left empty will generate rule for s3 access to all [*]. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.s3InputPrefix">s3InputPrefix</a></code> | <code>string</code> | prefix for input S3 objects - if left empty will generate rule for s3 access to all in bucket. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.textractDocumentSplitterBackoffRate">textractDocumentSplitterBackoffRate</a></code> | <code>number</code> | retyr backoff rate. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.textractDocumentSplitterInterval">textractDocumentSplitterInterval</a></code> | <code>number</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.textractDocumentSplitterMaxRetries">textractDocumentSplitterMaxRetries</a></code> | <code>number</code> | number of retries in Step Function flow. |
 
 ---
 
@@ -6573,10 +6576,6 @@ public readonly maxNumberOfPagesPerDoc: number;
 
 - *Type:* number
 
-maxNumberOfPagesPerDoc - defines in which chunks to split up the document.
-
-Default is 1
-
 ---
 
 ##### `outputPolicyStatements`<sup>Optional</sup> <a name="outputPolicyStatements" id="amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.outputPolicyStatements"></a>
@@ -6612,6 +6611,42 @@ public readonly s3InputPrefix: string;
 - *Type:* string
 
 prefix for input S3 objects - if left empty will generate rule for s3 access to all in bucket.
+
+---
+
+##### `textractDocumentSplitterBackoffRate`<sup>Optional</sup> <a name="textractDocumentSplitterBackoffRate" id="amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.textractDocumentSplitterBackoffRate"></a>
+
+```typescript
+public readonly textractDocumentSplitterBackoffRate: number;
+```
+
+- *Type:* number
+- *Default:* is 1.1
+
+retyr backoff rate.
+
+---
+
+##### `textractDocumentSplitterInterval`<sup>Optional</sup> <a name="textractDocumentSplitterInterval" id="amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.textractDocumentSplitterInterval"></a>
+
+```typescript
+public readonly textractDocumentSplitterInterval: number;
+```
+
+- *Type:* number
+
+---
+
+##### `textractDocumentSplitterMaxRetries`<sup>Optional</sup> <a name="textractDocumentSplitterMaxRetries" id="amazon-textract-idp-cdk-constructs.DocumentSplitterProps.property.textractDocumentSplitterMaxRetries"></a>
+
+```typescript
+public readonly textractDocumentSplitterMaxRetries: number;
+```
+
+- *Type:* number
+- *Default:* is 100
+
+number of retries in Step Function flow.
 
 ---
 
@@ -7277,9 +7312,12 @@ const textractAsyncToJSONProps: TextractAsyncToJSONProps = { ... }
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractAsyncToJSONProps.property.lambdaMemoryMB">lambdaMemoryMB</a></code> | <code>number</code> | memory of Lambda function (may need to increase for larger documents), set to 10240 (max) atm, decrease for smaller workloads. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractAsyncToJSONProps.property.lambdaTimeout">lambdaTimeout</a></code> | <code>number</code> | memory of Lambda function (may need to increase for larger documents). |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractAsyncToJSONProps.property.outputPolicyStatements">outputPolicyStatements</a></code> | <code>aws-cdk-lib.aws_iam.PolicyStatement[]</code> | List of PolicyStatements to attach to the Lambda function. |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractAsyncToJSONProps.property.s3InputBucket">s3InputBucket</a></code> | <code>string</code> | location of input S3 objects - if left empty will generate rule for s3 access to all [*]. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractAsyncToJSONProps.property.s3InputBucket">s3InputBucket</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractAsyncToJSONProps.property.s3InputPrefix">s3InputPrefix</a></code> | <code>string</code> | prefix for input S3 objects - if left empty will generate rule for s3 access to all in bucket. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractAsyncToJSONProps.property.textractAPI">textractAPI</a></code> | <code>string</code> | Which Textract API was used to create the OutputConfig? |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractAsyncToJSONProps.property.textractAsyncToJSONBackoffRate">textractAsyncToJSONBackoffRate</a></code> | <code>number</code> | retyr backoff rate. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractAsyncToJSONProps.property.textractAsyncToJSONInterval">textractAsyncToJSONInterval</a></code> | <code>number</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractAsyncToJSONProps.property.textractAsyncToJSONMaxRetries">textractAsyncToJSONMaxRetries</a></code> | <code>number</code> | number of retries in Step Function flow. |
 
 ---
 
@@ -7375,8 +7413,6 @@ public readonly s3InputBucket: string;
 
 - *Type:* string
 
-location of input S3 objects - if left empty will generate rule for s3 access to all [*].
-
 ---
 
 ##### `s3InputPrefix`<sup>Optional</sup> <a name="s3InputPrefix" id="amazon-textract-idp-cdk-constructs.TextractAsyncToJSONProps.property.s3InputPrefix"></a>
@@ -7403,6 +7439,42 @@ public readonly textractAPI: string;
 Which Textract API was used to create the OutputConfig?
 
 GENERIC and LENDING are supported.
+
+---
+
+##### `textractAsyncToJSONBackoffRate`<sup>Optional</sup> <a name="textractAsyncToJSONBackoffRate" id="amazon-textract-idp-cdk-constructs.TextractAsyncToJSONProps.property.textractAsyncToJSONBackoffRate"></a>
+
+```typescript
+public readonly textractAsyncToJSONBackoffRate: number;
+```
+
+- *Type:* number
+- *Default:* is 1.1
+
+retyr backoff rate.
+
+---
+
+##### `textractAsyncToJSONInterval`<sup>Optional</sup> <a name="textractAsyncToJSONInterval" id="amazon-textract-idp-cdk-constructs.TextractAsyncToJSONProps.property.textractAsyncToJSONInterval"></a>
+
+```typescript
+public readonly textractAsyncToJSONInterval: number;
+```
+
+- *Type:* number
+
+---
+
+##### `textractAsyncToJSONMaxRetries`<sup>Optional</sup> <a name="textractAsyncToJSONMaxRetries" id="amazon-textract-idp-cdk-constructs.TextractAsyncToJSONProps.property.textractAsyncToJSONMaxRetries"></a>
+
+```typescript
+public readonly textractAsyncToJSONMaxRetries: number;
+```
+
+- *Type:* number
+- *Default:* is 100
+
+number of retries in Step Function flow.
 
 ---
 
@@ -7489,6 +7561,9 @@ const textractDPPOCDeciderProps: TextractDPPOCDeciderProps = { ... }
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractDPPOCDeciderProps.property.lambdaTimeout">lambdaTimeout</a></code> | <code>number</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractDPPOCDeciderProps.property.s3InputBucket">s3InputBucket</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractDPPOCDeciderProps.property.s3InputPrefix">s3InputPrefix</a></code> | <code>string</code> | prefix for the incoming document. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractDPPOCDeciderProps.property.textractDeciderBackoffRate">textractDeciderBackoffRate</a></code> | <code>number</code> | retyr backoff rate. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractDPPOCDeciderProps.property.textractDeciderInterval">textractDeciderInterval</a></code> | <code>number</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractDPPOCDeciderProps.property.textractDeciderMaxRetries">textractDeciderMaxRetries</a></code> | <code>number</code> | number of retries in Step Function flow. |
 
 ---
 
@@ -7560,6 +7635,42 @@ Will be used to create role
 
 ---
 
+##### `textractDeciderBackoffRate`<sup>Optional</sup> <a name="textractDeciderBackoffRate" id="amazon-textract-idp-cdk-constructs.TextractDPPOCDeciderProps.property.textractDeciderBackoffRate"></a>
+
+```typescript
+public readonly textractDeciderBackoffRate: number;
+```
+
+- *Type:* number
+- *Default:* is 1.1
+
+retyr backoff rate.
+
+---
+
+##### `textractDeciderInterval`<sup>Optional</sup> <a name="textractDeciderInterval" id="amazon-textract-idp-cdk-constructs.TextractDPPOCDeciderProps.property.textractDeciderInterval"></a>
+
+```typescript
+public readonly textractDeciderInterval: number;
+```
+
+- *Type:* number
+
+---
+
+##### `textractDeciderMaxRetries`<sup>Optional</sup> <a name="textractDeciderMaxRetries" id="amazon-textract-idp-cdk-constructs.TextractDPPOCDeciderProps.property.textractDeciderMaxRetries"></a>
+
+```typescript
+public readonly textractDeciderMaxRetries: number;
+```
+
+- *Type:* number
+- *Default:* is 100
+
+number of retries in Step Function flow.
+
+---
+
 ### TextractGenerateCSVProps <a name="TextractGenerateCSVProps" id="amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps"></a>
 
 #### Initializer <a name="Initializer" id="amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.Initializer"></a>
@@ -7592,13 +7703,16 @@ const textractGenerateCSVProps: TextractGenerateCSVProps = { ... }
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.lambdaTimeout">lambdaTimeout</a></code> | <code>number</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.metaDataToAppend">metaDataToAppend</a></code> | <code>string[]</code> | The generated CSV can have any meta-data from the manifest file included. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.name">name</a></code> | <code>string</code> | The name of the execution, same as that of StartExecution. |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.opensearchIndexName">opensearchIndexName</a></code> | <code>string</code> | in case of export to OPENSEARCH_BATCH, this defines the index. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.opensearchIndexName">opensearchIndexName</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.outputFeatures">outputFeatures</a></code> | <code>string</code> | supports FORMS, TABLES, QUERIES, SIGNATURES as a comma seperated string and generates CSV files for the output from those default is "FORMS,TABLES,QUERIES,SIGNATURES". |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.outputPolicyStatements">outputPolicyStatements</a></code> | <code>aws-cdk-lib.aws_iam.PolicyStatement[]</code> | List of PolicyStatements to attach to the Lambda function. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.outputType">outputType</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.s3InputBucket">s3InputBucket</a></code> | <code>string</code> | Bucketname and prefix to read document from /** location of input S3 objects - if left empty will generate rule for s3 access to all [*]. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.s3InputPrefix">s3InputPrefix</a></code> | <code>string</code> | prefix for input S3 objects - if left empty will generate rule for s3 access to all in bucket. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.textractAPI">textractAPI</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.textractGenerateCSVBackoffRate">textractGenerateCSVBackoffRate</a></code> | <code>number</code> | retyr backoff rate. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.textractGenerateCSVInterval">textractGenerateCSVInterval</a></code> | <code>number</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.textractGenerateCSVMaxRetries">textractGenerateCSVMaxRetries</a></code> | <code>number</code> | number of retries in Step Function flow. |
 
 ---
 
@@ -7861,10 +7975,6 @@ public readonly opensearchIndexName: string;
 
 - *Type:* string
 
-in case of export to OPENSEARCH_BATCH, this defines the index.
-
-Default is my-index
-
 ---
 
 ##### `outputFeatures`<sup>Optional</sup> <a name="outputFeatures" id="amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.outputFeatures"></a>
@@ -7932,6 +8042,42 @@ public readonly textractAPI: string;
 ```
 
 - *Type:* string
+
+---
+
+##### `textractGenerateCSVBackoffRate`<sup>Optional</sup> <a name="textractGenerateCSVBackoffRate" id="amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.textractGenerateCSVBackoffRate"></a>
+
+```typescript
+public readonly textractGenerateCSVBackoffRate: number;
+```
+
+- *Type:* number
+- *Default:* is 1.1
+
+retyr backoff rate.
+
+---
+
+##### `textractGenerateCSVInterval`<sup>Optional</sup> <a name="textractGenerateCSVInterval" id="amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.textractGenerateCSVInterval"></a>
+
+```typescript
+public readonly textractGenerateCSVInterval: number;
+```
+
+- *Type:* number
+
+---
+
+##### `textractGenerateCSVMaxRetries`<sup>Optional</sup> <a name="textractGenerateCSVMaxRetries" id="amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.textractGenerateCSVMaxRetries"></a>
+
+```typescript
+public readonly textractGenerateCSVMaxRetries: number;
+```
+
+- *Type:* number
+- *Default:* is 100
+
+number of retries in Step Function flow.
 
 ---
 

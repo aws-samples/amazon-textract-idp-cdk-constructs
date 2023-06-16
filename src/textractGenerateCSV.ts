@@ -50,6 +50,14 @@ export interface TextractGenerateCSVProps extends sfn.TaskStateBaseProps{
   /** in case of export to OPENSEARCH_BATCH, this defines the index.
    * Default is my-index
    */
+  /** number of retries in Step Function flow
+   * @default is 100 */
+  readonly textractGenerateCSVMaxRetries?: number;
+  /**retyr backoff rate
+   * @default is 1.1 */
+  readonly textractGenerateCSVBackoffRate?: number;
+  /* @default is 1 */
+  readonly textractGenerateCSVInterval?: number;
   readonly opensearchIndexName?:string;
   /** The generated CSV can have any meta-data from the manifest file included.
    * This is a list of all meta-data names to include
@@ -167,6 +175,10 @@ export class TextractGenerateCSV extends sfn.TaskStateBase {
       props.csvS3OutputPrefix === undefined ? '' : props.csvS3OutputPrefix;
     var s3InputPrefix =
       props.s3InputPrefix === undefined ? '' : props.s3InputPrefix;
+    var textractGenerateCSVMaxRetries = props.textractGenerateCSVMaxRetries === undefined ? 100 : props.textractGenerateCSVMaxRetries;
+    var textractGenerateCSVBackoffRate =
+      props.textractGenerateCSVBackoffRate === undefined ? 1.1 : props.textractGenerateCSVBackoffRate;
+    var textractGenerateCSVInterval = props.textractGenerateCSVInterval === undefined ? 1 : props.textractGenerateCSVInterval;
 
     this.generateCSVLambda = new lambda_.DockerImageFunction(this, 'TextractCSVGenerator', {
       code: lambda_.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/generatecsv/')),
@@ -255,9 +267,16 @@ export class TextractGenerateCSV extends sfn.TaskStateBase {
       lambdaFunction: this.generateCSVLambda,
     });
 
-    csvGeneratorLambdaInvoke.addCatch(new sfn.Fail(this, 'csvGenerationFailure'), {
-      errors: [sfn.Errors.ALL],
+    csvGeneratorLambdaInvoke.addRetry({
+      maxAttempts: textractGenerateCSVMaxRetries,
+      backoffRate: textractGenerateCSVBackoffRate,
+      interval: Duration.seconds(textractGenerateCSVInterval),
+      errors: ['Lambda.TooManyRequestsException', 'Lambda.Unknown'],
     });
+
+    // csvGeneratorLambdaInvoke.addCatch(new sfn.Fail(this, 'csvGenerationFailure'), {
+    //   errors: [sfn.Errors.ALL],
+    // });
     const workflow_chain = sfn.Chain.start(csvGeneratorLambdaInvoke);
 
     this.stateMachine = new sfn.StateMachine(this, 'StateMachine', {

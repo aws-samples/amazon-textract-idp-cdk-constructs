@@ -162,72 +162,89 @@ def lambda_handler(event, _):
     logger.info(f"token: {token}")
 
     if not "Payload" in event:
-        raise ValueError("Need Payload with manifest to process message.")
+        step_functions_client.send_task_failure(
+            taskToken=token,
+            error="Need Payload with manifest to process message.",
+            cause="Need Payload with manifest to process message."[:250])
 
-    # first look for manifest in Payload
-    if 'manifest' in event["Payload"]:
-        manifest: tm.IDPManifest = tm.IDPManifestSchema().load(
-            event["Payload"]['manifest'])  #type: ignore
-    # if not, try reading as if Payload is the manifest
-    else:
-        manifest: tm.IDPManifest = tm.IDPManifestSchema().load(
-            event["Payload"])  #type: ignore
+    manifest = None  #type: ignore
+    try:
+        # first look for manifest in Payload
+        if 'manifest' in event["Payload"]:
+            manifest: tm.IDPManifest = tm.IDPManifestSchema().load(
+                event["Payload"]['manifest'])  #type: ignore
+        # if not, try reading as if Payload is the manifest
+        else:
+            manifest: tm.IDPManifest = tm.IDPManifestSchema().load(
+                event["Payload"])  #type: ignore
+    except Exception as e:
+        step_functions_client.send_task_failure(
+            taskToken=token,
+            error="Need Payload with manifest to process message.",
+            cause="Need Payload with manifest to process message."[:250])
+
+    if not manifest:
+        step_functions_client.send_task_failure(
+            taskToken=token,
+            error="Need Payload with manifest to process message.",
+            cause="Need Payload with manifest to process message."[:250])
 
     s3_path = manifest.s3_path
 
-    if 'numberOfPages' in event["Payload"]:
-        number_of_pages = int(event['Payload']['numberOfPages'])
-    else:
-        file_bytes = get_file_from_s3(s3_path=s3_path)
-        mime = get_mime_for_file(file_bytes=file_bytes)
-        if mime and file_bytes:
-            number_of_pages = get_number_of_pages(file_bytes=file_bytes,
-                                                  mime=mime)
-        else:
-            raise Exception(
-                f"could not get number of pages. Either mime '{mime}' or file_bytes '{file_bytes}' were empty."
-            )
-
-    logger.info(f"s3_path: {s3_path} \n \
-                token: {token} \n \
-                ")
-
-    uuid_key = str(uuid.uuid4())
-    logger.debug(f"uuid_key: {uuid_key}")
-    # TODO: check if item already exists in case of retries
-    ddb_response = dynamo_db_client.put_item(
-        TableName=token_store_ddb,
-        Item={
-            "ID": {
-                'S': uuid_key
-            },
-            "Type": {
-                'S': "textract_async"
-            },
-            "Token": {
-                'S': token
-            },
-            "timestampMS": {
-                'N': str(round(time.time() * 1000))
-            },
-            "numberOfPages": {
-                'N': str(number_of_pages)
-            },
-            "ttltimestamp": {
-                'N':
-                str(
-                    int(time.time()) +
-                    int(datetime.timedelta(days=7).total_seconds()))
-            }
-        })
-    logger.debug(f"ddb_response: {ddb_response}")
-    nc: tc.NotificationChannel = tc.NotificationChannel(
-        role_arn=notification_role_arn, sns_topic_arn=notification_sns)
-    output_config: tc.OutputConfig = tc.OutputConfig(
-        s3_bucket=s3_output_bucket, s3_prefix=s3_temp_output_prefix)
-    logger.debug(f"NotificationChannel: {nc}")
-    logger.debug(f"OutputConfig: {output_config}")
     try:
+
+        if 'numberOfPages' in event["Payload"]:
+            number_of_pages = int(event['Payload']['numberOfPages'])
+        else:
+            file_bytes = get_file_from_s3(s3_path=s3_path)
+            mime = get_mime_for_file(file_bytes=file_bytes)
+            if mime and file_bytes:
+                number_of_pages = get_number_of_pages(file_bytes=file_bytes,
+                                                      mime=mime)
+            else:
+                raise Exception(
+                    f"could not get number of pages. Either mime '{mime}' or file_bytes '{file_bytes}' were empty."
+                )
+
+        logger.info(f"s3_path: {s3_path} \n \
+                    token: {token} \n \
+                    ")
+
+        uuid_key = str(uuid.uuid4())
+        logger.debug(f"uuid_key: {uuid_key}")
+        # TODO: check if item already exists in case of retries
+        ddb_response = dynamo_db_client.put_item(
+            TableName=token_store_ddb,
+            Item={
+                "ID": {
+                    'S': uuid_key
+                },
+                "Type": {
+                    'S': "textract_async"
+                },
+                "Token": {
+                    'S': token
+                },
+                "timestampMS": {
+                    'N': str(round(time.time() * 1000))
+                },
+                "numberOfPages": {
+                    'N': str(number_of_pages)
+                },
+                "ttltimestamp": {
+                    'N':
+                    str(
+                        int(time.time()) +
+                        int(datetime.timedelta(days=7).total_seconds()))
+                }
+            })
+        logger.debug(f"ddb_response: {ddb_response}")
+        nc: tc.NotificationChannel = tc.NotificationChannel(
+            role_arn=notification_role_arn, sns_topic_arn=notification_sns)
+        output_config: tc.OutputConfig = tc.OutputConfig(
+            s3_bucket=s3_output_bucket, s3_prefix=s3_temp_output_prefix)
+        logger.debug(f"NotificationChannel: {nc}")
+        logger.debug(f"OutputConfig: {output_config}")
         if textract_api == 'GENERIC':
             response = tc.call_textract(
                 input_document=s3_path,

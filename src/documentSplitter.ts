@@ -24,6 +24,14 @@ export interface DocumentSplitterProps {
   /** maxNumberOfPagesPerDoc - defines in which chunks to split up the document.
    * Default is 1
    */
+  /** number of retries in Step Function flow
+   * @default is 100 */
+  readonly textractDocumentSplitterMaxRetries?: number;
+  /**retyr backoff rate
+   * @default is 1.1 */
+  readonly textractDocumentSplitterBackoffRate?: number;
+  /* @default is 1 */
+  readonly textractDocumentSplitterInterval?: number;
   readonly maxNumberOfPagesPerDoc?: number;
   /** List of PolicyStatements to attach to the Lambda function.  */
   readonly inputPolicyStatements?: iam.PolicyStatement[];
@@ -62,6 +70,11 @@ export class DocumentSplitter extends sfn.StateMachineFragment {
       props.s3OutputPrefix === undefined ? '' : props.s3OutputPrefix;
     var s3InputPrefix =
       props.s3InputPrefix === undefined ? '' : props.s3InputPrefix;
+
+    var textractDocumentSplitterMaxRetries = props.textractDocumentSplitterMaxRetries === undefined ? 100 : props.textractDocumentSplitterMaxRetries;
+    var textractDocumentSplitterBackoffRate =
+      props.textractDocumentSplitterBackoffRate === undefined ? 1.1 : props.textractDocumentSplitterBackoffRate;
+    var textractDocumentSplitterInterval = props.textractDocumentSplitterInterval === undefined ? 1 : props.textractDocumentSplitterInterval;
 
     this.splitterFunction = new lambda.DockerImageFunction(this, 'DocumentSplitterFunction', {
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/document_splitter/')),
@@ -139,6 +152,13 @@ export class DocumentSplitter extends sfn.StateMachineFragment {
       lambdaFunction: this.splitterFunction,
       timeout: Duration.seconds(900),
       outputPath: '$.Payload',
+    });
+
+    splitterInvoke.addRetry({
+      maxAttempts: textractDocumentSplitterMaxRetries,
+      backoffRate: textractDocumentSplitterBackoffRate,
+      interval: Duration.seconds(textractDocumentSplitterInterval),
+      errors: ['Lambda.TooManyRequestsException', 'Lambda.Unknown'],
     });
     this.startState=splitterInvoke;
     this.endStates=[splitterInvoke];

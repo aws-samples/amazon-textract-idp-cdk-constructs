@@ -46,11 +46,11 @@ def split_and_save_pages(s3_path: str,
             current_number_of_pages_collected = 0
             current_start_page = 1
             writer = PdfWriter()
-            page_number = 0
+            page_number = 1
             page_in_mem = io.BytesIO()
-            for page_number in range(1, len(pdf_reader.pages)):
+            for page_number in range(1, len(pdf_reader.pages) + 1):
                 page_in_mem = io.BytesIO()
-                writer.add_page(pdf_reader.pages[page_number])
+                writer.add_page(pdf_reader.pages[page_number - 1])
                 writer.write(page_in_mem)
                 logger.debug(f"len page_in_mem: {sys.getsizeof(page_in_mem)}")
                 current_number_of_pages_collected += 1

@@ -23,6 +23,14 @@ export interface TextractAsyncToJSONProps {
    * @default - GENERIC */
   readonly textractAPI?: 'GENERIC' | 'LENDING';
   /** location of input S3 objects - if left empty will generate rule for s3 access to all [*] */
+  /** number of retries in Step Function flow
+   * @default is 100 */
+  readonly textractAsyncToJSONMaxRetries?: number;
+  /**retyr backoff rate
+   * @default is 1.1 */
+  readonly textractAsyncToJSONBackoffRate?: number;
+  /* @default is 1 */
+  readonly textractAsyncToJSONInterval?: number;
   readonly s3InputBucket?: string;
   /** prefix for input S3 objects - if left empty will generate rule for s3 access to all in bucket */
   readonly s3InputPrefix?: string;
@@ -69,6 +77,11 @@ export class TextractAsyncToJSON extends sfn.StateMachineFragment {
       props.s3OutputPrefix === undefined ? '' : props.s3OutputPrefix;
     var s3InputPrefix =
       props.s3InputPrefix === undefined ? '' : props.s3InputPrefix;
+    var textractAsyncToJSONMaxRetries = props.textractAsyncToJSONMaxRetries === undefined ? 100 : props.textractAsyncToJSONMaxRetries;
+    var textractAsyncToJSONBackoffRate =
+      props.textractAsyncToJSONBackoffRate === undefined ? 1.1 : props.textractAsyncToJSONBackoffRate;
+    var textractAsyncToJSONInterval = props.textractAsyncToJSONInterval === undefined ? 1 : props.textractAsyncToJSONInterval;
+
 
     this.asyncToJSONFunction = new lambda.DockerImageFunction(this, 'TextractAsyncToJSON', {
       code: lambda.DockerImageCode.fromImageAsset(path.join(__dirname, '../lambda/async_to_json/')),
@@ -144,6 +157,13 @@ export class TextractAsyncToJSON extends sfn.StateMachineFragment {
       lambdaFunction: this.asyncToJSONFunction,
       timeout: Duration.seconds(900),
       outputPath: '$.Payload',
+    });
+
+    asyncToJSON.addRetry({
+      maxAttempts: textractAsyncToJSONMaxRetries,
+      backoffRate: textractAsyncToJSONBackoffRate,
+      interval: Duration.seconds(textractAsyncToJSONInterval),
+      errors: ['Lambda.TooManyRequestsException', 'Lambda.Unknown'],
     });
     this.startState = asyncToJSON;
     this.endStates = [asyncToJSON];
