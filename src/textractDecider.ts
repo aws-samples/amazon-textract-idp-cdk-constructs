@@ -2,8 +2,8 @@ import * as path from 'path';
 import { Duration } from 'aws-cdk-lib';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
-import * as sfn from 'aws-cdk-lib/aws-stepfunctions';
 import * as tasks from 'aws-cdk-lib/aws-stepfunctions-tasks';
+import { INextable, State, StateMachineFragment, Timeout } from 'aws-cdk-lib/aws-stepfunctions';
 import { Construct } from 'constructs';
 
 export interface TextractDPPOCDeciderProps {
@@ -45,9 +45,9 @@ export interface TextractDPPOCDeciderProps {
 
  *
  */
-export class TextractPOCDecider extends sfn.StateMachineFragment {
-  public readonly startState: sfn.State;
-  public readonly endStates: sfn.INextable[];
+export class TextractPOCDecider extends StateMachineFragment {
+  public readonly startState: State;
+  public readonly endStates: INextable[];
   public readonly deciderFunction: lambda.IFunction;
 
   constructor(parent: Construct, id: string, props: TextractDPPOCDeciderProps) {
@@ -103,7 +103,7 @@ export class TextractPOCDecider extends sfn.StateMachineFragment {
     }
     const deciderLambdaInvoke = new tasks.LambdaInvoke(this, id, {
       lambdaFunction: this.deciderFunction,
-      timeout: Duration.seconds(100),
+      taskTimeout: Timeout.duration(Duration.seconds(100)),
       outputPath: '$.Payload',
     });
 
