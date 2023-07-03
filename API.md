@@ -1735,6 +1735,145 @@ public readonly searchablePDFFunction: IFunction;
 ---
 
 
+### SFExecutionsStartThrottle <a name="SFExecutionsStartThrottle" id="amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottle"></a>
+
+This construct starts State Machine executions based on events, but limits the number of concurrent running executions to a threshold number - S3 - API Gateway - SQS  This version does not yet support passing in a manifest for configuration of Textract features.
+
+That will be a future enhancement.
+The following resources are created:
+- Lambda function
+- DynamoDB table. For every document pass in an entry in a DynamoDB table is created with a status (RECEIVED, QUEUED, IN_PROGRESS)
+
+#### Initializers <a name="Initializers" id="amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottle.Initializer"></a>
+
+```typescript
+import { SFExecutionsStartThrottle } from 'amazon-textract-idp-cdk-constructs'
+
+new SFExecutionsStartThrottle(parent: Construct, id: string, props: SFExecutionsStartThrottleProps)
+```
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottle.Initializer.parameter.parent">parent</a></code> | <code>constructs.Construct</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottle.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottle.Initializer.parameter.props">props</a></code> | <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps">SFExecutionsStartThrottleProps</a></code> | *No description.* |
+
+---
+
+##### `parent`<sup>Required</sup> <a name="parent" id="amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottle.Initializer.parameter.parent"></a>
+
+- *Type:* constructs.Construct
+
+---
+
+##### `id`<sup>Required</sup> <a name="id" id="amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottle.Initializer.parameter.id"></a>
+
+- *Type:* string
+
+---
+
+##### `props`<sup>Required</sup> <a name="props" id="amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottle.Initializer.parameter.props"></a>
+
+- *Type:* <a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps">SFExecutionsStartThrottleProps</a>
+
+---
+
+#### Methods <a name="Methods" id="Methods"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottle.toString">toString</a></code> | Returns a string representation of this construct. |
+
+---
+
+##### `toString` <a name="toString" id="amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottle.toString"></a>
+
+```typescript
+public toString(): string
+```
+
+Returns a string representation of this construct.
+
+#### Static Functions <a name="Static Functions" id="Static Functions"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottle.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
+
+---
+
+##### ~~`isConstruct`~~ <a name="isConstruct" id="amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottle.isConstruct"></a>
+
+```typescript
+import { SFExecutionsStartThrottle } from 'amazon-textract-idp-cdk-constructs'
+
+SFExecutionsStartThrottle.isConstruct(x: any)
+```
+
+Checks if `x` is a construct.
+
+###### `x`<sup>Required</sup> <a name="x" id="amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottle.isConstruct.parameter.x"></a>
+
+- *Type:* any
+
+Any object.
+
+---
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottle.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottle.property.executionsStartThrottleFunction">executionsStartThrottleFunction</a></code> | <code>aws-cdk-lib.aws_lambda.IFunction</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottle.property.documentQueue">documentQueue</a></code> | <code>aws-cdk-lib.aws_sqs.IQueue</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottle.property.documentStatusTable">documentStatusTable</a></code> | <code>aws-cdk-lib.aws_dynamodb.ITable</code> | *No description.* |
+
+---
+
+##### `node`<sup>Required</sup> <a name="node" id="amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottle.property.node"></a>
+
+```typescript
+public readonly node: Node;
+```
+
+- *Type:* constructs.Node
+
+The tree node.
+
+---
+
+##### `executionsStartThrottleFunction`<sup>Required</sup> <a name="executionsStartThrottleFunction" id="amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottle.property.executionsStartThrottleFunction"></a>
+
+```typescript
+public readonly executionsStartThrottleFunction: IFunction;
+```
+
+- *Type:* aws-cdk-lib.aws_lambda.IFunction
+
+---
+
+##### `documentQueue`<sup>Optional</sup> <a name="documentQueue" id="amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottle.property.documentQueue"></a>
+
+```typescript
+public readonly documentQueue: IQueue;
+```
+
+- *Type:* aws-cdk-lib.aws_sqs.IQueue
+
+---
+
+##### `documentStatusTable`<sup>Optional</sup> <a name="documentStatusTable" id="amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottle.property.documentStatusTable"></a>
+
+```typescript
+public readonly documentStatusTable: ITable;
+```
+
+- *Type:* aws-cdk-lib.aws_dynamodb.ITable
+
+---
+
+
 ### SpacySfnTask <a name="SpacySfnTask" id="amazon-textract-idp-cdk-constructs.SpacySfnTask"></a>
 
 Deploys a Lambda Container with a Spacy NLP model to call textcat.
@@ -6779,6 +6918,154 @@ public readonly searchablePDFFunction: IFunction;
 ```
 
 - *Type:* aws-cdk-lib.aws_lambda.IFunction
+
+---
+
+### SFExecutionsStartThrottleProps <a name="SFExecutionsStartThrottleProps" id="amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps"></a>
+
+#### Initializer <a name="Initializer" id="amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.Initializer"></a>
+
+```typescript
+import { SFExecutionsStartThrottleProps } from 'amazon-textract-idp-cdk-constructs'
+
+const sFExecutionsStartThrottleProps: SFExecutionsStartThrottleProps = { ... }
+```
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.stateMachineArn">stateMachineArn</a></code> | <code>string</code> | State Machine ARN. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.documentStatusTable">documentStatusTable</a></code> | <code>aws-cdk-lib.aws_dynamodb.ITable</code> | Status table - DynamoDB table with status information for the document execution. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.eventSource">eventSource</a></code> | <code>aws-cdk-lib.aws_lambda.IEventSource[]</code> | List of PolicyStatements to attach to the Lambda function. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.executionsConcurrencyThreshold">executionsConcurrencyThreshold</a></code> | <code>number</code> | Executions concurrency, default is 100. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.inputPolicyStatements">inputPolicyStatements</a></code> | <code>aws-cdk-lib.aws_iam.PolicyStatement[]</code> | List of PolicyStatements to attach to the Lambda function. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.lambdaLogLevel">lambdaLogLevel</a></code> | <code>string</code> | log level for Lambda function, supports DEBUG\|INFO\|WARNING\|ERROR\|FATAL. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.lambdaMemory">lambdaMemory</a></code> | <code>number</code> | Memory allocated to Lambda function, default 512. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.lambdaTimeout">lambdaTimeout</a></code> | <code>number</code> | Lambda Function Timeout in seconds, default 300. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.s3InputBucket">s3InputBucket</a></code> | <code>string</code> | Bucketname and prefix to read document from /** location of input S3 objects - if left empty will generate rule for s3 access to all [*]. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.s3InputPrefix">s3InputPrefix</a></code> | <code>string</code> | prefix for input S3 objects - if left empty will generate rule for s3 access to all in bucket. |
+
+---
+
+##### `stateMachineArn`<sup>Required</sup> <a name="stateMachineArn" id="amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.stateMachineArn"></a>
+
+```typescript
+public readonly stateMachineArn: string;
+```
+
+- *Type:* string
+
+State Machine ARN.
+
+---
+
+##### `documentStatusTable`<sup>Optional</sup> <a name="documentStatusTable" id="amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.documentStatusTable"></a>
+
+```typescript
+public readonly documentStatusTable: ITable;
+```
+
+- *Type:* aws-cdk-lib.aws_dynamodb.ITable
+
+Status table - DynamoDB table with status information for the document execution.
+
+---
+
+##### `eventSource`<sup>Optional</sup> <a name="eventSource" id="amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.eventSource"></a>
+
+```typescript
+public readonly eventSource: IEventSource[];
+```
+
+- *Type:* aws-cdk-lib.aws_lambda.IEventSource[]
+
+List of PolicyStatements to attach to the Lambda function.
+
+---
+
+##### `executionsConcurrencyThreshold`<sup>Optional</sup> <a name="executionsConcurrencyThreshold" id="amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.executionsConcurrencyThreshold"></a>
+
+```typescript
+public readonly executionsConcurrencyThreshold: number;
+```
+
+- *Type:* number
+
+Executions concurrency, default is 100.
+
+---
+
+##### `inputPolicyStatements`<sup>Optional</sup> <a name="inputPolicyStatements" id="amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.inputPolicyStatements"></a>
+
+```typescript
+public readonly inputPolicyStatements: PolicyStatement[];
+```
+
+- *Type:* aws-cdk-lib.aws_iam.PolicyStatement[]
+
+List of PolicyStatements to attach to the Lambda function.
+
+---
+
+##### `lambdaLogLevel`<sup>Optional</sup> <a name="lambdaLogLevel" id="amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.lambdaLogLevel"></a>
+
+```typescript
+public readonly lambdaLogLevel: string;
+```
+
+- *Type:* string
+- *Default:* = DEBUG
+
+log level for Lambda function, supports DEBUG|INFO|WARNING|ERROR|FATAL.
+
+---
+
+##### `lambdaMemory`<sup>Optional</sup> <a name="lambdaMemory" id="amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.lambdaMemory"></a>
+
+```typescript
+public readonly lambdaMemory: number;
+```
+
+- *Type:* number
+
+Memory allocated to Lambda function, default 512.
+
+---
+
+##### `lambdaTimeout`<sup>Optional</sup> <a name="lambdaTimeout" id="amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.lambdaTimeout"></a>
+
+```typescript
+public readonly lambdaTimeout: number;
+```
+
+- *Type:* number
+
+Lambda Function Timeout in seconds, default 300.
+
+---
+
+##### `s3InputBucket`<sup>Optional</sup> <a name="s3InputBucket" id="amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.s3InputBucket"></a>
+
+```typescript
+public readonly s3InputBucket: string;
+```
+
+- *Type:* string
+
+Bucketname and prefix to read document from /** location of input S3 objects - if left empty will generate rule for s3 access to all [*].
+
+---
+
+##### `s3InputPrefix`<sup>Optional</sup> <a name="s3InputPrefix" id="amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.s3InputPrefix"></a>
+
+```typescript
+public readonly s3InputPrefix: string;
+```
+
+- *Type:* string
+
+prefix for input S3 objects - if left empty will generate rule for s3 access to all in bucket.
 
 ---
 
