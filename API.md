@@ -1825,9 +1825,12 @@ Any object.
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottle.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottle.property.executionsQueueWorkerFunction">executionsQueueWorkerFunction</a></code> | <code>aws-cdk-lib.aws_lambda.IFunction</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottle.property.executionsStartThrottleFunction">executionsStartThrottleFunction</a></code> | <code>aws-cdk-lib.aws_lambda.IFunction</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottle.property.executionsThrottleCounterResetFunction">executionsThrottleCounterResetFunction</a></code> | <code>aws-cdk-lib.aws_lambda.IFunction</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottle.property.documentQueue">documentQueue</a></code> | <code>aws-cdk-lib.aws_sqs.IQueue</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottle.property.documentStatusTable">documentStatusTable</a></code> | <code>aws-cdk-lib.aws_dynamodb.ITable</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottle.property.executionsCounterTable">executionsCounterTable</a></code> | <code>aws-cdk-lib.aws_dynamodb.ITable</code> | *No description.* |
 
 ---
 
@@ -1843,10 +1846,30 @@ The tree node.
 
 ---
 
+##### `executionsQueueWorkerFunction`<sup>Required</sup> <a name="executionsQueueWorkerFunction" id="amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottle.property.executionsQueueWorkerFunction"></a>
+
+```typescript
+public readonly executionsQueueWorkerFunction: IFunction;
+```
+
+- *Type:* aws-cdk-lib.aws_lambda.IFunction
+
+---
+
 ##### `executionsStartThrottleFunction`<sup>Required</sup> <a name="executionsStartThrottleFunction" id="amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottle.property.executionsStartThrottleFunction"></a>
 
 ```typescript
 public readonly executionsStartThrottleFunction: IFunction;
+```
+
+- *Type:* aws-cdk-lib.aws_lambda.IFunction
+
+---
+
+##### `executionsThrottleCounterResetFunction`<sup>Required</sup> <a name="executionsThrottleCounterResetFunction" id="amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottle.property.executionsThrottleCounterResetFunction"></a>
+
+```typescript
+public readonly executionsThrottleCounterResetFunction: IFunction;
 ```
 
 - *Type:* aws-cdk-lib.aws_lambda.IFunction
@@ -1867,6 +1890,16 @@ public readonly documentQueue: IQueue;
 
 ```typescript
 public readonly documentStatusTable: ITable;
+```
+
+- *Type:* aws-cdk-lib.aws_dynamodb.ITable
+
+---
+
+##### `executionsCounterTable`<sup>Optional</sup> <a name="executionsCounterTable" id="amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottle.property.executionsCounterTable"></a>
+
+```typescript
+public readonly executionsCounterTable: ITable;
 ```
 
 - *Type:* aws-cdk-lib.aws_dynamodb.ITable
@@ -6939,12 +6972,17 @@ const sFExecutionsStartThrottleProps: SFExecutionsStartThrottleProps = { ... }
 | <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.documentStatusTable">documentStatusTable</a></code> | <code>aws-cdk-lib.aws_dynamodb.ITable</code> | Status table - DynamoDB table with status information for the document execution. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.eventSource">eventSource</a></code> | <code>aws-cdk-lib.aws_lambda.IEventSource[]</code> | List of PolicyStatements to attach to the Lambda function. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.executionsConcurrencyThreshold">executionsConcurrencyThreshold</a></code> | <code>number</code> | Executions concurrency, default is 100. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.executionsCounterTable">executionsCounterTable</a></code> | <code>aws-cdk-lib.aws_dynamodb.ITable</code> | Step Functions Executions Counter - DynamoDB table with current count of executions. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.inputPolicyStatements">inputPolicyStatements</a></code> | <code>aws-cdk-lib.aws_iam.PolicyStatement[]</code> | List of PolicyStatements to attach to the Lambda function. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.lambdaLogLevel">lambdaLogLevel</a></code> | <code>string</code> | log level for Lambda function, supports DEBUG\|INFO\|WARNING\|ERROR\|FATAL. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.lambdaMemory">lambdaMemory</a></code> | <code>number</code> | Memory allocated to Lambda function, default 512. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.lambdaQueueWorkerLogLevel">lambdaQueueWorkerLogLevel</a></code> | <code>string</code> | log level for Lambda function, supports DEBUG\|INFO\|WARNING\|ERROR\|FATAL. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.lambdaQueueWorkerMemory">lambdaQueueWorkerMemory</a></code> | <code>number</code> | Memory allocated to Lambda function, default 512. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.lambdaQueueWorkerTimeout">lambdaQueueWorkerTimeout</a></code> | <code>number</code> | Lambda Function Timeout in seconds, default 300. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.lambdaTimeout">lambdaTimeout</a></code> | <code>number</code> | Lambda Function Timeout in seconds, default 300. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.s3InputBucket">s3InputBucket</a></code> | <code>string</code> | Bucketname and prefix to read document from /** location of input S3 objects - if left empty will generate rule for s3 access to all [*]. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.s3InputPrefix">s3InputPrefix</a></code> | <code>string</code> | prefix for input S3 objects - if left empty will generate rule for s3 access to all in bucket. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.sqsBatch">sqsBatch</a></code> | <code>number</code> | SQS Batch size when catchup up on queued documents (max 10, which is also the default). |
 
 ---
 
@@ -6996,6 +7034,18 @@ Executions concurrency, default is 100.
 
 ---
 
+##### `executionsCounterTable`<sup>Optional</sup> <a name="executionsCounterTable" id="amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.executionsCounterTable"></a>
+
+```typescript
+public readonly executionsCounterTable: ITable;
+```
+
+- *Type:* aws-cdk-lib.aws_dynamodb.ITable
+
+Step Functions Executions Counter - DynamoDB table with current count of executions.
+
+---
+
 ##### `inputPolicyStatements`<sup>Optional</sup> <a name="inputPolicyStatements" id="amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.inputPolicyStatements"></a>
 
 ```typescript
@@ -7033,6 +7083,43 @@ Memory allocated to Lambda function, default 512.
 
 ---
 
+##### `lambdaQueueWorkerLogLevel`<sup>Optional</sup> <a name="lambdaQueueWorkerLogLevel" id="amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.lambdaQueueWorkerLogLevel"></a>
+
+```typescript
+public readonly lambdaQueueWorkerLogLevel: string;
+```
+
+- *Type:* string
+- *Default:* = DEBUG
+
+log level for Lambda function, supports DEBUG|INFO|WARNING|ERROR|FATAL.
+
+---
+
+##### `lambdaQueueWorkerMemory`<sup>Optional</sup> <a name="lambdaQueueWorkerMemory" id="amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.lambdaQueueWorkerMemory"></a>
+
+```typescript
+public readonly lambdaQueueWorkerMemory: number;
+```
+
+- *Type:* number
+
+Memory allocated to Lambda function, default 512.
+
+---
+
+##### `lambdaQueueWorkerTimeout`<sup>Optional</sup> <a name="lambdaQueueWorkerTimeout" id="amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.lambdaQueueWorkerTimeout"></a>
+
+```typescript
+public readonly lambdaQueueWorkerTimeout: number;
+```
+
+- *Type:* number
+
+Lambda Function Timeout in seconds, default 300.
+
+---
+
 ##### `lambdaTimeout`<sup>Optional</sup> <a name="lambdaTimeout" id="amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.lambdaTimeout"></a>
 
 ```typescript
@@ -7066,6 +7153,18 @@ public readonly s3InputPrefix: string;
 - *Type:* string
 
 prefix for input S3 objects - if left empty will generate rule for s3 access to all in bucket.
+
+---
+
+##### `sqsBatch`<sup>Optional</sup> <a name="sqsBatch" id="amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.sqsBatch"></a>
+
+```typescript
+public readonly sqsBatch: number;
+```
+
+- *Type:* number
+
+SQS Batch size when catchup up on queued documents (max 10, which is also the default).
 
 ---
 
