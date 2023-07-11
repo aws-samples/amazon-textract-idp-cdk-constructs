@@ -9,7 +9,7 @@ import * as sqs from 'aws-cdk-lib/aws-sqs';
 import { Construct } from 'constructs';
 
 export interface SFExecutionsStartThrottleProps {
-  /** Executions concurrency, default is 100 
+  /** Executions concurrency, default is 100
    * should be set to whatever the bottleneck of the workflow is
    * For Textract Asynchronous APIs, that would be the number of concurrent jobs that can be processed
    * For Textract Synchronous APIs, that would be the TPS for the API
