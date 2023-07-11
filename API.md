@@ -6971,7 +6971,7 @@ const sFExecutionsStartThrottleProps: SFExecutionsStartThrottleProps = { ... }
 | <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.stateMachineArn">stateMachineArn</a></code> | <code>string</code> | State Machine ARN. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.documentStatusTable">documentStatusTable</a></code> | <code>aws-cdk-lib.aws_dynamodb.ITable</code> | Status table - DynamoDB table with status information for the document execution. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.eventSource">eventSource</a></code> | <code>aws-cdk-lib.aws_lambda.IEventSource[]</code> | List of PolicyStatements to attach to the Lambda function. |
-| <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.executionsConcurrencyThreshold">executionsConcurrencyThreshold</a></code> | <code>number</code> | Executions concurrency, default is 100  should be set to whatever the bottleneck of the workflow is For Textract Asynchronous APIs, that would be the number of concurrent jobs that can be processed For Textract Synchronous APIs, that would be the TPS for the API. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.executionsConcurrencyThreshold">executionsConcurrencyThreshold</a></code> | <code>number</code> | Executions concurrency, default is 100 should be set to whatever the bottleneck of the workflow is For Textract Asynchronous APIs, that would be the number of concurrent jobs that can be processed For Textract Synchronous APIs, that would be the TPS for the API. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.executionsCounterTable">executionsCounterTable</a></code> | <code>aws-cdk-lib.aws_dynamodb.ITable</code> | Step Functions Executions Counter - DynamoDB table with current count of executions. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.inputPolicyStatements">inputPolicyStatements</a></code> | <code>aws-cdk-lib.aws_iam.PolicyStatement[]</code> | List of PolicyStatements to attach to the Lambda function. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.SFExecutionsStartThrottleProps.property.lambdaLogLevel">lambdaLogLevel</a></code> | <code>string</code> | log level for Lambda function, supports DEBUG\|INFO\|WARNING\|ERROR\|FATAL. |
@@ -7030,7 +7030,7 @@ public readonly executionsConcurrencyThreshold: number;
 
 - *Type:* number
 
-Executions concurrency, default is 100  should be set to whatever the bottleneck of the workflow is For Textract Asynchronous APIs, that would be the number of concurrent jobs that can be processed For Textract Synchronous APIs, that would be the TPS for the API.
+Executions concurrency, default is 100 should be set to whatever the bottleneck of the workflow is For Textract Asynchronous APIs, that would be the number of concurrent jobs that can be processed For Textract Synchronous APIs, that would be the TPS for the API.
 
 ---
 
