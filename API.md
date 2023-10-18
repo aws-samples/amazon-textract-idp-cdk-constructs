@@ -1,3 +1,145 @@
+# Amazon Textract IDP CDK Constructs
+
+<!--BEGIN STABILITY BANNER-->
+
+---
+
+![Stability: Experimental](https://img.shields.io/badge/stability-Experimental-important.svg?style=for-the-badge)
+
+> All classes are under active development and subject to non-backward compatible changes or removal in any
+> future version. These are not subject to the [Semantic Versioning](https://semver.org/) model.
+> This means that while you may use them, you may need to update your source code when upgrading to a newer version of this package.
+
+---
+<!--END STABILITY BANNER-->
+
+# Context
+
+This CDK Construct can be used as Step Function task and call Textract in Asynchonous mode for DetectText and AnalyzeDocument APIs.
+
+For samples on usage, look at [Amazon Textact IDP CDK Stack Samples](https://github.com/aws-samples/amazon-textract-idp-cdk-stack-samples)
+
+## Input
+
+
+Expects a Manifest JSON at 'Payload'.
+Manifest description: https://pypi.org/project/schadem-tidp-manifest/
+
+Example call in Python
+
+```python
+        textract_async_task = t_async.TextractGenericAsyncSfnTask(
+            self,
+            "textract-async-task",
+            s3_output_bucket=s3_output_bucket,
+            s3_temp_output_prefix=s3_temp_output_prefix,
+            integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+            lambda_log_level="DEBUG",
+            timeout=Duration.hours(24),
+            input=sfn.TaskInput.from_object({
+                "Token":
+                sfn.JsonPath.task_token,
+                "ExecutionId":
+                sfn.JsonPath.string_at('$$.Execution.Id'),
+                "Payload":
+                sfn.JsonPath.entire_payload,
+            }),
+            result_path="$.textract_result")
+```
+
+#### Query Parameter
+
+Example:
+```python
+
+            input=sfn.TaskInput.from_object({
+                "Token":
+                sfn.JsonPath.task_token,
+                "ExecutionId":
+                sfn.JsonPath.string_at('$$.Execution.Id'),
+                "Payload":
+                sfn.JsonPath.entire_payload,
+                "Query": [
+                           {
+                                'Text': 'string',
+                                'Alias': 'string',
+                                'Pages': [
+                                    'string',
+                                ]
+                            },
+                                {
+                                "Text": "What is the name of the realestate company",
+                                "Alias": "APP_COMPANY_NAME"
+                            },
+                            {
+                                "Text": "What is the name of the applicant or the prospective tenant",
+                                "Alias": "APP_APPLICANT_NAME"
+                            },
+                ]
+            }),
+
+```
+Documentation: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/textract/client/start_document_analysis.html
+
+To add a query parameter to the Manifest JSON, we are going to leverage the 'convert_manifest_queries_config_to_caller'. It transforms a list of Query objects (as indicated by the type hint List[tm.Query]) into a QueriesConfig object (as indicated by the return type tc.QueriesConfig).
+
+The function expects a list of Query objects as input. Each Query object should have the following attributes:
+- text (required)
+- alias (opt)
+- pages (opt)
+
+The function creates a new QueriesConfig object. If the input list is not empty, it creates a list comprehension that generates a new Query object for each Query object in the input list, maintaining the same text, alias, and pages values. If the input list is empty, it simply creates a QueriesConfig object with an empty queries list.
+
+
+## Output
+
+Adds the "TextractTempOutputJsonPath" to the Step Function ResultPath. At this location the Textract output is stored as individual JSON files. Use the CDK Construct schadem-cdk-construct-sfn-textract-output-config-to-json to combine them to one single JSON file.
+
+example with ResultPath = textract_result (like configured above):
+
+```
+"textract_result": {
+    "TextractTempOutputJsonPath": "s3://schademcdkstackpaystuban-schademcdkidpstackpaystu-bt0j5wq0zftu/textract-temp-output/c6e141e8f4e93f68321c17dcbc6bf7291d0c8cdaeb4869758604c387ce91a480"
+  }
+```
+
+## Spacy Classification
+
+Expect a Spacy textcat model at the root of the directory. Call the script <TO_INSERT) to copy a public one which classifies Paystub and W2.
+
+aws s3 cp s3://amazon-textract-public-content/constructs/en_textcat_demo-0.0.0.tar.gz .
+
+
+### How to use Workmail Integration
+
+In order to demonstrate this functionality, I have used below architecture where once the inbound email is delivered to your Amazon workmail inbox and if the pattern/s matches, it will invoke the rule action which is inovocation of a lambda function in this case. You can use my sample code to fetch the inbound email message body and parse it properly as text.
+
+![architecture](./images/Workmail_Lambda.png)
+
+
+### Prerequisites
+
+1. As I have used Python 3.6 as my Lambda function runtime hence some knowledge of python 3 version is required.
+
+### Steps
+
+1. First setup an Amazon workmail site, setup an organization and create a user access by following steps mentioned in 'Getting Started' document [here](https://docs.aws.amazon.com/workmail/latest/adminguide/howto-start.html). Once above setup process is done, you will have access to https://*your Organization*.awsapps.com/mail webmail url and you can login using your created user's username / password to access your emails.
+
+2. Now we will create a lambda function which will be invoked once inbound email reaches the inbox and email flow rule pattern is matched (more on this in below steps). You can use the sample lambda python(3.6) code ( lambda_function.py) provided in the 'code' folder for the same. It will fetch the inbound email message body and then parse it properly to get the message body as text. Once you get it as text you can perform various operations on it.
+
+
+3. Inbound email flow rules, also called rule actions, automatically apply to all email messages sent to anyone inside of the Amazon WorkMail organization. This differs from email rules for individual mailboxes. Now we will set up email flow rules to handle email flows based on email addresses or domains. Email flow rules are based on both the sender's and recipient's email addresses or domains.
+
+To create an email flow rule, we need to specify a rule action to apply to an email when a specified pattern is matched. Follow the documenttion link [here](https://docs.aws.amazon.com/workmail/latest/adminguide/email-flows.html#email-flows-rule-actions) to create email flow rule for your organization which you created in step #1 above. you have to select Action=Run Lambda for your rule. Below is the email flow rule created by me:
+
+![Email Flow Rule](./images/email_rule_1.png)
+
+you can now follow documentation link [here](https://docs.aws.amazon.com/workmail/latest/adminguide/email-flows.html#email-flows-patterns) to create pattern/s which need to be satisfied first in order to invoke the rule action (in this case it will invoke our lambda function). For this sample code functionality I have used my email address as pattern in 'origns' and my domain as pattern in 'destinations'. so in this case the lambda function will only be invoke if inbound email sender is my email address and destination is my domain only but you can set patterns as per your requirements. Below screen shots depicts my patterns:
+
+![Origin pattern](./images/email_rule_2.png)
+
+![Destnation pattern](./images/email_rule_3.png)
+
 # API Reference <a name="API Reference" id="api-reference"></a>
 
 ## Constructs <a name="Constructs" id="Constructs"></a>
@@ -11,24 +153,24 @@ Output:  { "documentType": "AWS_PAYSTUBS" } (example will be at "classification"
 
 Example (Python)
 ```python
-  comprehend_sync_task = tcdk.ComprehendGenericSyncSfnTask(
-      self,
-      "Classification",
-      comprehend_classifier_arn=
-      '<your comprehend classifier arn>',
-      integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
-      lambda_log_level="DEBUG",
-      timeout=Duration.hours(24),
-      input=sfn.TaskInput.from_object({
-          "Token":
-          sfn.JsonPath.task_token,
-          "ExecutionId":
-          sfn.JsonPath.string_at('$$.Execution.Id'),
-          "Payload":
-          sfn.JsonPath.entire_payload,
-      }),
-      result_path="$.classification")
-  ```
+ comprehend_sync_task = tcdk.ComprehendGenericSyncSfnTask(
+     self,
+     "Classification",
+     comprehend_classifier_arn=
+     '<your comprehend classifier arn>',
+     integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+     lambda_log_level="DEBUG",
+     timeout=Duration.hours(24),
+     input=sfn.TaskInput.from_object({
+         "Token":
+         sfn.JsonPath.task_token,
+         "ExecutionId":
+         sfn.JsonPath.string_at('$$.Execution.Id'),
+         "Payload":
+         sfn.JsonPath.entire_payload,
+     }),
+     result_path="$.classification")
+ ```
 
 #### Initializers <a name="Initializers" id="amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTask.Initializer"></a>
 
@@ -41,7 +183,7 @@ new ComprehendGenericSyncSfnTask(scope: Construct, id: string, props: Comprehend
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTask.Initializer.parameter.scope">scope</a></code> | <code>constructs.Construct</code> | *No description.* |
-| <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTask.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTask.Initializer.parameter.id">id</a></code> | <code>string</code> | Descriptive identifier for this chainable. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTask.Initializer.parameter.props">props</a></code> | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps">ComprehendGenericSyncSfnTaskProps</a></code> | *No description.* |
 
 ---
@@ -55,6 +197,8 @@ new ComprehendGenericSyncSfnTask(scope: Construct, id: string, props: Comprehend
 ##### `id`<sup>Required</sup> <a name="id" id="amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTask.Initializer.parameter.id"></a>
 
 - *Type:* string
+
+Descriptive identifier for this chainable.
 
 ---
 
@@ -565,21 +709,21 @@ The Step Functions flow expect a pointer to a CSV at "csv_output_location"."Text
 Example:
 ```python
 csv_to_aurora_task = tcdk.CSVToAuroraTask(
-  self,
-  "CsvToAurora",
-  vpc=vpc,
-  integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
-  lambda_log_level="DEBUG",
-  timeout=Duration.hours(24),
-  input=sfn.TaskInput.from_object({
-    "Token":
-    sfn.JsonPath.task_token,
-    "ExecutionId":
-    sfn.JsonPath.string_at('$$.Execution.Id'),
-    "Payload":
-    sfn.JsonPath.entire_payload
-  }),
-  result_path="$.textract_result")
+ self,
+ "CsvToAurora",
+ vpc=vpc,
+ integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+ lambda_log_level="DEBUG",
+ timeout=Duration.hours(24),
+ input=sfn.TaskInput.from_object({
+   "Token":
+   sfn.JsonPath.task_token,
+   "ExecutionId":
+   sfn.JsonPath.string_at('$$.Execution.Id'),
+   "Payload":
+   sfn.JsonPath.entire_payload
+ }),
+ result_path="$.textract_result")
 ```
 
 Input: "csv_output_location"."TextractOutputCSVPath"
@@ -596,7 +740,7 @@ new CSVToAuroraTask(scope: Construct, id: string, props: CSVToAuroraTaskProps)
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTask.Initializer.parameter.scope">scope</a></code> | <code>constructs.Construct</code> | *No description.* |
-| <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTask.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTask.Initializer.parameter.id">id</a></code> | <code>string</code> | Descriptive identifier for this chainable. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTask.Initializer.parameter.props">props</a></code> | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps">CSVToAuroraTaskProps</a></code> | *No description.* |
 
 ---
@@ -610,6 +754,8 @@ new CSVToAuroraTask(scope: Construct, id: string, props: CSVToAuroraTaskProps)
 ##### `id`<sup>Required</sup> <a name="id" id="amazon-textract-idp-cdk-constructs.CSVToAuroraTask.Initializer.parameter.id"></a>
 
 - *Type:* string
+
+Descriptive identifier for this chainable.
 
 ---
 
@@ -1180,7 +1326,7 @@ new DocumentSplitter(parent: Construct, id: string, props: DocumentSplitterProps
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitter.Initializer.parameter.parent">parent</a></code> | <code>constructs.Construct</code> | *No description.* |
-| <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitter.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitter.Initializer.parameter.id">id</a></code> | <code>string</code> | Descriptive identifier for this chainable. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitter.Initializer.parameter.props">props</a></code> | <code><a href="#amazon-textract-idp-cdk-constructs.DocumentSplitterProps">DocumentSplitterProps</a></code> | *No description.* |
 
 ---
@@ -1194,6 +1340,8 @@ new DocumentSplitter(parent: Construct, id: string, props: DocumentSplitterProps
 ##### `id`<sup>Required</sup> <a name="id" id="amazon-textract-idp-cdk-constructs.DocumentSplitter.Initializer.parameter.id"></a>
 
 - *Type:* string
+
+Descriptive identifier for this chainable.
 
 ---
 
@@ -1539,7 +1687,7 @@ new SearchablePDF(parent: Construct, id: string, props: SearchablePDFProps)
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#amazon-textract-idp-cdk-constructs.SearchablePDF.Initializer.parameter.parent">parent</a></code> | <code>constructs.Construct</code> | *No description.* |
-| <code><a href="#amazon-textract-idp-cdk-constructs.SearchablePDF.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SearchablePDF.Initializer.parameter.id">id</a></code> | <code>string</code> | Descriptive identifier for this chainable. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.SearchablePDF.Initializer.parameter.props">props</a></code> | <code><a href="#amazon-textract-idp-cdk-constructs.SearchablePDFProps">SearchablePDFProps</a></code> | *No description.* |
 
 ---
@@ -1553,6 +1701,8 @@ new SearchablePDF(parent: Construct, id: string, props: SearchablePDFProps)
 ##### `id`<sup>Required</sup> <a name="id" id="amazon-textract-idp-cdk-constructs.SearchablePDF.Initializer.parameter.id"></a>
 
 - *Type:* string
+
+Descriptive identifier for this chainable.
 
 ---
 
@@ -1916,22 +2066,22 @@ Output:  { "documentType": "AWS_PAYSTUBS" } (example will be at "classification"
 
 Example (Python)
 ```python
-  spacy_classification_task = tcdk.SpacySfnTask(
-      self,
-      "Classification",
-      integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
-      lambda_log_level="DEBUG",
-      timeout=Duration.hours(24),
-      input=sfn.TaskInput.from_object({
-          "Token":
-          sfn.JsonPath.task_token,
-          "ExecutionId":
-          sfn.JsonPath.string_at('$$.Execution.Id'),
-          "Payload":
-          sfn.JsonPath.entire_payload,
-      }),
-      result_path="$.classification")
-  ```
+ spacy_classification_task = tcdk.SpacySfnTask(
+     self,
+     "Classification",
+     integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+     lambda_log_level="DEBUG",
+     timeout=Duration.hours(24),
+     input=sfn.TaskInput.from_object({
+         "Token":
+         sfn.JsonPath.task_token,
+         "ExecutionId":
+         sfn.JsonPath.string_at('$$.Execution.Id'),
+         "Payload":
+         sfn.JsonPath.entire_payload,
+     }),
+     result_path="$.classification")
+ ```
 
 #### Initializers <a name="Initializers" id="amazon-textract-idp-cdk-constructs.SpacySfnTask.Initializer"></a>
 
@@ -1944,7 +2094,7 @@ new SpacySfnTask(scope: Construct, id: string, props: SpacySfnTaskProps)
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#amazon-textract-idp-cdk-constructs.SpacySfnTask.Initializer.parameter.scope">scope</a></code> | <code>constructs.Construct</code> | *No description.* |
-| <code><a href="#amazon-textract-idp-cdk-constructs.SpacySfnTask.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SpacySfnTask.Initializer.parameter.id">id</a></code> | <code>string</code> | Descriptive identifier for this chainable. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.SpacySfnTask.Initializer.parameter.props">props</a></code> | <code><a href="#amazon-textract-idp-cdk-constructs.SpacySfnTaskProps">SpacySfnTaskProps</a></code> | *No description.* |
 
 ---
@@ -1958,6 +2108,8 @@ new SpacySfnTask(scope: Construct, id: string, props: SpacySfnTaskProps)
 ##### `id`<sup>Required</sup> <a name="id" id="amazon-textract-idp-cdk-constructs.SpacySfnTask.Initializer.parameter.id"></a>
 
 - *Type:* string
+
+Descriptive identifier for this chainable.
 
 ---
 
@@ -2479,30 +2631,30 @@ Input: "Payload"."a2iInputPath"
 Output:
 ```json
 {
-      'humanLoopStatus': human_loop_status,
-      'humanLoopResultPath': human_loop_result,
-      'humanLoopCreationTime': human_loop_creation_time,
-  }
-  ```
+     'humanLoopStatus': human_loop_status,
+     'humanLoopResultPath': human_loop_result,
+     'humanLoopCreationTime': human_loop_creation_time,
+ }
+ ```
 
 ```python
 textract_a2i_task = tcdk.TextractA2ISfnTask(
-      self,
-      "TextractA2I",
-      a2i_flow_definition_arn=
-      "arn:aws:sagemaker:us-east-1:913165245630:flow-definition/textract-classifiction",
-      integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
-      lambda_log_level="DEBUG",
-      timeout=Duration.hours(24),
-      input=sfn.TaskInput.from_object({
-          "Token":
-          sfn.JsonPath.task_token,
-          "ExecutionId":
-          sfn.JsonPath.string_at('$$.Execution.Id'),
-          "Payload":
-          sfn.JsonPath.entire_payload,
-      }),
-      result_path="$.a2i_result")
+     self,
+     "TextractA2I",
+     a2i_flow_definition_arn=
+     "arn:aws:sagemaker:us-east-1:913165245630:flow-definition/textract-classifiction",
+     integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+     lambda_log_level="DEBUG",
+     timeout=Duration.hours(24),
+     input=sfn.TaskInput.from_object({
+         "Token":
+         sfn.JsonPath.task_token,
+         "ExecutionId":
+         sfn.JsonPath.string_at('$$.Execution.Id'),
+         "Payload":
+         sfn.JsonPath.entire_payload,
+     }),
+     result_path="$.a2i_result")
 ```
 
 #### Initializers <a name="Initializers" id="amazon-textract-idp-cdk-constructs.TextractA2ISfnTask.Initializer"></a>
@@ -2516,7 +2668,7 @@ new TextractA2ISfnTask(scope: Construct, id: string, props: TextractA2ISfnTaskPr
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractA2ISfnTask.Initializer.parameter.scope">scope</a></code> | <code>constructs.Construct</code> | *No description.* |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractA2ISfnTask.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractA2ISfnTask.Initializer.parameter.id">id</a></code> | <code>string</code> | Descriptive identifier for this chainable. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractA2ISfnTask.Initializer.parameter.props">props</a></code> | <code><a href="#amazon-textract-idp-cdk-constructs.TextractA2ISfnTaskProps">TextractA2ISfnTaskProps</a></code> | *No description.* |
 
 ---
@@ -2530,6 +2682,8 @@ new TextractA2ISfnTask(scope: Construct, id: string, props: TextractA2ISfnTaskPr
 ##### `id`<sup>Required</sup> <a name="id" id="amazon-textract-idp-cdk-constructs.TextractA2ISfnTask.Initializer.parameter.id"></a>
 
 - *Type:* string
+
+Descriptive identifier for this chainable.
 
 ---
 
@@ -3045,11 +3199,11 @@ Output: "TextractOutputJsonPath"
 
 Example (Python)
 ```python
-  textract_async_to_json = tcdk.TextractAsyncToJSON(
-      self,
-      "TextractAsyncToJSON2",
-      s3_output_prefix=s3_output_prefix,
-      s3_output_bucket=s3_output_bucket)
+ textract_async_to_json = tcdk.TextractAsyncToJSON(
+     self,
+     "TextractAsyncToJSON2",
+     s3_output_prefix=s3_output_prefix,
+     s3_output_bucket=s3_output_bucket)
 ```
 
 #### Initializers <a name="Initializers" id="amazon-textract-idp-cdk-constructs.TextractAsyncToJSON.Initializer"></a>
@@ -3063,7 +3217,7 @@ new TextractAsyncToJSON(parent: Construct, id: string, props: TextractAsyncToJSO
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractAsyncToJSON.Initializer.parameter.parent">parent</a></code> | <code>constructs.Construct</code> | *No description.* |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractAsyncToJSON.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractAsyncToJSON.Initializer.parameter.id">id</a></code> | <code>string</code> | Descriptive identifier for this chainable. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractAsyncToJSON.Initializer.parameter.props">props</a></code> | <code><a href="#amazon-textract-idp-cdk-constructs.TextractAsyncToJSONProps">TextractAsyncToJSONProps</a></code> | *No description.* |
 
 ---
@@ -3077,6 +3231,8 @@ new TextractAsyncToJSON(parent: Construct, id: string, props: TextractAsyncToJSO
 ##### `id`<sup>Required</sup> <a name="id" id="amazon-textract-idp-cdk-constructs.TextractAsyncToJSON.Initializer.parameter.id"></a>
 
 - *Type:* string
+
+Descriptive identifier for this chainable.
 
 ---
 
@@ -3274,9 +3430,9 @@ Output: config set to manifest
 
 Example (Python)
 ```
-  configurator_task = tcdk.TextractClassificationConfigurator(
-      self, f"{workflow_name}-Configurator",
-  )
+ configurator_task = tcdk.TextractClassificationConfigurator(
+     self, f"{workflow_name}-Configurator",
+ )
 
 ```
 
@@ -3291,7 +3447,7 @@ new TextractClassificationConfigurator(parent: Construct, id: string, props: Tex
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractClassificationConfigurator.Initializer.parameter.parent">parent</a></code> | <code>constructs.Construct</code> | *No description.* |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractClassificationConfigurator.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractClassificationConfigurator.Initializer.parameter.id">id</a></code> | <code>string</code> | Descriptive identifier for this chainable. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractClassificationConfigurator.Initializer.parameter.props">props</a></code> | <code><a href="#amazon-textract-idp-cdk-constructs.TextractClassificationConfiguratorProps">TextractClassificationConfiguratorProps</a></code> | *No description.* |
 
 ---
@@ -3305,6 +3461,8 @@ new TextractClassificationConfigurator(parent: Construct, id: string, props: Tex
 ##### `id`<sup>Required</sup> <a name="id" id="amazon-textract-idp-cdk-constructs.TextractClassificationConfigurator.Initializer.parameter.id"></a>
 
 - *Type:* string
+
+Descriptive identifier for this chainable.
 
 ---
 
@@ -3520,23 +3678,23 @@ Output: "TextractOutputCSVPath" TODO: rename
 Output as LINES
 Example (Python)
 ```python
-         generate_text = tcdk.TextractGenerateCSV(
-          self,
-          "GenerateText",
-          csv_s3_output_bucket=document_bucket.bucket_name,
-          csv_s3_output_prefix=s3_txt_output_prefix,
-          output_type='LINES',
-          lambda_log_level="DEBUG",
-          integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
-          input=sfn.TaskInput.from_object({
-              "Token":
-              sfn.JsonPath.task_token,
-              "ExecutionId":
-              sfn.JsonPath.string_at('$$.Execution.Id'),
-              "Payload":
-              sfn.JsonPath.entire_payload,
-          }),
-          result_path="$.txt_output_location")
+        generate_text = tcdk.TextractGenerateCSV(
+         self,
+         "GenerateText",
+         csv_s3_output_bucket=document_bucket.bucket_name,
+         csv_s3_output_prefix=s3_txt_output_prefix,
+         output_type='LINES',
+         lambda_log_level="DEBUG",
+         integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+         input=sfn.TaskInput.from_object({
+             "Token":
+             sfn.JsonPath.task_token,
+             "ExecutionId":
+             sfn.JsonPath.string_at('$$.Execution.Id'),
+             "Payload":
+             sfn.JsonPath.entire_payload,
+         }),
+         result_path="$.txt_output_location")
 ```
 
 #### Initializers <a name="Initializers" id="amazon-textract-idp-cdk-constructs.TextractGenerateCSV.Initializer"></a>
@@ -3550,7 +3708,7 @@ new TextractGenerateCSV(scope: Construct, id: string, props: TextractGenerateCSV
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSV.Initializer.parameter.scope">scope</a></code> | <code>constructs.Construct</code> | *No description.* |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSV.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSV.Initializer.parameter.id">id</a></code> | <code>string</code> | Descriptive identifier for this chainable. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSV.Initializer.parameter.props">props</a></code> | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps">TextractGenerateCSVProps</a></code> | *No description.* |
 
 ---
@@ -3564,6 +3722,8 @@ new TextractGenerateCSV(scope: Construct, id: string, props: TextractGenerateCSV
 ##### `id`<sup>Required</sup> <a name="id" id="amazon-textract-idp-cdk-constructs.TextractGenerateCSV.Initializer.parameter.id"></a>
 
 - *Type:* string
+
+Descriptive identifier for this chainable.
 
 ---
 
@@ -4079,24 +4239,24 @@ Works together with TextractAsyncToJSON, which takes the s3_output_bucket/s3_tem
 
 Example (Python)
 ```python
-  textract_async_task = tcdk.TextractGenericAsyncSfnTask(
-      self,
-      "TextractAsync",
-      s3_output_bucket=s3_output_bucket,
-      s3_temp_output_prefix=s3_temp_output_prefix,
-      integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
-      lambda_log_level="DEBUG",
-      timeout=Duration.hours(24),
-      input=sfn.TaskInput.from_object({
-          "Token":
-          sfn.JsonPath.task_token,
-          "ExecutionId":
-          sfn.JsonPath.string_at('$$.Execution.Id'),
-          "Payload":
-          sfn.JsonPath.entire_payload,
-      }),
-      result_path="$.textract_result")
-  ```
+ textract_async_task = tcdk.TextractGenericAsyncSfnTask(
+     self,
+     "TextractAsync",
+     s3_output_bucket=s3_output_bucket,
+     s3_temp_output_prefix=s3_temp_output_prefix,
+     integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+     lambda_log_level="DEBUG",
+     timeout=Duration.hours(24),
+     input=sfn.TaskInput.from_object({
+         "Token":
+         sfn.JsonPath.task_token,
+         "ExecutionId":
+         sfn.JsonPath.string_at('$$.Execution.Id'),
+         "Payload":
+         sfn.JsonPath.entire_payload,
+     }),
+     result_path="$.textract_result")
+ ```
 
 #### Initializers <a name="Initializers" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.Initializer"></a>
 
@@ -4109,7 +4269,7 @@ new TextractGenericAsyncSfnTask(scope: Construct, id: string, props: TextractGen
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.Initializer.parameter.scope">scope</a></code> | <code>constructs.Construct</code> | *No description.* |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.Initializer.parameter.id">id</a></code> | <code>string</code> | Descriptive identifier for this chainable. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.Initializer.parameter.props">props</a></code> | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps">TextractGenericAsyncSfnTaskProps</a></code> | *No description.* |
 
 ---
@@ -4123,6 +4283,8 @@ new TextractGenericAsyncSfnTask(scope: Construct, id: string, props: TextractGen
 ##### `id`<sup>Required</sup> <a name="id" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTask.Initializer.parameter.id"></a>
 
 - *Type:* string
+
+Descriptive identifier for this chainable.
 
 ---
 
@@ -4748,23 +4910,23 @@ Output: Textract JSON Schema at  s3_output_bucket/s3_output_prefix
 
 Example (Python)
 ```python
-         textract_sync_task = tcdk.TextractGenericSyncSfnTask(
-          self,
-          "TextractSync",
-          s3_output_bucket=document_bucket.bucket_name,
-          s3_output_prefix=s3_output_prefix,
-          integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
-          lambda_log_level="DEBUG",
-          timeout=Duration.hours(24),
-          input=sfn.TaskInput.from_object({
-              "Token":
-              sfn.JsonPath.task_token,
-              "ExecutionId":
-              sfn.JsonPath.string_at('$$.Execution.Id'),
-              "Payload":
-              sfn.JsonPath.entire_payload,
-          }),
-          result_path="$.textract_result")
+        textract_sync_task = tcdk.TextractGenericSyncSfnTask(
+         self,
+         "TextractSync",
+         s3_output_bucket=document_bucket.bucket_name,
+         s3_output_prefix=s3_output_prefix,
+         integration_pattern=sfn.IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+         lambda_log_level="DEBUG",
+         timeout=Duration.hours(24),
+         input=sfn.TaskInput.from_object({
+             "Token":
+             sfn.JsonPath.task_token,
+             "ExecutionId":
+             sfn.JsonPath.string_at('$$.Execution.Id'),
+             "Payload":
+             sfn.JsonPath.entire_payload,
+         }),
+         result_path="$.textract_result")
 ```
 
 #### Initializers <a name="Initializers" id="amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.Initializer"></a>
@@ -4778,7 +4940,7 @@ new TextractGenericSyncSfnTask(scope: Construct, id: string, props: TextractGene
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.Initializer.parameter.scope">scope</a></code> | <code>constructs.Construct</code> | *No description.* |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.Initializer.parameter.id">id</a></code> | <code>string</code> | Descriptive identifier for this chainable. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.Initializer.parameter.props">props</a></code> | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps">TextractGenericSyncSfnTaskProps</a></code> | *No description.* |
 
 ---
@@ -4792,6 +4954,8 @@ new TextractGenericSyncSfnTask(scope: Construct, id: string, props: TextractGene
 ##### `id`<sup>Required</sup> <a name="id" id="amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTask.Initializer.parameter.id"></a>
 
 - *Type:* string
+
+Descriptive identifier for this chainable.
 
 ---
 
@@ -5366,7 +5530,7 @@ new TextractPdfMapperForFhir(parent: Construct, id: string, props: TextractPdfMa
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhir.Initializer.parameter.parent">parent</a></code> | <code>constructs.Construct</code> | *No description.* |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhir.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhir.Initializer.parameter.id">id</a></code> | <code>string</code> | Descriptive identifier for this chainable. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhir.Initializer.parameter.props">props</a></code> | <code><a href="#amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhirProps">TextractPdfMapperForFhirProps</a></code> | *No description.* |
 
 ---
@@ -5380,6 +5544,8 @@ new TextractPdfMapperForFhir(parent: Construct, id: string, props: TextractPdfMa
 ##### `id`<sup>Required</sup> <a name="id" id="amazon-textract-idp-cdk-constructs.TextractPdfMapperForFhir.Initializer.parameter.id"></a>
 
 - *Type:* string
+
+Descriptive identifier for this chainable.
 
 ---
 
@@ -5576,8 +5742,8 @@ The mime types checked against the supported mime types for Textract and if fail
 Example (Python)
 ```python
 decider_task_id = tcdk.TextractPOCDecider(
-      self,
-      f"InsuranceDecider",
+     self,
+     f"InsuranceDecider",
 )
 ```
 
@@ -5592,7 +5758,7 @@ new TextractPOCDecider(parent: Construct, id: string, props: TextractDPPOCDecide
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractPOCDecider.Initializer.parameter.parent">parent</a></code> | <code>constructs.Construct</code> | *No description.* |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractPOCDecider.Initializer.parameter.id">id</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractPOCDecider.Initializer.parameter.id">id</a></code> | <code>string</code> | Descriptive identifier for this chainable. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractPOCDecider.Initializer.parameter.props">props</a></code> | <code><a href="#amazon-textract-idp-cdk-constructs.TextractDPPOCDeciderProps">TextractDPPOCDeciderProps</a></code> | *No description.* |
 
 ---
@@ -5606,6 +5772,8 @@ new TextractPOCDecider(parent: Construct, id: string, props: TextractDPPOCDecide
 ##### `id`<sup>Required</sup> <a name="id" id="amazon-textract-idp-cdk-constructs.TextractPOCDecider.Initializer.parameter.id"></a>
 
 - *Type:* string
+
+Descriptive identifier for this chainable.
 
 ---
 
@@ -5915,13 +6083,16 @@ const comprehendGenericSyncSfnTaskProps: ComprehendGenericSyncSfnTaskProps = { .
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.comment">comment</a></code> | <code>string</code> | An optional description for this state. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.credentials">credentials</a></code> | <code>aws-cdk-lib.aws_stepfunctions.Credentials</code> | Credentials for an IAM Role that the State Machine assumes for executing the task. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.heartbeat">heartbeat</a></code> | <code>aws-cdk-lib.Duration</code> | Timeout for the heartbeat. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.heartbeatTimeout">heartbeatTimeout</a></code> | <code>aws-cdk-lib.aws_stepfunctions.Timeout</code> | Timeout for the heartbeat. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.inputPath">inputPath</a></code> | <code>string</code> | JSONPath expression to select part of the state to be the input to this state. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.integrationPattern">integrationPattern</a></code> | <code>aws-cdk-lib.aws_stepfunctions.IntegrationPattern</code> | AWS Step Functions integrates with services directly in the Amazon States Language. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.outputPath">outputPath</a></code> | <code>string</code> | JSONPath expression to select select a portion of the state output to pass to the next state. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.resultPath">resultPath</a></code> | <code>string</code> | JSONPath expression to indicate where to inject the state's output. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.resultSelector">resultSelector</a></code> | <code>{[ key: string ]: any}</code> | The JSON that will replace the state's raw result and become the effective result before ResultPath is applied. |
-| <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.timeout">timeout</a></code> | <code>aws-cdk-lib.Duration</code> | Timeout for the state machine. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.taskTimeout">taskTimeout</a></code> | <code>aws-cdk-lib.aws_stepfunctions.Timeout</code> | Timeout for the task. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.timeout">timeout</a></code> | <code>aws-cdk-lib.Duration</code> | Timeout for the task. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.comprehendClassifierArn">comprehendClassifierArn</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.associateWithParent">associateWithParent</a></code> | <code>boolean</code> | Pass the execution ID from the context object to the execution input. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.comprehendAsyncCallBackoffRate">comprehendAsyncCallBackoffRate</a></code> | <code>number</code> | default is 1.1. |
@@ -5956,7 +6127,26 @@ An optional description for this state.
 
 ---
 
-##### `heartbeat`<sup>Optional</sup> <a name="heartbeat" id="amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.heartbeat"></a>
+##### `credentials`<sup>Optional</sup> <a name="credentials" id="amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.credentials"></a>
+
+```typescript
+public readonly credentials: Credentials;
+```
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.Credentials
+- *Default:* None (Task is executed using the State Machine's execution role)
+
+Credentials for an IAM Role that the State Machine assumes for executing the task.
+
+This enables cross-account resource invocations.
+
+> [https://docs.aws.amazon.com/step-functions/latest/dg/concepts-access-cross-acct-resources.html](https://docs.aws.amazon.com/step-functions/latest/dg/concepts-access-cross-acct-resources.html)
+
+---
+
+##### ~~`heartbeat`~~<sup>Optional</sup> <a name="heartbeat" id="amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.heartbeat"></a>
+
+- *Deprecated:* use `heartbeatTimeout`
 
 ```typescript
 public readonly heartbeat: Duration;
@@ -5966,6 +6156,22 @@ public readonly heartbeat: Duration;
 - *Default:* None
 
 Timeout for the heartbeat.
+
+---
+
+##### `heartbeatTimeout`<sup>Optional</sup> <a name="heartbeatTimeout" id="amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.heartbeatTimeout"></a>
+
+```typescript
+public readonly heartbeatTimeout: Timeout;
+```
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.Timeout
+- *Default:* None
+
+Timeout for the heartbeat.
+
+[disable-awslint:duration-prop-type] is needed because all props interface in
+aws-stepfunctions-tasks extend this interface
 
 ---
 
@@ -5992,7 +6198,7 @@ public readonly integrationPattern: IntegrationPattern;
 ```
 
 - *Type:* aws-cdk-lib.aws_stepfunctions.IntegrationPattern
-- *Default:* IntegrationPattern.REQUEST_RESPONSE
+- *Default:* `IntegrationPattern.REQUEST_RESPONSE` for most tasks. `IntegrationPattern.RUN_JOB` for the following exceptions: `BatchSubmitJob`, `EmrAddStep`, `EmrCreateCluster`, `EmrTerminationCluster`, and `EmrContainersStartJobRun`.
 
 AWS Step Functions integrates with services directly in the Amazon States Language.
 
@@ -6052,7 +6258,25 @@ or selected from the state's raw result.
 
 ---
 
-##### `timeout`<sup>Optional</sup> <a name="timeout" id="amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.timeout"></a>
+##### `taskTimeout`<sup>Optional</sup> <a name="taskTimeout" id="amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.taskTimeout"></a>
+
+```typescript
+public readonly taskTimeout: Timeout;
+```
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.Timeout
+- *Default:* None
+
+Timeout for the task.
+
+[disable-awslint:duration-prop-type] is needed because all props interface in
+aws-stepfunctions-tasks extend this interface
+
+---
+
+##### ~~`timeout`~~<sup>Optional</sup> <a name="timeout" id="amazon-textract-idp-cdk-constructs.ComprehendGenericSyncSfnTaskProps.property.timeout"></a>
+
+- *Deprecated:* use `taskTimeout`
 
 ```typescript
 public readonly timeout: Duration;
@@ -6061,7 +6285,7 @@ public readonly timeout: Duration;
 - *Type:* aws-cdk-lib.Duration
 - *Default:* None
 
-Timeout for the state machine.
+Timeout for the task.
 
 ---
 
@@ -6303,13 +6527,16 @@ const cSVToAuroraTaskProps: CSVToAuroraTaskProps = { ... }
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.comment">comment</a></code> | <code>string</code> | An optional description for this state. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.credentials">credentials</a></code> | <code>aws-cdk-lib.aws_stepfunctions.Credentials</code> | Credentials for an IAM Role that the State Machine assumes for executing the task. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.heartbeat">heartbeat</a></code> | <code>aws-cdk-lib.Duration</code> | Timeout for the heartbeat. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.heartbeatTimeout">heartbeatTimeout</a></code> | <code>aws-cdk-lib.aws_stepfunctions.Timeout</code> | Timeout for the heartbeat. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.inputPath">inputPath</a></code> | <code>string</code> | JSONPath expression to select part of the state to be the input to this state. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.integrationPattern">integrationPattern</a></code> | <code>aws-cdk-lib.aws_stepfunctions.IntegrationPattern</code> | AWS Step Functions integrates with services directly in the Amazon States Language. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.outputPath">outputPath</a></code> | <code>string</code> | JSONPath expression to select select a portion of the state output to pass to the next state. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.resultPath">resultPath</a></code> | <code>string</code> | JSONPath expression to indicate where to inject the state's output. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.resultSelector">resultSelector</a></code> | <code>{[ key: string ]: any}</code> | The JSON that will replace the state's raw result and become the effective result before ResultPath is applied. |
-| <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.timeout">timeout</a></code> | <code>aws-cdk-lib.Duration</code> | Timeout for the state machine. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.taskTimeout">taskTimeout</a></code> | <code>aws-cdk-lib.aws_stepfunctions.Timeout</code> | Timeout for the task. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.timeout">timeout</a></code> | <code>aws-cdk-lib.Duration</code> | Timeout for the task. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.associateWithParent">associateWithParent</a></code> | <code>boolean</code> | Pass the execution ID from the context object to the execution input. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.auroraSecurityGroup">auroraSecurityGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | auroraSecurity Group for Cluster. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.csvToAuroraBackoffRate">csvToAuroraBackoffRate</a></code> | <code>number</code> | default is 1.1. |
@@ -6341,7 +6568,26 @@ An optional description for this state.
 
 ---
 
-##### `heartbeat`<sup>Optional</sup> <a name="heartbeat" id="amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.heartbeat"></a>
+##### `credentials`<sup>Optional</sup> <a name="credentials" id="amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.credentials"></a>
+
+```typescript
+public readonly credentials: Credentials;
+```
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.Credentials
+- *Default:* None (Task is executed using the State Machine's execution role)
+
+Credentials for an IAM Role that the State Machine assumes for executing the task.
+
+This enables cross-account resource invocations.
+
+> [https://docs.aws.amazon.com/step-functions/latest/dg/concepts-access-cross-acct-resources.html](https://docs.aws.amazon.com/step-functions/latest/dg/concepts-access-cross-acct-resources.html)
+
+---
+
+##### ~~`heartbeat`~~<sup>Optional</sup> <a name="heartbeat" id="amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.heartbeat"></a>
+
+- *Deprecated:* use `heartbeatTimeout`
 
 ```typescript
 public readonly heartbeat: Duration;
@@ -6351,6 +6597,22 @@ public readonly heartbeat: Duration;
 - *Default:* None
 
 Timeout for the heartbeat.
+
+---
+
+##### `heartbeatTimeout`<sup>Optional</sup> <a name="heartbeatTimeout" id="amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.heartbeatTimeout"></a>
+
+```typescript
+public readonly heartbeatTimeout: Timeout;
+```
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.Timeout
+- *Default:* None
+
+Timeout for the heartbeat.
+
+[disable-awslint:duration-prop-type] is needed because all props interface in
+aws-stepfunctions-tasks extend this interface
 
 ---
 
@@ -6377,7 +6639,7 @@ public readonly integrationPattern: IntegrationPattern;
 ```
 
 - *Type:* aws-cdk-lib.aws_stepfunctions.IntegrationPattern
-- *Default:* IntegrationPattern.REQUEST_RESPONSE
+- *Default:* `IntegrationPattern.REQUEST_RESPONSE` for most tasks. `IntegrationPattern.RUN_JOB` for the following exceptions: `BatchSubmitJob`, `EmrAddStep`, `EmrCreateCluster`, `EmrTerminationCluster`, and `EmrContainersStartJobRun`.
 
 AWS Step Functions integrates with services directly in the Amazon States Language.
 
@@ -6437,7 +6699,25 @@ or selected from the state's raw result.
 
 ---
 
-##### `timeout`<sup>Optional</sup> <a name="timeout" id="amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.timeout"></a>
+##### `taskTimeout`<sup>Optional</sup> <a name="taskTimeout" id="amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.taskTimeout"></a>
+
+```typescript
+public readonly taskTimeout: Timeout;
+```
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.Timeout
+- *Default:* None
+
+Timeout for the task.
+
+[disable-awslint:duration-prop-type] is needed because all props interface in
+aws-stepfunctions-tasks extend this interface
+
+---
+
+##### ~~`timeout`~~<sup>Optional</sup> <a name="timeout" id="amazon-textract-idp-cdk-constructs.CSVToAuroraTaskProps.property.timeout"></a>
+
+- *Deprecated:* use `taskTimeout`
 
 ```typescript
 public readonly timeout: Duration;
@@ -6446,7 +6726,7 @@ public readonly timeout: Duration;
 - *Type:* aws-cdk-lib.Duration
 - *Default:* None
 
-Timeout for the state machine.
+Timeout for the task.
 
 ---
 
@@ -7065,7 +7345,7 @@ public readonly lambdaLogLevel: string;
 ```
 
 - *Type:* string
-- *Default:* = DEBUG
+- *Default:* = INFO
 
 log level for Lambda function, supports DEBUG|INFO|WARNING|ERROR|FATAL.
 
@@ -7183,13 +7463,16 @@ const spacySfnTaskProps: SpacySfnTaskProps = { ... }
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#amazon-textract-idp-cdk-constructs.SpacySfnTaskProps.property.comment">comment</a></code> | <code>string</code> | An optional description for this state. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SpacySfnTaskProps.property.credentials">credentials</a></code> | <code>aws-cdk-lib.aws_stepfunctions.Credentials</code> | Credentials for an IAM Role that the State Machine assumes for executing the task. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.SpacySfnTaskProps.property.heartbeat">heartbeat</a></code> | <code>aws-cdk-lib.Duration</code> | Timeout for the heartbeat. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SpacySfnTaskProps.property.heartbeatTimeout">heartbeatTimeout</a></code> | <code>aws-cdk-lib.aws_stepfunctions.Timeout</code> | Timeout for the heartbeat. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.SpacySfnTaskProps.property.inputPath">inputPath</a></code> | <code>string</code> | JSONPath expression to select part of the state to be the input to this state. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.SpacySfnTaskProps.property.integrationPattern">integrationPattern</a></code> | <code>aws-cdk-lib.aws_stepfunctions.IntegrationPattern</code> | AWS Step Functions integrates with services directly in the Amazon States Language. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.SpacySfnTaskProps.property.outputPath">outputPath</a></code> | <code>string</code> | JSONPath expression to select select a portion of the state output to pass to the next state. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.SpacySfnTaskProps.property.resultPath">resultPath</a></code> | <code>string</code> | JSONPath expression to indicate where to inject the state's output. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.SpacySfnTaskProps.property.resultSelector">resultSelector</a></code> | <code>{[ key: string ]: any}</code> | The JSON that will replace the state's raw result and become the effective result before ResultPath is applied. |
-| <code><a href="#amazon-textract-idp-cdk-constructs.SpacySfnTaskProps.property.timeout">timeout</a></code> | <code>aws-cdk-lib.Duration</code> | Timeout for the state machine. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SpacySfnTaskProps.property.taskTimeout">taskTimeout</a></code> | <code>aws-cdk-lib.aws_stepfunctions.Timeout</code> | Timeout for the task. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.SpacySfnTaskProps.property.timeout">timeout</a></code> | <code>aws-cdk-lib.Duration</code> | Timeout for the task. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.SpacySfnTaskProps.property.associateWithParent">associateWithParent</a></code> | <code>boolean</code> | Pass the execution ID from the context object to the execution input. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.SpacySfnTaskProps.property.dockerImageFunction">dockerImageFunction</a></code> | <code>aws-cdk-lib.aws_lambda.IFunction</code> | Docker Container (to use in DockerImageCode.from_ecr() call). |
 | <code><a href="#amazon-textract-idp-cdk-constructs.SpacySfnTaskProps.property.input">input</a></code> | <code>aws-cdk-lib.aws_stepfunctions.TaskInput</code> | The JSON input for the execution, same as that of StartExecution. |
@@ -7215,7 +7498,26 @@ An optional description for this state.
 
 ---
 
-##### `heartbeat`<sup>Optional</sup> <a name="heartbeat" id="amazon-textract-idp-cdk-constructs.SpacySfnTaskProps.property.heartbeat"></a>
+##### `credentials`<sup>Optional</sup> <a name="credentials" id="amazon-textract-idp-cdk-constructs.SpacySfnTaskProps.property.credentials"></a>
+
+```typescript
+public readonly credentials: Credentials;
+```
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.Credentials
+- *Default:* None (Task is executed using the State Machine's execution role)
+
+Credentials for an IAM Role that the State Machine assumes for executing the task.
+
+This enables cross-account resource invocations.
+
+> [https://docs.aws.amazon.com/step-functions/latest/dg/concepts-access-cross-acct-resources.html](https://docs.aws.amazon.com/step-functions/latest/dg/concepts-access-cross-acct-resources.html)
+
+---
+
+##### ~~`heartbeat`~~<sup>Optional</sup> <a name="heartbeat" id="amazon-textract-idp-cdk-constructs.SpacySfnTaskProps.property.heartbeat"></a>
+
+- *Deprecated:* use `heartbeatTimeout`
 
 ```typescript
 public readonly heartbeat: Duration;
@@ -7225,6 +7527,22 @@ public readonly heartbeat: Duration;
 - *Default:* None
 
 Timeout for the heartbeat.
+
+---
+
+##### `heartbeatTimeout`<sup>Optional</sup> <a name="heartbeatTimeout" id="amazon-textract-idp-cdk-constructs.SpacySfnTaskProps.property.heartbeatTimeout"></a>
+
+```typescript
+public readonly heartbeatTimeout: Timeout;
+```
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.Timeout
+- *Default:* None
+
+Timeout for the heartbeat.
+
+[disable-awslint:duration-prop-type] is needed because all props interface in
+aws-stepfunctions-tasks extend this interface
 
 ---
 
@@ -7251,7 +7569,7 @@ public readonly integrationPattern: IntegrationPattern;
 ```
 
 - *Type:* aws-cdk-lib.aws_stepfunctions.IntegrationPattern
-- *Default:* IntegrationPattern.REQUEST_RESPONSE
+- *Default:* `IntegrationPattern.REQUEST_RESPONSE` for most tasks. `IntegrationPattern.RUN_JOB` for the following exceptions: `BatchSubmitJob`, `EmrAddStep`, `EmrCreateCluster`, `EmrTerminationCluster`, and `EmrContainersStartJobRun`.
 
 AWS Step Functions integrates with services directly in the Amazon States Language.
 
@@ -7311,7 +7629,25 @@ or selected from the state's raw result.
 
 ---
 
-##### `timeout`<sup>Optional</sup> <a name="timeout" id="amazon-textract-idp-cdk-constructs.SpacySfnTaskProps.property.timeout"></a>
+##### `taskTimeout`<sup>Optional</sup> <a name="taskTimeout" id="amazon-textract-idp-cdk-constructs.SpacySfnTaskProps.property.taskTimeout"></a>
+
+```typescript
+public readonly taskTimeout: Timeout;
+```
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.Timeout
+- *Default:* None
+
+Timeout for the task.
+
+[disable-awslint:duration-prop-type] is needed because all props interface in
+aws-stepfunctions-tasks extend this interface
+
+---
+
+##### ~~`timeout`~~<sup>Optional</sup> <a name="timeout" id="amazon-textract-idp-cdk-constructs.SpacySfnTaskProps.property.timeout"></a>
+
+- *Deprecated:* use `taskTimeout`
 
 ```typescript
 public readonly timeout: Duration;
@@ -7320,7 +7656,7 @@ public readonly timeout: Duration;
 - *Type:* aws-cdk-lib.Duration
 - *Default:* None
 
-Timeout for the state machine.
+Timeout for the task.
 
 ---
 
@@ -7460,13 +7796,16 @@ const textractA2ISfnTaskProps: TextractA2ISfnTaskProps = { ... }
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractA2ISfnTaskProps.property.comment">comment</a></code> | <code>string</code> | An optional description for this state. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractA2ISfnTaskProps.property.credentials">credentials</a></code> | <code>aws-cdk-lib.aws_stepfunctions.Credentials</code> | Credentials for an IAM Role that the State Machine assumes for executing the task. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractA2ISfnTaskProps.property.heartbeat">heartbeat</a></code> | <code>aws-cdk-lib.Duration</code> | Timeout for the heartbeat. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractA2ISfnTaskProps.property.heartbeatTimeout">heartbeatTimeout</a></code> | <code>aws-cdk-lib.aws_stepfunctions.Timeout</code> | Timeout for the heartbeat. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractA2ISfnTaskProps.property.inputPath">inputPath</a></code> | <code>string</code> | JSONPath expression to select part of the state to be the input to this state. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractA2ISfnTaskProps.property.integrationPattern">integrationPattern</a></code> | <code>aws-cdk-lib.aws_stepfunctions.IntegrationPattern</code> | AWS Step Functions integrates with services directly in the Amazon States Language. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractA2ISfnTaskProps.property.outputPath">outputPath</a></code> | <code>string</code> | JSONPath expression to select select a portion of the state output to pass to the next state. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractA2ISfnTaskProps.property.resultPath">resultPath</a></code> | <code>string</code> | JSONPath expression to indicate where to inject the state's output. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractA2ISfnTaskProps.property.resultSelector">resultSelector</a></code> | <code>{[ key: string ]: any}</code> | The JSON that will replace the state's raw result and become the effective result before ResultPath is applied. |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractA2ISfnTaskProps.property.timeout">timeout</a></code> | <code>aws-cdk-lib.Duration</code> | Timeout for the state machine. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractA2ISfnTaskProps.property.taskTimeout">taskTimeout</a></code> | <code>aws-cdk-lib.aws_stepfunctions.Timeout</code> | Timeout for the task. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractA2ISfnTaskProps.property.timeout">timeout</a></code> | <code>aws-cdk-lib.Duration</code> | Timeout for the task. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractA2ISfnTaskProps.property.a2iFlowDefinitionARN">a2iFlowDefinitionARN</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractA2ISfnTaskProps.property.associateWithParent">associateWithParent</a></code> | <code>boolean</code> | Pass the execution ID from the context object to the execution input. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractA2ISfnTaskProps.property.input">input</a></code> | <code>aws-cdk-lib.aws_stepfunctions.TaskInput</code> | The JSON input for the execution, same as that of StartExecution. |
@@ -7489,7 +7828,26 @@ An optional description for this state.
 
 ---
 
-##### `heartbeat`<sup>Optional</sup> <a name="heartbeat" id="amazon-textract-idp-cdk-constructs.TextractA2ISfnTaskProps.property.heartbeat"></a>
+##### `credentials`<sup>Optional</sup> <a name="credentials" id="amazon-textract-idp-cdk-constructs.TextractA2ISfnTaskProps.property.credentials"></a>
+
+```typescript
+public readonly credentials: Credentials;
+```
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.Credentials
+- *Default:* None (Task is executed using the State Machine's execution role)
+
+Credentials for an IAM Role that the State Machine assumes for executing the task.
+
+This enables cross-account resource invocations.
+
+> [https://docs.aws.amazon.com/step-functions/latest/dg/concepts-access-cross-acct-resources.html](https://docs.aws.amazon.com/step-functions/latest/dg/concepts-access-cross-acct-resources.html)
+
+---
+
+##### ~~`heartbeat`~~<sup>Optional</sup> <a name="heartbeat" id="amazon-textract-idp-cdk-constructs.TextractA2ISfnTaskProps.property.heartbeat"></a>
+
+- *Deprecated:* use `heartbeatTimeout`
 
 ```typescript
 public readonly heartbeat: Duration;
@@ -7499,6 +7857,22 @@ public readonly heartbeat: Duration;
 - *Default:* None
 
 Timeout for the heartbeat.
+
+---
+
+##### `heartbeatTimeout`<sup>Optional</sup> <a name="heartbeatTimeout" id="amazon-textract-idp-cdk-constructs.TextractA2ISfnTaskProps.property.heartbeatTimeout"></a>
+
+```typescript
+public readonly heartbeatTimeout: Timeout;
+```
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.Timeout
+- *Default:* None
+
+Timeout for the heartbeat.
+
+[disable-awslint:duration-prop-type] is needed because all props interface in
+aws-stepfunctions-tasks extend this interface
 
 ---
 
@@ -7525,7 +7899,7 @@ public readonly integrationPattern: IntegrationPattern;
 ```
 
 - *Type:* aws-cdk-lib.aws_stepfunctions.IntegrationPattern
-- *Default:* IntegrationPattern.REQUEST_RESPONSE
+- *Default:* `IntegrationPattern.REQUEST_RESPONSE` for most tasks. `IntegrationPattern.RUN_JOB` for the following exceptions: `BatchSubmitJob`, `EmrAddStep`, `EmrCreateCluster`, `EmrTerminationCluster`, and `EmrContainersStartJobRun`.
 
 AWS Step Functions integrates with services directly in the Amazon States Language.
 
@@ -7585,7 +7959,25 @@ or selected from the state's raw result.
 
 ---
 
-##### `timeout`<sup>Optional</sup> <a name="timeout" id="amazon-textract-idp-cdk-constructs.TextractA2ISfnTaskProps.property.timeout"></a>
+##### `taskTimeout`<sup>Optional</sup> <a name="taskTimeout" id="amazon-textract-idp-cdk-constructs.TextractA2ISfnTaskProps.property.taskTimeout"></a>
+
+```typescript
+public readonly taskTimeout: Timeout;
+```
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.Timeout
+- *Default:* None
+
+Timeout for the task.
+
+[disable-awslint:duration-prop-type] is needed because all props interface in
+aws-stepfunctions-tasks extend this interface
+
+---
+
+##### ~~`timeout`~~<sup>Optional</sup> <a name="timeout" id="amazon-textract-idp-cdk-constructs.TextractA2ISfnTaskProps.property.timeout"></a>
+
+- *Deprecated:* use `taskTimeout`
 
 ```typescript
 public readonly timeout: Duration;
@@ -7594,7 +7986,7 @@ public readonly timeout: Duration;
 - *Type:* aws-cdk-lib.Duration
 - *Default:* None
 
-Timeout for the state machine.
+Timeout for the task.
 
 ---
 
@@ -7943,6 +8335,7 @@ const textractDPPOCDeciderProps: TextractDPPOCDeciderProps = { ... }
 | --- | --- | --- |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractDPPOCDeciderProps.property.deciderFunction">deciderFunction</a></code> | <code>aws-cdk-lib.aws_lambda.IFunction</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractDPPOCDeciderProps.property.inputPolicyStatements">inputPolicyStatements</a></code> | <code>aws-cdk-lib.aws_iam.PolicyStatement[]</code> | List of PolicyStatements to attach to the Lambda function for S3 GET and LIST. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractDPPOCDeciderProps.property.lambdaLogLevel">lambdaLogLevel</a></code> | <code>string</code> | log level for Lambda function, supports DEBUG\|INFO\|WARNING\|ERROR\|FATAL. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractDPPOCDeciderProps.property.lambdaMemoryMB">lambdaMemoryMB</a></code> | <code>number</code> | memory of Lambda function (may need to increase for larger documents). |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractDPPOCDeciderProps.property.lambdaTimeout">lambdaTimeout</a></code> | <code>number</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractDPPOCDeciderProps.property.s3InputBucket">s3InputBucket</a></code> | <code>string</code> | *No description.* |
@@ -7972,6 +8365,19 @@ public readonly inputPolicyStatements: PolicyStatement[];
 - *Type:* aws-cdk-lib.aws_iam.PolicyStatement[]
 
 List of PolicyStatements to attach to the Lambda function for S3 GET and LIST.
+
+---
+
+##### `lambdaLogLevel`<sup>Optional</sup> <a name="lambdaLogLevel" id="amazon-textract-idp-cdk-constructs.TextractDPPOCDeciderProps.property.lambdaLogLevel"></a>
+
+```typescript
+public readonly lambdaLogLevel: string;
+```
+
+- *Type:* string
+- *Default:* = DEBUG
+
+log level for Lambda function, supports DEBUG|INFO|WARNING|ERROR|FATAL.
 
 ---
 
@@ -8072,13 +8478,16 @@ const textractGenerateCSVProps: TextractGenerateCSVProps = { ... }
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.comment">comment</a></code> | <code>string</code> | An optional description for this state. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.credentials">credentials</a></code> | <code>aws-cdk-lib.aws_stepfunctions.Credentials</code> | Credentials for an IAM Role that the State Machine assumes for executing the task. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.heartbeat">heartbeat</a></code> | <code>aws-cdk-lib.Duration</code> | Timeout for the heartbeat. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.heartbeatTimeout">heartbeatTimeout</a></code> | <code>aws-cdk-lib.aws_stepfunctions.Timeout</code> | Timeout for the heartbeat. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.inputPath">inputPath</a></code> | <code>string</code> | JSONPath expression to select part of the state to be the input to this state. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.integrationPattern">integrationPattern</a></code> | <code>aws-cdk-lib.aws_stepfunctions.IntegrationPattern</code> | AWS Step Functions integrates with services directly in the Amazon States Language. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.outputPath">outputPath</a></code> | <code>string</code> | JSONPath expression to select select a portion of the state output to pass to the next state. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.resultPath">resultPath</a></code> | <code>string</code> | JSONPath expression to indicate where to inject the state's output. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.resultSelector">resultSelector</a></code> | <code>{[ key: string ]: any}</code> | The JSON that will replace the state's raw result and become the effective result before ResultPath is applied. |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.timeout">timeout</a></code> | <code>aws-cdk-lib.Duration</code> | Timeout for the state machine. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.taskTimeout">taskTimeout</a></code> | <code>aws-cdk-lib.aws_stepfunctions.Timeout</code> | Timeout for the task. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.timeout">timeout</a></code> | <code>aws-cdk-lib.Duration</code> | Timeout for the task. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.csvS3OutputBucket">csvS3OutputBucket</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.csvS3OutputPrefix">csvS3OutputPrefix</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.associateWithParent">associateWithParent</a></code> | <code>boolean</code> | Pass the execution ID from the context object to the execution input. |
@@ -8115,7 +8524,26 @@ An optional description for this state.
 
 ---
 
-##### `heartbeat`<sup>Optional</sup> <a name="heartbeat" id="amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.heartbeat"></a>
+##### `credentials`<sup>Optional</sup> <a name="credentials" id="amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.credentials"></a>
+
+```typescript
+public readonly credentials: Credentials;
+```
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.Credentials
+- *Default:* None (Task is executed using the State Machine's execution role)
+
+Credentials for an IAM Role that the State Machine assumes for executing the task.
+
+This enables cross-account resource invocations.
+
+> [https://docs.aws.amazon.com/step-functions/latest/dg/concepts-access-cross-acct-resources.html](https://docs.aws.amazon.com/step-functions/latest/dg/concepts-access-cross-acct-resources.html)
+
+---
+
+##### ~~`heartbeat`~~<sup>Optional</sup> <a name="heartbeat" id="amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.heartbeat"></a>
+
+- *Deprecated:* use `heartbeatTimeout`
 
 ```typescript
 public readonly heartbeat: Duration;
@@ -8125,6 +8553,22 @@ public readonly heartbeat: Duration;
 - *Default:* None
 
 Timeout for the heartbeat.
+
+---
+
+##### `heartbeatTimeout`<sup>Optional</sup> <a name="heartbeatTimeout" id="amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.heartbeatTimeout"></a>
+
+```typescript
+public readonly heartbeatTimeout: Timeout;
+```
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.Timeout
+- *Default:* None
+
+Timeout for the heartbeat.
+
+[disable-awslint:duration-prop-type] is needed because all props interface in
+aws-stepfunctions-tasks extend this interface
 
 ---
 
@@ -8151,7 +8595,7 @@ public readonly integrationPattern: IntegrationPattern;
 ```
 
 - *Type:* aws-cdk-lib.aws_stepfunctions.IntegrationPattern
-- *Default:* IntegrationPattern.REQUEST_RESPONSE
+- *Default:* `IntegrationPattern.REQUEST_RESPONSE` for most tasks. `IntegrationPattern.RUN_JOB` for the following exceptions: `BatchSubmitJob`, `EmrAddStep`, `EmrCreateCluster`, `EmrTerminationCluster`, and `EmrContainersStartJobRun`.
 
 AWS Step Functions integrates with services directly in the Amazon States Language.
 
@@ -8211,7 +8655,25 @@ or selected from the state's raw result.
 
 ---
 
-##### `timeout`<sup>Optional</sup> <a name="timeout" id="amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.timeout"></a>
+##### `taskTimeout`<sup>Optional</sup> <a name="taskTimeout" id="amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.taskTimeout"></a>
+
+```typescript
+public readonly taskTimeout: Timeout;
+```
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.Timeout
+- *Default:* None
+
+Timeout for the task.
+
+[disable-awslint:duration-prop-type] is needed because all props interface in
+aws-stepfunctions-tasks extend this interface
+
+---
+
+##### ~~`timeout`~~<sup>Optional</sup> <a name="timeout" id="amazon-textract-idp-cdk-constructs.TextractGenerateCSVProps.property.timeout"></a>
+
+- *Deprecated:* use `taskTimeout`
 
 ```typescript
 public readonly timeout: Duration;
@@ -8220,7 +8682,7 @@ public readonly timeout: Duration;
 - *Type:* aws-cdk-lib.Duration
 - *Default:* None
 
-Timeout for the state machine.
+Timeout for the task.
 
 ---
 
@@ -8482,13 +8944,16 @@ const textractGenericAsyncSfnTaskProps: TextractGenericAsyncSfnTaskProps = { ...
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.comment">comment</a></code> | <code>string</code> | An optional description for this state. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.credentials">credentials</a></code> | <code>aws-cdk-lib.aws_stepfunctions.Credentials</code> | Credentials for an IAM Role that the State Machine assumes for executing the task. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.heartbeat">heartbeat</a></code> | <code>aws-cdk-lib.Duration</code> | Timeout for the heartbeat. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.heartbeatTimeout">heartbeatTimeout</a></code> | <code>aws-cdk-lib.aws_stepfunctions.Timeout</code> | Timeout for the heartbeat. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.inputPath">inputPath</a></code> | <code>string</code> | JSONPath expression to select part of the state to be the input to this state. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.integrationPattern">integrationPattern</a></code> | <code>aws-cdk-lib.aws_stepfunctions.IntegrationPattern</code> | AWS Step Functions integrates with services directly in the Amazon States Language. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.outputPath">outputPath</a></code> | <code>string</code> | JSONPath expression to select select a portion of the state output to pass to the next state. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.resultPath">resultPath</a></code> | <code>string</code> | JSONPath expression to indicate where to inject the state's output. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.resultSelector">resultSelector</a></code> | <code>{[ key: string ]: any}</code> | The JSON that will replace the state's raw result and become the effective result before ResultPath is applied. |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.timeout">timeout</a></code> | <code>aws-cdk-lib.Duration</code> | Timeout for the state machine. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.taskTimeout">taskTimeout</a></code> | <code>aws-cdk-lib.aws_stepfunctions.Timeout</code> | Timeout for the task. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.timeout">timeout</a></code> | <code>aws-cdk-lib.Duration</code> | Timeout for the task. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.s3OutputBucket">s3OutputBucket</a></code> | <code>string</code> | Bucketname to output data to. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.s3TempOutputPrefix">s3TempOutputPrefix</a></code> | <code>string</code> | The prefix to use for the temporary output files (e. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.associateWithParent">associateWithParent</a></code> | <code>boolean</code> | Pass the execution ID from the context object to the execution input. |
@@ -8525,7 +8990,26 @@ An optional description for this state.
 
 ---
 
-##### `heartbeat`<sup>Optional</sup> <a name="heartbeat" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.heartbeat"></a>
+##### `credentials`<sup>Optional</sup> <a name="credentials" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.credentials"></a>
+
+```typescript
+public readonly credentials: Credentials;
+```
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.Credentials
+- *Default:* None (Task is executed using the State Machine's execution role)
+
+Credentials for an IAM Role that the State Machine assumes for executing the task.
+
+This enables cross-account resource invocations.
+
+> [https://docs.aws.amazon.com/step-functions/latest/dg/concepts-access-cross-acct-resources.html](https://docs.aws.amazon.com/step-functions/latest/dg/concepts-access-cross-acct-resources.html)
+
+---
+
+##### ~~`heartbeat`~~<sup>Optional</sup> <a name="heartbeat" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.heartbeat"></a>
+
+- *Deprecated:* use `heartbeatTimeout`
 
 ```typescript
 public readonly heartbeat: Duration;
@@ -8535,6 +9019,22 @@ public readonly heartbeat: Duration;
 - *Default:* None
 
 Timeout for the heartbeat.
+
+---
+
+##### `heartbeatTimeout`<sup>Optional</sup> <a name="heartbeatTimeout" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.heartbeatTimeout"></a>
+
+```typescript
+public readonly heartbeatTimeout: Timeout;
+```
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.Timeout
+- *Default:* None
+
+Timeout for the heartbeat.
+
+[disable-awslint:duration-prop-type] is needed because all props interface in
+aws-stepfunctions-tasks extend this interface
 
 ---
 
@@ -8561,7 +9061,7 @@ public readonly integrationPattern: IntegrationPattern;
 ```
 
 - *Type:* aws-cdk-lib.aws_stepfunctions.IntegrationPattern
-- *Default:* IntegrationPattern.REQUEST_RESPONSE
+- *Default:* `IntegrationPattern.REQUEST_RESPONSE` for most tasks. `IntegrationPattern.RUN_JOB` for the following exceptions: `BatchSubmitJob`, `EmrAddStep`, `EmrCreateCluster`, `EmrTerminationCluster`, and `EmrContainersStartJobRun`.
 
 AWS Step Functions integrates with services directly in the Amazon States Language.
 
@@ -8621,7 +9121,25 @@ or selected from the state's raw result.
 
 ---
 
-##### `timeout`<sup>Optional</sup> <a name="timeout" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.timeout"></a>
+##### `taskTimeout`<sup>Optional</sup> <a name="taskTimeout" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.taskTimeout"></a>
+
+```typescript
+public readonly taskTimeout: Timeout;
+```
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.Timeout
+- *Default:* None
+
+Timeout for the task.
+
+[disable-awslint:duration-prop-type] is needed because all props interface in
+aws-stepfunctions-tasks extend this interface
+
+---
+
+##### ~~`timeout`~~<sup>Optional</sup> <a name="timeout" id="amazon-textract-idp-cdk-constructs.TextractGenericAsyncSfnTaskProps.property.timeout"></a>
+
+- *Deprecated:* use `taskTimeout`
 
 ```typescript
 public readonly timeout: Duration;
@@ -8630,7 +9148,7 @@ public readonly timeout: Duration;
 - *Type:* aws-cdk-lib.Duration
 - *Default:* None
 
-Timeout for the state machine.
+Timeout for the task.
 
 ---
 
@@ -8911,13 +9429,16 @@ const textractGenericSyncSfnTaskProps: TextractGenericSyncSfnTaskProps = { ... }
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.comment">comment</a></code> | <code>string</code> | An optional description for this state. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.credentials">credentials</a></code> | <code>aws-cdk-lib.aws_stepfunctions.Credentials</code> | Credentials for an IAM Role that the State Machine assumes for executing the task. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.heartbeat">heartbeat</a></code> | <code>aws-cdk-lib.Duration</code> | Timeout for the heartbeat. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.heartbeatTimeout">heartbeatTimeout</a></code> | <code>aws-cdk-lib.aws_stepfunctions.Timeout</code> | Timeout for the heartbeat. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.inputPath">inputPath</a></code> | <code>string</code> | JSONPath expression to select part of the state to be the input to this state. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.integrationPattern">integrationPattern</a></code> | <code>aws-cdk-lib.aws_stepfunctions.IntegrationPattern</code> | AWS Step Functions integrates with services directly in the Amazon States Language. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.outputPath">outputPath</a></code> | <code>string</code> | JSONPath expression to select select a portion of the state output to pass to the next state. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.resultPath">resultPath</a></code> | <code>string</code> | JSONPath expression to indicate where to inject the state's output. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.resultSelector">resultSelector</a></code> | <code>{[ key: string ]: any}</code> | The JSON that will replace the state's raw result and become the effective result before ResultPath is applied. |
-| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.timeout">timeout</a></code> | <code>aws-cdk-lib.Duration</code> | Timeout for the state machine. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.taskTimeout">taskTimeout</a></code> | <code>aws-cdk-lib.aws_stepfunctions.Timeout</code> | Timeout for the task. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.timeout">timeout</a></code> | <code>aws-cdk-lib.Duration</code> | Timeout for the task. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.s3OutputBucket">s3OutputBucket</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.s3OutputPrefix">s3OutputPrefix</a></code> | <code>string</code> | The prefix to use for the output files. |
 | <code><a href="#amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.associateWithParent">associateWithParent</a></code> | <code>boolean</code> | Pass the execution ID from the context object to the execution input. |
@@ -8956,7 +9477,26 @@ An optional description for this state.
 
 ---
 
-##### `heartbeat`<sup>Optional</sup> <a name="heartbeat" id="amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.heartbeat"></a>
+##### `credentials`<sup>Optional</sup> <a name="credentials" id="amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.credentials"></a>
+
+```typescript
+public readonly credentials: Credentials;
+```
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.Credentials
+- *Default:* None (Task is executed using the State Machine's execution role)
+
+Credentials for an IAM Role that the State Machine assumes for executing the task.
+
+This enables cross-account resource invocations.
+
+> [https://docs.aws.amazon.com/step-functions/latest/dg/concepts-access-cross-acct-resources.html](https://docs.aws.amazon.com/step-functions/latest/dg/concepts-access-cross-acct-resources.html)
+
+---
+
+##### ~~`heartbeat`~~<sup>Optional</sup> <a name="heartbeat" id="amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.heartbeat"></a>
+
+- *Deprecated:* use `heartbeatTimeout`
 
 ```typescript
 public readonly heartbeat: Duration;
@@ -8966,6 +9506,22 @@ public readonly heartbeat: Duration;
 - *Default:* None
 
 Timeout for the heartbeat.
+
+---
+
+##### `heartbeatTimeout`<sup>Optional</sup> <a name="heartbeatTimeout" id="amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.heartbeatTimeout"></a>
+
+```typescript
+public readonly heartbeatTimeout: Timeout;
+```
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.Timeout
+- *Default:* None
+
+Timeout for the heartbeat.
+
+[disable-awslint:duration-prop-type] is needed because all props interface in
+aws-stepfunctions-tasks extend this interface
 
 ---
 
@@ -8992,7 +9548,7 @@ public readonly integrationPattern: IntegrationPattern;
 ```
 
 - *Type:* aws-cdk-lib.aws_stepfunctions.IntegrationPattern
-- *Default:* IntegrationPattern.REQUEST_RESPONSE
+- *Default:* `IntegrationPattern.REQUEST_RESPONSE` for most tasks. `IntegrationPattern.RUN_JOB` for the following exceptions: `BatchSubmitJob`, `EmrAddStep`, `EmrCreateCluster`, `EmrTerminationCluster`, and `EmrContainersStartJobRun`.
 
 AWS Step Functions integrates with services directly in the Amazon States Language.
 
@@ -9052,7 +9608,25 @@ or selected from the state's raw result.
 
 ---
 
-##### `timeout`<sup>Optional</sup> <a name="timeout" id="amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.timeout"></a>
+##### `taskTimeout`<sup>Optional</sup> <a name="taskTimeout" id="amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.taskTimeout"></a>
+
+```typescript
+public readonly taskTimeout: Timeout;
+```
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.Timeout
+- *Default:* None
+
+Timeout for the task.
+
+[disable-awslint:duration-prop-type] is needed because all props interface in
+aws-stepfunctions-tasks extend this interface
+
+---
+
+##### ~~`timeout`~~<sup>Optional</sup> <a name="timeout" id="amazon-textract-idp-cdk-constructs.TextractGenericSyncSfnTaskProps.property.timeout"></a>
+
+- *Deprecated:* use `taskTimeout`
 
 ```typescript
 public readonly timeout: Duration;
@@ -9061,7 +9635,7 @@ public readonly timeout: Duration;
 - *Type:* aws-cdk-lib.Duration
 - *Default:* None
 
-Timeout for the state machine.
+Timeout for the task.
 
 ---
 

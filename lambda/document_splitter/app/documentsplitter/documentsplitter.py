@@ -1,5 +1,5 @@
 from typing import Tuple, List
-from PyPDF2 import PdfReader, PdfWriter
+from pypdf import PdfReader, PdfWriter
 from PIL import Image
 import io
 import boto3

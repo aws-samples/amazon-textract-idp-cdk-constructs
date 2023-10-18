@@ -91,14 +91,13 @@ def lambda_handler(event, _):
     task_token = event['Token']
     try:
         if not csv_s3_output_prefix or not csv_s3_output_bucket:
-            raise ValueError(
-                f"require CSV_S3_OUTPUT_PREFIX and CSV_S3_OUTPUT_BUCKET")
-        if not 'Payload' in event and 'textract_result' in event[
-                'Payload'] and not 'TextractOutputJsonPath' in event[
+            raise ValueError("require CSV_S3_OUTPUT_PREFIX and CSV_S3_OUTPUT_BUCKET")
+        if 'Payload' not in event and 'textract_result' in event[
+                'Payload'] and 'TextractOutputJsonPath' not in event[
                     'Payload']['textract_result']:
             raise ValueError(
-                f"no 'TextractOutputJsonPath' in event['textract_result]")
-        manifest: tm.IDPManifest = tm.IDPManifestSchema().load(  #type: ignore
+                "no 'TextractOutputJsonPath' in event['textract_result]")
+        manifest: tm.IDPManifest = tm.IDPManifestSchema().load(  # type: ignore
             event['Payload']['manifest']
         ) if 'manifest' in event['Payload'] else tm.IDPManifest()
         meta_data_dict = create_meta_data_dict(manifest=manifest)
@@ -125,7 +124,7 @@ def lambda_handler(event, _):
                     'documentType']
 
             trp2_doc: t2.TDocument = t2.TDocumentSchema().load(
-                json.loads(file_json))  #type: ignore
+                json.loads(file_json))  # type: ignore
             timestamp = datetime.datetime.now().astimezone().replace(
                 microsecond=0).isoformat()
             if output_type == 'OPENSEARCH_BATCH':
@@ -179,12 +178,12 @@ def lambda_handler(event, _):
                 if 'QUERIES' in output_features_list:
                     logger.debug("creating QUERIES")
                     queries_value_list = convert_queries_to_list_trp2(
-                        trp2_doc=trp2_doc)  #type: ignore
+                        trp2_doc=trp2_doc)  # type: ignore
                 signatures_value_list = list()
                 if 'SIGNATURES' in output_features_list:
                     logger.debug("creating SIGNATURES")
                     signatures_value_list = convert_signatures_to_list_trp2(
-                        trp2_doc=trp2_doc)  #type: ignore
+                        trp2_doc=trp2_doc)  # type: ignore
                 csv_output = io.StringIO()
                 csv_writer = csv.writer(csv_output,
                                         delimiter=",",
@@ -257,8 +256,42 @@ def lambda_handler(event, _):
                 raise ValueError(f"output_type '{output_type}' not supported.")
         elif textract_api == 'ANALYZEID':
             raise Exception("ANALYZEID not implemented yet")
+        elif textract_api == 'EXPENSE' and output_type == 'OPENSEARCH_BATCH':
+            trp2_doc:t2.TAnalyzeExpenseDocument = t2.TAnalyzeExpenseDocumentSchema().load(json.loads(file_json)) #type: ignore
+            s3_output_key = f"{csv_s3_output_prefix}/{unique_identifier}/{base_filename_no_suffix}.json"
+            index = opensearch_index
+            origin_file_name = meta_data_dict.get('ORIGIN_FILE_NAME',
+                                                    str(uuid.uuid4()))
+            start_page_number = int(
+                meta_data_dict.get('START_PAGE_NUMBER', "0"))
+            origin_file_uri = meta_data_dict.get('ORIGIN_FILE_URI', "")
+
+            for idx, page in enumerate(exp_docs.expenses_documents):
+                page_number = start_page_number + idx
+                line_texts = " ".join([block.text for block in page.blocks
+                                    if block.block_type == 'LINE' and block.text ])
+
+                doc_id = f"{origin_file_name}_{page_number}"
+                doc = {
+                    "content":
+                    page_text,
+                    "page":
+                    page_number,
+                    "uri":
+                    origin_file_uri,
+                    "timestamp":
+                    datetime.datetime.utcnow().strftime(
+                        '%Y-%m-%dT%H:%M:%SZ')
+                }
+                if meta_data_dict:
+                    doc.update(meta_data_dict)
+
+                result_value += create_bulk_import_line(index=index,
+                                                        action="index",
+                                                        doc_id=doc_id,
+                                                        doc=doc)
         else:
-            raise Exception("textract_api value unknown")
+            raise Exception(f"textract_api value: '${textract_api}' not support fro the output_type: ${output_type}.")
 
         s3_client.put_object(Body=bytes(result_value.encode('UTF-8')),
                              Bucket=csv_s3_output_bucket,

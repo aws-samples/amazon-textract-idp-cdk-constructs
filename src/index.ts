@@ -233,7 +233,7 @@ export class TextractGenericAsyncSfnTask extends sfn.TaskStateBase {
     }
 
     var textractStateMachineTimeoutMinutes = props.textractStateMachineTimeoutMinutes === undefined ? 2880 : props.textractStateMachineTimeoutMinutes;
-    var lambdaLogLevel = props.lambdaLogLevel === undefined ? 'DEBUG' : props.lambdaLogLevel;
+    var lambdaLogLevel = props.lambdaLogLevel === undefined ? 'INFO' : props.lambdaLogLevel;
     var textractAPI = props.textractAPI === undefined ? 'GENERIC' : props.textractAPI;
     var textractAsyncCallMaxRetries = props.textractAsyncCallMaxRetries === undefined ? 100 : props.textractAsyncCallMaxRetries;
     var textractAsyncCallBackoffRate = props.textractAsyncCallBackoffRate === undefined ? 1.1 : props.textractAsyncCallBackoffRate;
@@ -391,7 +391,7 @@ export class TextractGenericAsyncSfnTask extends sfn.TaskStateBase {
     const workflow_chain = sfn.Chain.start(textractAsyncCallTask);
 
     this.stateMachine = new sfn.StateMachine(this, 'StateMachine', {
-      definition: workflow_chain,
+      definitionBody: sfn.DefinitionBody.fromChainable(workflow_chain),
       timeout: Duration.hours(textractStateMachineTimeoutMinutes),
     });
 
@@ -400,12 +400,14 @@ export class TextractGenericAsyncSfnTask extends sfn.TaskStateBase {
         'states:SendTaskSuccess', 'states:SendTaskFailure',
       ],
       resources: ['*'],
+      // resources: [this.stateMachine.stateMachineArn], this gives a circular dependency in CloudFormation
     }));
     this.textractAsyncCallFunction.addToRolePolicy(new iam.PolicyStatement({
       actions: [
         'states:SendTaskFailure',
       ],
       resources: ['*'],
+      // resources: [this.stateMachine.stateMachineArn], this gives a circular dependency in CloudFormation
     }));
     // =========
     // DASHBOARD

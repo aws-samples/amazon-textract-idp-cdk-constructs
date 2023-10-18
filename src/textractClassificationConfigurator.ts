@@ -89,7 +89,6 @@ export class TextractClassificationConfigurator extends sfn.StateMachineFragment
 
     const configuratorLambdaInvoke = new tasks.LambdaInvoke(this, id, {
       lambdaFunction: this.configuratorFunction,
-      timeout: Duration.seconds(100),
       outputPath: '$.Payload',
     });
     this.startState=configuratorLambdaInvoke;

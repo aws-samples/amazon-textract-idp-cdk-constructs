@@ -1,3 +1,0 @@
-filetype
-PyPDF2
-Pillow

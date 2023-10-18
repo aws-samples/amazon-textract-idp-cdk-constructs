@@ -49,7 +49,7 @@ def lambda_handler(event, _):
                 ")
 
     manifest: tm.IDPManifest = tm.IDPManifestSchema().load(
-        event['manifest'])  #type: ignore
+        event['manifest'])  # type: ignore
     output_location = event['textract_result']['TextractTempOutputJsonPath']
     oc_s3_bucket = urlparse(output_location).netloc
     job_id = os.path.basename(urlparse(output_location).path)

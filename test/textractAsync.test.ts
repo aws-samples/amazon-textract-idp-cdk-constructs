@@ -8,9 +8,9 @@ beforeEach(() => {
   stack = new Stack();
 });
 
-describe('ClassificationTest', () => {
-  test('ClassificationTest', () => {
-    new TextractGenericAsyncSfnTask(stack, 'idp-classification', {
+describe('TextractAsyncTest', () => {
+  test('TextractAsyncTest', () => {
+    new TextractGenericAsyncSfnTask(stack, 'async', {
       integrationPattern: sfn.IntegrationPattern.REQUEST_RESPONSE,
       s3OutputBucket: 'somebucket',
       s3TempOutputPrefix: 'sometempoutputprefix',

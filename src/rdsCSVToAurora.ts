@@ -226,7 +226,7 @@ export class CSVToAuroraTask extends sfn.TaskStateBase {
     const workflow_chain = sfn.Chain.start(csvToAuroraTask);
 
     this.stateMachine = new sfn.StateMachine(this, id + '-SFN', {
-      definition: workflow_chain,
+      definitionBody: sfn.DefinitionBody.fromChainable(workflow_chain),
       timeout: Duration.hours(textractStateMachineTimeoutMinutes),
     });
 

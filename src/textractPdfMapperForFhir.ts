@@ -103,7 +103,6 @@ export class TextractPdfMapperForFhir extends sfn.StateMachineFragment {
     }
     const pdfMapperForFhirLambdaInvoke = new tasks.LambdaInvoke(this, id, {
       lambdaFunction: this.pdfMapperForFhirFunction,
-      timeout: Duration.seconds(600),
       outputPath: '$.Payload',
     });
     this.startState = pdfMapperForFhirLambdaInvoke;

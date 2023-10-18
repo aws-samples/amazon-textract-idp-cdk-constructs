@@ -280,7 +280,7 @@ export class TextractGenerateCSV extends sfn.TaskStateBase {
     const workflow_chain = sfn.Chain.start(csvGeneratorLambdaInvoke);
 
     this.stateMachine = new sfn.StateMachine(this, 'StateMachine', {
-      definition: workflow_chain,
+      definitionBody: sfn.DefinitionBody.fromChainable(workflow_chain),
     });
     this.taskPolicies = this.createScopedAccessPolicy();
   }
