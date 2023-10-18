@@ -10,6 +10,10 @@ export interface TextractDPPOCDeciderProps {
   /** memory of Lambda function (may need to increase for larger documents) */
   readonly lambdaMemoryMB?: number;
   readonly lambdaTimeout?: number;
+  /** log level for Lambda function, supports DEBUG|INFO|WARNING|ERROR|FATAL
+   * @default = DEBUG
+   */
+  readonly lambdaLogLevel?: 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR' | 'FATAL';
   readonly deciderFunction?: lambda.IFunction;
   /** number of retries in Step Function flow
    * @default is 100 */
@@ -59,10 +63,20 @@ export class TextractPOCDecider extends sfn.StateMachineFragment {
       props.lambdaTimeout === undefined ? 900 : props.lambdaTimeout;
     var s3InputPrefix =
       props.s3InputPrefix === undefined ? '' : props.s3InputPrefix;
-
-    var textractDeciderMaxRetries = props.textractDeciderMaxRetries === undefined ? 100 : props.textractDeciderMaxRetries;
-    var textractDeciderBackoffRate = props.textractDeciderBackoffRate === undefined ? 1.1 : props.textractDeciderBackoffRate;
-    var textractDeciderInterval = props.textractDeciderInterval === undefined ? 1 : props.textractDeciderInterval;
+    var lambdaLogLevel =
+      props.lambdaLogLevel === undefined ? 'INFO' : props.lambdaLogLevel;
+    var textractDeciderMaxRetries =
+      props.textractDeciderMaxRetries === undefined
+        ? 100
+        : props.textractDeciderMaxRetries;
+    var textractDeciderBackoffRate =
+      props.textractDeciderBackoffRate === undefined
+        ? 1.1
+        : props.textractDeciderBackoffRate;
+    var textractDeciderInterval =
+      props.textractDeciderInterval === undefined
+        ? 1
+        : props.textractDeciderInterval;
 
     this.deciderFunction = new lambda.DockerImageFunction(
       this,
@@ -74,6 +88,7 @@ export class TextractPOCDecider extends sfn.StateMachineFragment {
         architecture: lambda.Architecture.X86_64,
         memorySize: lambdaMemoryMB,
         timeout: Duration.seconds(lambdaTimeout),
+        environment: { LOG_LEVEL: lambdaLogLevel },
       },
     );
 
@@ -90,8 +105,16 @@ export class TextractPOCDecider extends sfn.StateMachineFragment {
           new iam.PolicyStatement({
             actions: ['s3:GetObject', 's3:ListBucket'],
             resources: [
-              path.join(`arn:aws:s3:::${props.s3InputBucket}`, s3InputPrefix, '/'),
-              path.join(`arn:aws:s3:::${props.s3InputBucket}`, s3InputPrefix, '/*'),
+              path.join(
+                `arn:aws:s3:::${props.s3InputBucket}`,
+                s3InputPrefix,
+                '/',
+              ),
+              path.join(
+                `arn:aws:s3:::${props.s3InputBucket}`,
+                s3InputPrefix,
+                '/*',
+              ),
             ],
           }),
         );
@@ -103,7 +126,6 @@ export class TextractPOCDecider extends sfn.StateMachineFragment {
     }
     const deciderLambdaInvoke = new tasks.LambdaInvoke(this, id, {
       lambdaFunction: this.deciderFunction,
-      timeout: Duration.seconds(100),
       outputPath: '$.Payload',
     });
 

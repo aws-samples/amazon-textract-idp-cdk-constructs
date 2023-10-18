@@ -155,7 +155,6 @@ export class TextractAsyncToJSON extends sfn.StateMachineFragment {
 
     const asyncToJSON = new tasks.LambdaInvoke(this, id, {
       lambdaFunction: this.asyncToJSONFunction,
-      timeout: Duration.seconds(900),
       outputPath: '$.Payload',
     });
 

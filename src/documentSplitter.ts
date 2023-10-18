@@ -150,7 +150,6 @@ export class DocumentSplitter extends sfn.StateMachineFragment {
 
     const splitterInvoke = new tasks.LambdaInvoke(this, id, {
       lambdaFunction: this.splitterFunction,
-      timeout: Duration.seconds(900),
       outputPath: '$.Payload',
     });
 

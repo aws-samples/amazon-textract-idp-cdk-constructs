@@ -233,7 +233,6 @@ export class ComprehendGenericSyncSfnTask extends sfn.TaskStateBase {
 
     const comprehendInvoke = new tasks.LambdaInvoke(this, id, {
       lambdaFunction: this.comprehendSyncCallFunction,
-      timeout: Duration.seconds(900),
       outputPath: '$.Payload',
     });
 
@@ -246,7 +245,7 @@ export class ComprehendGenericSyncSfnTask extends sfn.TaskStateBase {
     const workflow_chain = sfn.Chain.start(comprehendInvoke);
 
     this.stateMachine = new sfn.StateMachine(this, 'StateMachine', {
-      definition: workflow_chain,
+      definitionBody: sfn.DefinitionBody.fromChainable(workflow_chain),
       timeout: Duration.hours(textractStateMachineTimeoutMinutes),
     });
 

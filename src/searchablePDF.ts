@@ -83,8 +83,6 @@ export class SearchablePDF extends sfn.StateMachineFragment {
 
     const searchablePDFLambdaInvoke = new tasks.LambdaInvoke(this, id, {
       lambdaFunction: this.searchablePDFFunction,
-      timeout: Duration.seconds(100),
-
       outputPath: '$.Payload',
     });
     this.startState = searchablePDFLambdaInvoke;

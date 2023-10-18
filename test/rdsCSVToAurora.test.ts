@@ -14,7 +14,7 @@ describe('ClassificationTest', () => {
     new CSVToAuroraTask(stack, 'csvtoAurora', {
       integrationPattern: sfn.IntegrationPattern.REQUEST_RESPONSE,
       vpc: new ec2.Vpc(stack, 'someid', {
-        cidr: '10.0.0.0/16',
+        ipAddresses: ec2.IpAddresses.cidr('10.0.0.0/16'),
         maxAzs: 2,
         subnetConfiguration: [{
           cidrMask: 26,
@@ -23,11 +23,11 @@ describe('ClassificationTest', () => {
         }, {
           cidrMask: 26,
           name: 'privateWithNat',
-          subnetType: ec2.SubnetType.PRIVATE_WITH_NAT,
+          subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
         }, {
           cidrMask: 26,
           name: 'private',
-          subnetType: ec2.SubnetType.PRIVATE,
+          subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
         }],
         natGateways: 1,
       }),

@@ -30,7 +30,7 @@ export interface SFExecutionsStartThrottleProps {
   readonly eventSource?: lambda.IEventSource[];
 
   /** log level for Lambda function, supports DEBUG|INFO|WARNING|ERROR|FATAL
-   * @default = DEBUG
+   * @default = INFO
    */
   readonly lambdaLogLevel?: 'DEBUG' | 'INFO' | 'WARNING' | 'ERROR' | 'FATAL';
   /** Lambda Function Timeout in seconds, default 300 */
@@ -82,13 +82,13 @@ export class SFExecutionsStartThrottle extends Construct {
     super(parent, id);
 
     var lambdaLogLevel =
-      props.lambdaLogLevel === undefined ? 'DEBUG' : props.lambdaLogLevel;
+      props.lambdaLogLevel === undefined ? 'INFO' : props.lambdaLogLevel;
     var lambdaTimeout =
       props.lambdaTimeout === undefined ? 300 : props.lambdaTimeout;
     var lambdaMemory =
       props.lambdaMemory === undefined ? 512 : props.lambdaMemory;
     var lambdaQueueWorkerLogLevel =
-      props.lambdaQueueWorkerLogLevel === undefined ? 'DEBUG' : props.lambdaQueueWorkerLogLevel;
+      props.lambdaQueueWorkerLogLevel === undefined ? 'INFO' : props.lambdaQueueWorkerLogLevel;
     var lambdaQueueWorkerTimeout =
       props.lambdaQueueWorkerTimeout === undefined ? 300 : props.lambdaQueueWorkerTimeout;
     var lambdaQueueWorkerMemory =

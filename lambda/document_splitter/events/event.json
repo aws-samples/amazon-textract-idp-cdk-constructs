@@ -1,5 +1,16 @@
 {
     "manifest": {
-        "S3Path": "s3://sdx-textract-us-east-1/210-page-book.pdf"
-    }
+        "metaData": [{
+            "value": "0",
+            "key": "ddi"
+        }, {
+            "value": "AQEBMZzjJG8C4jOPq3OqhyCRRj3YT4NNZdNz3saCcpetCGnODfyePIdegyVuqSRgNzaJqQV4pxdDqh3uJIRUHOzAd/OAllW8We9T061bRHao66p6iXnPQ8vr1zcnQLp67s279Ef4wqh1k3/Ia8p1YuxkCJqizAaaCiUGegYKQovOl5AfEgmZSGWBUzSM/KTcHAyBwgX2M/AcdhwmORFSE1W5M9lLCUCdm0AJHR4z+VJxTqaxRNTV4a6p9Z/ykNML2surJGakJCcTW73Z3LVD3EhEripNcw2s775lc4rW1emylovTOOskz7WQbLM1728iOMRalxYXE3ZqnqIZGu67xJa+mHcT7AOD0ATeLxEVrU6PbI0=",
+            "key": "ReceiptHandle"
+        }],
+        "s3Path": "s3://opensearchworkflow-opensearchworkflowbucket68e805-o3e1vk4h56b1/uploads/9709/hep-ph9709240.pdf"
+    },
+    "mime": "application/pdf",
+    "classification": null,
+    "numberOfPages": 17,
+    "fileSize": 470116
 }
