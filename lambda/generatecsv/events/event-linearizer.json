@@ -1,0 +1,29 @@
+{
+  "Token": "AQCEAAAAKgAAAAMAAAAAAAAAAW8XUJ9AL4pq0yByewwTwQxZZ0QbQ5xkGoZYM9YdWY0XeUmfCJXY8qGJlhAhvuwkvwOWHSlTv6zWIAwHv5igqE0yVQPRI37JbkMDXh8Jnqi/aKGc0+HBHFPSgWOkpAMVf6MhvetrsgsKAqOikDKi24TlQK+qDck6E9YwnNG2aOy3XJ5WpA830ryMacbk4IfBsgQUbbfOSPanQ31osR1NOtsIHqStmGGAkTu7ITAK0l+54asl01sBt6sOcyKWl5w+mn8CVd3jO9EmU8NBsjT+0qaN2cw/ChFj6QJhwp3b/deja70tGm+F2RgWfEwZTLyhVsBMR0T/X4RsVtNyM7IzYLOJzRgwGZRpm7PGwXZCiLJTxavUFK1Cmy7n6c9AK3DS/DHPF9F1mHqa+IRMFZyC/KttCxDxT6uVVKcy5QsLpSUzSC7gKoiRXV8JNhcbtmFP8zmh4tk6Mcmemq6gfFhYhSveJakan4XzMSiLW/3rcXbqX0Pffg59YGYJLGwbiTrg/te9qEnIUhdniWYZEqqO4AEfyny7WumxXe5i3aN2YKPUGH8uaZSLF/X8u4QDja68SahiaMTN7HyqK5LIukabadrCsdBfnkC4cnMjOtsizCbOKZa7FMVwtQYHim0RsR4xRsS4",
+  "Payload": {
+    "manifest": {
+      "s3Path": "s3://sdx-textract-us-east-1/uploads/sample_page-14-file.png",
+      "textractFeatures": [
+        "QUERIES",
+        "FORMS",
+        "SIGNATURES",
+        "TABLES",
+        "LAYOUT"
+      ],
+      "queriesConfig": [
+        { "text": "What is the address?", "pages": ["*"], "alias": "ADDRESS" },
+        { "text": "What is the name?", "pages": ["*"], "alias": "NAME" }
+      ]
+    },
+    "mime": "image/png",
+    "classification": null,
+    "numberOfPages": 1,
+    "fileSize": 77338,
+    "numberOfQueries": 2,
+    "textract_result": {
+      "TextractTempOutputJsonPath": "s3://sdx-textract-us-east-1/textract-temp-output/b539dde4cdaa56cf71804eb8939723ae17ff5baf9421dd9003f034064a2c2539",
+      "TextractOutputJsonPath": "s3://sdx-textract-us-east-1/textract-output/68e57ac7-8441-413c-90d1-b868fbe64263/sample_page-14-file.json"
+    }
+  },
+  "ExecutionId": "arn:aws:states:us-east-1:913165245630:execution:AIM30620038C3B-CqhgnC8p3gEM:sample_page-14-filepng2023-10-26T133044538669"
+}
