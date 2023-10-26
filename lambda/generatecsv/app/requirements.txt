@@ -1,2 +1,0 @@
-amazon-textract-response-parser
-amazon-textract-prettyprinter==0.0.13

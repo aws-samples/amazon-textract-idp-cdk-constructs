@@ -1,5 +1,5 @@
 {
-    "Function": {
+    "GenerateCSVFunction": {
         "CSV_S3_OUTPUT_BUCKET": "generatecsvworkflow-textractsimpleasyncworkflow2d-5za69kjbyg6r",
         "CSV_S3_OUTPUT_PREFIX": "textract-csv-output",
         "LOG_LEVEL": "DEBUG",

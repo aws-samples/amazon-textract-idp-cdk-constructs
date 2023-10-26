@@ -10,18 +10,20 @@ Globals:
     Timeout: 900
 
 Resources:
-  Function:
+  GenerateCSVFunction:
     Type: AWS::Serverless::Function 
     Properties:
       PackageType: Image
+      ImageUri: ./
       Architectures:
         - x86_64
       Environment:
         Variables:
-          CSV_S3_OUTPUT_BUCKET: "generatecsvworkflow-textractsimpleasyncworkflow2d-5za69kjbyg6r"
-          CSV_S3_OUTPUT_PREFIX: "textract-csv-output"
+          CSV_S3_OUTPUT_BUCKET: "sdx-textract-us-east-1"
+          CSV_S3_OUTPUT_PREFIX: "textract-linearized-output"
           LOG_LEVEL: DEBUG
           META_DATA_TO_APPEND: ""
+          OUTPUT_TYPE: "LINEARIZED"
           TEXTRACT_API: GENERIC
           OUTPUT_FEATURES: "TABLES,FORMS,SIGNATURES"
     Metadata:
