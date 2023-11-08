@@ -156,7 +156,7 @@ def lambda_handler(event, _):
                     hide_figure_layout=True,
                     title_prefix="# ",
                     section_header_prefix="## ",
-                    list_element_prefix="*",
+                    list_element_prefix="* ",
                     table_linearization_format="markdown"
                 )
                 for idx, page in enumerate(document.pages):
