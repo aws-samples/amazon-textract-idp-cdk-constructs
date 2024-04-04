@@ -2,6 +2,7 @@
 //import { ISecurityGroup, IVpc } from 'aws-cdk-lib/aws-ec2';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as rds from 'aws-cdk-lib/aws-rds';
+import { AuroraPostgresEngineVersion } from 'aws-cdk-lib/aws-rds';
 import { Construct } from 'constructs';
 import { RdsServerlessInit } from './rdsServerlessInit';
 
@@ -26,9 +27,15 @@ export class RDSAuroraServerless extends Construct {
     this.auroraSecurityGroup.addIngressRule(this.lambdaSecurityGroup, ec2.Port.tcp(443), 'LambdaIngreess');
 
     // AURORA
-    this.dbCluster = new rds.ServerlessCluster(this, id + 'AuroraPSQL', {
-      engine: rds.DatabaseClusterEngine.AURORA_POSTGRESQL,
-      parameterGroup: rds.ParameterGroup.fromParameterGroupName(this, 'ParameterGroup', 'default.aurora-postgresql10'),
+    this.dbCluster = new rds.DatabaseCluster(this, id + 'AuroraPSQL', {
+      engine: rds.DatabaseClusterEngine.auroraPostgres(
+        {
+          version: AuroraPostgresEngineVersion.VER_15_5,
+        },
+      ),
+      writer: rds.ClusterInstance.serverlessV2('writer'),
+      serverlessV2MinCapacity: 0.5,
+      serverlessV2MaxCapacity: 2,
       vpc: props.vpc,
       securityGroups: [this.auroraSecurityGroup],
       enableDataApi: true,
