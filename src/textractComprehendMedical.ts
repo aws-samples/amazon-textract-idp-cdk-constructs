@@ -13,6 +13,7 @@ export interface TextractComprehendMedicalProps {
   readonly textractComprehendMedicalFunction?: lambda.IFunction;
   readonly lambdaLogLevel?: string;
   readonly s3InputBucket?: string;
+  readonly comprehendMedicalRoleName?: string;
   /** prefix for the incoming document. Will be used to create role */
   readonly s3InputPrefix?: string;
   /** List of PolicyStatements to attach to the Lambda function for S3 GET and LIST. */
@@ -52,6 +53,17 @@ export class TextractComprehendMedical extends sfn.StateMachineFragment {
     var lambdaLogLevel = props.lambdaLogLevel === undefined ? 'INFO' : props.lambdaLogLevel;
     var s3InputPrefix = props.s3InputPrefix === undefined ? 'uploads' : props.s3InputPrefix;
 
+    const comprehendMedicalRole = new iam.Role(this, 'RoleComprehendMedical', {
+      assumedBy: new iam.ServicePrincipal('comprehendmedical.amazonaws.com'),
+    });
+    comprehendMedicalRole.addToPolicy(
+      new iam.PolicyStatement({
+        actions: ['s3:GetObject', 's3:ListBucket', 's3:PutObject'],
+        effect: iam.Effect.ALLOW,
+        resources: ['*'],
+      }),
+    );
+
     this.textractComprehendMedicalFunction = new lambda.DockerImageFunction(
       this,
       'TextractComprehendMedical',
@@ -64,6 +76,7 @@ export class TextractComprehendMedical extends sfn.StateMachineFragment {
         timeout: Duration.seconds(lambdaTimeout),
         environment: {
           LOG_LEVEL: lambdaLogLevel,
+          COMPREHEND_MEDICAL_ROLE: comprehendMedicalRole.roleArn,
         },
       },
     );
@@ -72,14 +85,14 @@ export class TextractComprehendMedical extends sfn.StateMachineFragment {
       if (props.s3InputBucket === undefined) {
         this.textractComprehendMedicalFunction.addToRolePolicy(
           new iam.PolicyStatement({
-            actions: ['s3:GetObject', 's3:ListBucket'],
+            actions: ['s3:GetObject', 's3:ListBucket', 's3:PutObject'],
             resources: ['*'],
           }),
         );
       } else {
         this.textractComprehendMedicalFunction.addToRolePolicy(
           new iam.PolicyStatement({
-            actions: ['s3:GetObject', 's3:ListBucket'],
+            actions: ['s3:GetObject', 's3:ListBucket', 's3:PutObject'],
             resources: [
               path.join(`arn:aws:s3:::${props.s3InputBucket}`, s3InputPrefix, '/'),
               path.join(`arn:aws:s3:::${props.s3InputBucket}`, s3InputPrefix, '/*'),
@@ -89,7 +102,7 @@ export class TextractComprehendMedical extends sfn.StateMachineFragment {
       }
       this.textractComprehendMedicalFunction.addToRolePolicy(
         new iam.PolicyStatement({
-          actions: ['comprehendmedical:Start*'],
+          actions: ['comprehendmedical:Start*', 'iam:PassRole'],
           resources: ['*'],
         }),
       );
@@ -98,6 +111,7 @@ export class TextractComprehendMedical extends sfn.StateMachineFragment {
         this.textractComprehendMedicalFunction.addToRolePolicy(policyStatement);
       }
     }
+
     const textractComprehendMedicalLambdaInvoke = new tasks.LambdaInvoke(this, id, {
       lambdaFunction: this.textractComprehendMedicalFunction,
       outputPath: '$.Payload',

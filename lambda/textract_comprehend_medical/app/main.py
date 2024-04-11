@@ -6,10 +6,8 @@ import traceback
 import trp
 import logging
 from urllib.parse import urlparse
-from fhir_doc_assembler import FhirDocAssembler
-from send_to_healthlake import send_to_healthlake
 
-logger = logging.getLogger('SendToHealthlake')
+logger = logging.getLogger('SendToComprehendMedical')
 logger.addHandler(logging.StreamHandler())
 logger.setLevel(getattr(logging, os.getenv('LOG_LEVEL', 'INFO')))
 client =  boto3.client('s3')
@@ -25,7 +23,6 @@ def handler(event, context):
     logger.debug(event)
     try:
         if event.get('textract_result'):
-            doc_id = uuid.uuid4()
             output_json = event['textract_result']['TextractOutputJsonPath']
             bucket = urlparse(output_json).hostname
             object_key = urlparse(output_json).path[1:]
@@ -34,12 +31,27 @@ def handler(event, context):
             resp = client.get_object(Bucket=bucket, Key=object_key)
             blocks = json.loads(resp['Body'].read())
             document = trp.Document(blocks)
-            assembler = FhirDocAssembler()
             logger.info(f'The document has {len(document.pages)} pages')
-            logger.info(f'Unique ID for this document is: {doc_id}')
+            # TODO We can add Bedrock here to send multiple pages to CM based on the context
+            text_content = ""
+            job_name = f'job-{uuid.uuid4()}'
             for page in document.pages:
-                send_to_healthlake(assembler.get_fhir_doc(page.text, doc_id))
-                logger.debug(f"Adding attachment {page.text}")
+                text_content += page.text
+            resp = client.put_object(Bucket=bucket, Key=f'{job_name}/result.txt', Body=str.encode(text_content))
+            cm_client = boto3.client('comprehendmedical')
+            resp = cm_client.start_icd10_cm_inference_job(
+                InputDataConfig={
+                    'S3Bucket': bucket,
+                    'S3Key': f'{job_name}'
+                },
+                OutputDataConfig={
+                    'S3Bucket': bucket,
+                    'S3Key': f'cm-output/{job_name}'
+                },
+                JobName=job_name,
+                DataAccessRoleArn=os.getenv('COMPREHEND_MEDICAL_ROLE'),
+                LanguageCode='en'
+            )
         else:
             raise RuntimeError('Invalid lambda event.')
     except Exception as e:
