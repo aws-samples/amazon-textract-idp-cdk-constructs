@@ -10,7 +10,13 @@ from urllib.parse import urlparse
 logger = logging.getLogger('SendToComprehendMedical')
 logger.addHandler(logging.StreamHandler())
 logger.setLevel(getattr(logging, os.getenv('LOG_LEVEL', 'INFO')))
-client =  boto3.client('s3')
+client = boto3.client('s3')
+cm_client = boto3.client('comprehendmedical')
+CM_JOB_TYPES = [('ICD10', 'StartICD10CMInferenceJob'),
+                ('SNOMEDCT', 'StartSNOMEDCTInferenceJob'),
+                ('RXNORM', 'StartRxNormInferenceJob'),
+                ('DETECT_ENTITIES_V2', 'StartEntitiesDetectionV2Job'),
+                ('DETECT_PHI', 'StartPHIDetectionJob')]
 
 
 # Broken out into separate Lambda function in case there are slow-downs in textract,
@@ -21,6 +27,15 @@ client =  boto3.client('s3')
 
 def handler(event, context):
     logger.debug(event)
+    start_job = None
+    job_type = os.getenv('COMPREHEND_MEDICAL_JOB_TYPE')
+    for job in CM_JOB_TYPES:
+        if job_type == job[0]:
+            start_job = getattr(cm_client, job[1])
+    if not start_job:
+        logger.info('There is no valid COMPREHEND_MEDICAL_JOB_TYPE set.')
+        return
+
     try:
         if event.get('textract_result'):
             output_json = event['textract_result']['TextractOutputJsonPath']
@@ -37,9 +52,8 @@ def handler(event, context):
             job_name = f'job-{uuid.uuid4()}'
             for page in document.pages:
                 text_content += page.text
-            resp = client.put_object(Bucket=bucket, Key=f'{job_name}/result.txt', Body=str.encode(text_content))
-            cm_client = boto3.client('comprehendmedical')
-            resp = cm_client.start_icd10_cm_inference_job(
+            client.put_object(Bucket=bucket, Key=f'{job_name}/result.txt', Body=str.encode(text_content))
+            start_job(
                 InputDataConfig={
                     'S3Bucket': bucket,
                     'S3Key': f'{job_name}'
