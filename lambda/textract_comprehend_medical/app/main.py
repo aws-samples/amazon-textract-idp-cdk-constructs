@@ -50,17 +50,18 @@ def handler(event, context):
             # TODO We can add Bedrock here to send multiple pages to CM based on the context
             text_content = ""
             job_name = f'job-{uuid.uuid4()}'
+            object_name = f'textract-output/text/{job_type}/{job_name}/{job_name}.txt'
             for page in document.pages:
                 text_content += page.text
-            client.put_object(Bucket=bucket, Key=f'{job_name}/textract_result.txt', Body=str.encode(text_content))
+            client.put_object(Bucket=bucket, Key=object_name, Body=str.encode(text_content))
             start_job(
                 InputDataConfig={
                     'S3Bucket': bucket,
-                    'S3Key': f'{job_name}'
+                    'S3Key': f'textract-output/text/{job_type}/{job_name}'
                 },
                 OutputDataConfig={
                     'S3Bucket': bucket,
-                    'S3Key': f'cm-output/{job_name}'
+                    'S3Key': f'cm-output/json/{job_type}/{job_name}'
                 },
                 JobName=job_name,
                 DataAccessRoleArn=os.getenv('COMPREHEND_MEDICAL_ROLE'),
