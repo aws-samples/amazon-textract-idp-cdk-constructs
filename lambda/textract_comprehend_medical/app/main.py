@@ -26,7 +26,6 @@ cm_job_types = [('ICD10', 'start_icd10_cm_inference_job'),
 # SNS when it's ready for us to come back :-)
 
 def handler(event, context):
-    logger.debug(event)
     start_job = None
     job_type = os.getenv('COMPREHEND_MEDICAL_JOB_TYPE')
     for job in cm_job_types:

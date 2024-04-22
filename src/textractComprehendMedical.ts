@@ -49,22 +49,35 @@ export class TextractComprehendMedical extends sfn.StateMachineFragment {
   constructor(parent: Construct, id: string, props: TextractComprehendMedicalProps) {
     super(parent, id);
 
-    var lambdaMemoryMB = props.lambdaMemoryMB === undefined ? 1024 : props.lambdaMemoryMB;
-    var lambdaTimeout = props.lambdaTimeout === undefined ? 900 : props.lambdaTimeout;
-    var lambdaLogLevel = props.lambdaLogLevel === undefined ? 'INFO' : props.lambdaLogLevel;
-    var s3InputPrefix = props.s3InputPrefix === undefined ? 'uploads' : props.s3InputPrefix;
-    var cmJobType = props.comprehendMedicalJobType === undefined ? 'ICD10' : props.comprehendMedicalJobType;
+    const lambdaMemoryMB = props.lambdaMemoryMB === undefined ? 1024 : props.lambdaMemoryMB;
+    const lambdaTimeout = props.lambdaTimeout === undefined ? 900 : props.lambdaTimeout;
+    const lambdaLogLevel = props.lambdaLogLevel === undefined ? 'INFO' : props.lambdaLogLevel;
+    const s3InputPrefix = props.s3InputPrefix === undefined ? 'uploads' : props.s3InputPrefix;
+    const cmJobType = props.comprehendMedicalJobType === undefined ? 'ICD10' : props.comprehendMedicalJobType;
 
     const comprehendMedicalRole = new iam.Role(this, 'RoleComprehendMedical', {
       assumedBy: new iam.ServicePrincipal('comprehendmedical.amazonaws.com'),
     });
-    comprehendMedicalRole.addToPolicy(
-      new iam.PolicyStatement({
-        actions: ['s3:GetObject', 's3:ListBucket', 's3:PutObject'],
-        effect: iam.Effect.ALLOW,
-        resources: ['*'],
-      }),
-    );
+    if (props.s3InputBucket === undefined) {
+      comprehendMedicalRole.addToPolicy(
+        new iam.PolicyStatement({
+          actions: ['s3:GetObject', 's3:ListBucket', 's3:PutObject'],
+          effect: iam.Effect.ALLOW,
+          resources: ['*'],
+        }),
+      );
+    } else {
+      comprehendMedicalRole.addToPolicy(
+        new iam.PolicyStatement({
+          actions: ['s3:GetObject', 's3:ListBucket', 's3:PutObject'],
+          effect: iam.Effect.ALLOW,
+          resources: [
+            path.join(`arn:aws:s3:::${props.s3InputBucket}`, s3InputPrefix, '/'),
+            path.join(`arn:aws:s3:::${props.s3InputBucket}`, s3InputPrefix, '/*'),
+          ],
+        }),
+      );
+    }
 
     this.textractComprehendMedicalFunction = new lambda.DockerImageFunction(
       this,
@@ -105,9 +118,21 @@ export class TextractComprehendMedical extends sfn.StateMachineFragment {
       }
       this.textractComprehendMedicalFunction.addToRolePolicy(
         new iam.PolicyStatement({
-          actions: ['comprehendmedical:Start*', 'iam:PassRole'],
+          actions: ['comprehendmedical:Start*'],
           resources: ['*'],
         }),
+      ),
+      this.textractComprehendMedicalFunction.addToRolePolicy(
+        new iam.PolicyStatement({
+          actions: ['iam:PassRole'],
+          resources: ['*'],
+          conditions: {
+            StringEquals: {
+              'iam:PassedToService': 'comprehendmedical.amazonaws.com',
+            },
+          },
+        },
+        ),
       );
     } else {
       for (var policyStatement of props.inputPolicyStatements) {
