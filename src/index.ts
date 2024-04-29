@@ -26,6 +26,7 @@ export { WorkmailS3IngestionPoint, WorkmailS3IngestionPointProps } from './workm
 export { TextractPdfMapperForFhir, TextractPdfMapperForFhirProps } from './textractPdfMapperForFhir';
 export { SearchablePDF, SearchablePDFProps } from './searchablePDF';
 export { SFExecutionsStartThrottle, SFExecutionsStartThrottleProps as sfExecutionsStartThrottleProps } from './stepFunctionsExecutionsStartThrottle';
+export { TextractComprehendMedical, TextractComprehendMedicalProps } from './textractComprehendMedical';
 
 export function validatePatternSupported(integrationPattern: sfn.IntegrationPattern, supportedPatterns: sfn.IntegrationPattern[]) {
   if (! supportedPatterns.includes(integrationPattern)) {

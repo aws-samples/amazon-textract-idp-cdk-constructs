@@ -1,0 +1,27 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  python3.9
+
+  Lambda function for PDF Mapper for FHIR
+
+Globals:
+  Function:
+    Timeout: 900
+
+Resources:
+  PdfMapperForFhirFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          HEALTHLAKE_ENDPOINT: https://healthlake.us-east-2.amazonaws.com/datastore/83c10afe8566667ac2489c8d989b2c14/r4/
+          LOG_LEVEL: INFO
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: .
+      DockerTag: python3.9-v1
+

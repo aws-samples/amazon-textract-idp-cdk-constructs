@@ -3525,6 +3525,234 @@ public readonly configuratorFunction: IFunction;
 ---
 
 
+### TextractComprehendMedical <a name="TextractComprehendMedical" id="amazon-textract-idp-cdk-constructs.TextractComprehendMedical"></a>
+
+This construct takes in a manifest definition or a plain JSON with a s3Path:.
+
+example s3Path:
+{"s3Path": "s3://bucketname/prefix/image.png"}
+
+
+Then it generated the numberOfPages attribute and the mime on the context.
+The mime types checked against the supported mime types for Textract and if fails, will raise an Exception failing the workflow.
+
+Example (Python)
+```python
+decider_task_id = tcdk.TextractPOCDecider(
+self,
+f"InsuranceDecider",
+)
+```
+
+#### Initializers <a name="Initializers" id="amazon-textract-idp-cdk-constructs.TextractComprehendMedical.Initializer"></a>
+
+```typescript
+import { TextractComprehendMedical } from 'amazon-textract-idp-cdk-constructs'
+
+new TextractComprehendMedical(parent: Construct, id: string, props: TextractComprehendMedicalProps)
+```
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractComprehendMedical.Initializer.parameter.parent">parent</a></code> | <code>constructs.Construct</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractComprehendMedical.Initializer.parameter.id">id</a></code> | <code>string</code> | Descriptive identifier for this chainable. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractComprehendMedical.Initializer.parameter.props">props</a></code> | <code><a href="#amazon-textract-idp-cdk-constructs.TextractComprehendMedicalProps">TextractComprehendMedicalProps</a></code> | *No description.* |
+
+---
+
+##### `parent`<sup>Required</sup> <a name="parent" id="amazon-textract-idp-cdk-constructs.TextractComprehendMedical.Initializer.parameter.parent"></a>
+
+- *Type:* constructs.Construct
+
+---
+
+##### `id`<sup>Required</sup> <a name="id" id="amazon-textract-idp-cdk-constructs.TextractComprehendMedical.Initializer.parameter.id"></a>
+
+- *Type:* string
+
+Descriptive identifier for this chainable.
+
+---
+
+##### `props`<sup>Required</sup> <a name="props" id="amazon-textract-idp-cdk-constructs.TextractComprehendMedical.Initializer.parameter.props"></a>
+
+- *Type:* <a href="#amazon-textract-idp-cdk-constructs.TextractComprehendMedicalProps">TextractComprehendMedicalProps</a>
+
+---
+
+#### Methods <a name="Methods" id="Methods"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractComprehendMedical.toString">toString</a></code> | Returns a string representation of this construct. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractComprehendMedical.next">next</a></code> | Continue normal execution with the given state. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractComprehendMedical.prefixStates">prefixStates</a></code> | Prefix the IDs of all states in this state machine fragment. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractComprehendMedical.toSingleState">toSingleState</a></code> | Wrap all states in this state machine fragment up into a single state. |
+
+---
+
+##### `toString` <a name="toString" id="amazon-textract-idp-cdk-constructs.TextractComprehendMedical.toString"></a>
+
+```typescript
+public toString(): string
+```
+
+Returns a string representation of this construct.
+
+##### `next` <a name="next" id="amazon-textract-idp-cdk-constructs.TextractComprehendMedical.next"></a>
+
+```typescript
+public next(next: IChainable): Chain
+```
+
+Continue normal execution with the given state.
+
+###### `next`<sup>Required</sup> <a name="next" id="amazon-textract-idp-cdk-constructs.TextractComprehendMedical.next.parameter.next"></a>
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.IChainable
+
+---
+
+##### `prefixStates` <a name="prefixStates" id="amazon-textract-idp-cdk-constructs.TextractComprehendMedical.prefixStates"></a>
+
+```typescript
+public prefixStates(prefix?: string): StateMachineFragment
+```
+
+Prefix the IDs of all states in this state machine fragment.
+
+Use this to avoid multiple copies of the state machine all having the
+same state IDs.
+
+###### `prefix`<sup>Optional</sup> <a name="prefix" id="amazon-textract-idp-cdk-constructs.TextractComprehendMedical.prefixStates.parameter.prefix"></a>
+
+- *Type:* string
+
+The prefix to add.
+
+Will use construct ID by default.
+
+---
+
+##### `toSingleState` <a name="toSingleState" id="amazon-textract-idp-cdk-constructs.TextractComprehendMedical.toSingleState"></a>
+
+```typescript
+public toSingleState(options?: SingleStateOptions): Parallel
+```
+
+Wrap all states in this state machine fragment up into a single state.
+
+This can be used to add retry or error handling onto this state
+machine fragment.
+
+Be aware that this changes the result of the inner state machine
+to be an array with the result of the state machine in it. Adjust
+your paths accordingly. For example, change 'outputPath' to
+'$[0]'.
+
+###### `options`<sup>Optional</sup> <a name="options" id="amazon-textract-idp-cdk-constructs.TextractComprehendMedical.toSingleState.parameter.options"></a>
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.SingleStateOptions
+
+---
+
+#### Static Functions <a name="Static Functions" id="Static Functions"></a>
+
+| **Name** | **Description** |
+| --- | --- |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractComprehendMedical.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
+
+---
+
+##### ~~`isConstruct`~~ <a name="isConstruct" id="amazon-textract-idp-cdk-constructs.TextractComprehendMedical.isConstruct"></a>
+
+```typescript
+import { TextractComprehendMedical } from 'amazon-textract-idp-cdk-constructs'
+
+TextractComprehendMedical.isConstruct(x: any)
+```
+
+Checks if `x` is a construct.
+
+###### `x`<sup>Required</sup> <a name="x" id="amazon-textract-idp-cdk-constructs.TextractComprehendMedical.isConstruct.parameter.x"></a>
+
+- *Type:* any
+
+Any object.
+
+---
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractComprehendMedical.property.node">node</a></code> | <code>constructs.Node</code> | The tree node. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractComprehendMedical.property.endStates">endStates</a></code> | <code>aws-cdk-lib.aws_stepfunctions.INextable[]</code> | The states to chain onto if this fragment is used. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractComprehendMedical.property.id">id</a></code> | <code>string</code> | Descriptive identifier for this chainable. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractComprehendMedical.property.startState">startState</a></code> | <code>aws-cdk-lib.aws_stepfunctions.State</code> | The start state of this state machine fragment. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractComprehendMedical.property.textractComprehendMedicalFunction">textractComprehendMedicalFunction</a></code> | <code>aws-cdk-lib.aws_lambda.IFunction</code> | *No description.* |
+
+---
+
+##### `node`<sup>Required</sup> <a name="node" id="amazon-textract-idp-cdk-constructs.TextractComprehendMedical.property.node"></a>
+
+```typescript
+public readonly node: Node;
+```
+
+- *Type:* constructs.Node
+
+The tree node.
+
+---
+
+##### `endStates`<sup>Required</sup> <a name="endStates" id="amazon-textract-idp-cdk-constructs.TextractComprehendMedical.property.endStates"></a>
+
+```typescript
+public readonly endStates: INextable[];
+```
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.INextable[]
+
+The states to chain onto if this fragment is used.
+
+---
+
+##### `id`<sup>Required</sup> <a name="id" id="amazon-textract-idp-cdk-constructs.TextractComprehendMedical.property.id"></a>
+
+```typescript
+public readonly id: string;
+```
+
+- *Type:* string
+
+Descriptive identifier for this chainable.
+
+---
+
+##### `startState`<sup>Required</sup> <a name="startState" id="amazon-textract-idp-cdk-constructs.TextractComprehendMedical.property.startState"></a>
+
+```typescript
+public readonly startState: State;
+```
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.State
+
+The start state of this state machine fragment.
+
+---
+
+##### `textractComprehendMedicalFunction`<sup>Required</sup> <a name="textractComprehendMedicalFunction" id="amazon-textract-idp-cdk-constructs.TextractComprehendMedical.property.textractComprehendMedicalFunction"></a>
+
+```typescript
+public readonly textractComprehendMedicalFunction: IFunction;
+```
+
+- *Type:* aws-cdk-lib.aws_lambda.IFunction
+
+---
+
+
 ### TextractGenerateCSV <a name="TextractGenerateCSV" id="amazon-textract-idp-cdk-constructs.TextractGenerateCSV"></a>
 
 Generates a output based on Textract Forms and Queries. Supported output_types: "LINES" | "CSV".
@@ -8238,6 +8466,130 @@ public readonly lambdaTimeout: number;
 ```
 
 - *Type:* number
+
+---
+
+### TextractComprehendMedicalProps <a name="TextractComprehendMedicalProps" id="amazon-textract-idp-cdk-constructs.TextractComprehendMedicalProps"></a>
+
+#### Initializer <a name="Initializer" id="amazon-textract-idp-cdk-constructs.TextractComprehendMedicalProps.Initializer"></a>
+
+```typescript
+import { TextractComprehendMedicalProps } from 'amazon-textract-idp-cdk-constructs'
+
+const textractComprehendMedicalProps: TextractComprehendMedicalProps = { ... }
+```
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractComprehendMedicalProps.property.comprehendMedicalJobType">comprehendMedicalJobType</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractComprehendMedicalProps.property.comprehendMedicalRoleName">comprehendMedicalRoleName</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractComprehendMedicalProps.property.inputPolicyStatements">inputPolicyStatements</a></code> | <code>aws-cdk-lib.aws_iam.PolicyStatement[]</code> | List of PolicyStatements to attach to the Lambda function for S3 GET and LIST. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractComprehendMedicalProps.property.lambdaLogLevel">lambdaLogLevel</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractComprehendMedicalProps.property.lambdaMemoryMB">lambdaMemoryMB</a></code> | <code>number</code> | memory of Lambda function (may need to increase for larger documents). |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractComprehendMedicalProps.property.lambdaTimeout">lambdaTimeout</a></code> | <code>number</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractComprehendMedicalProps.property.s3InputBucket">s3InputBucket</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractComprehendMedicalProps.property.s3InputPrefix">s3InputPrefix</a></code> | <code>string</code> | prefix for the incoming document. |
+| <code><a href="#amazon-textract-idp-cdk-constructs.TextractComprehendMedicalProps.property.textractComprehendMedicalFunction">textractComprehendMedicalFunction</a></code> | <code>aws-cdk-lib.aws_lambda.IFunction</code> | *No description.* |
+
+---
+
+##### `comprehendMedicalJobType`<sup>Optional</sup> <a name="comprehendMedicalJobType" id="amazon-textract-idp-cdk-constructs.TextractComprehendMedicalProps.property.comprehendMedicalJobType"></a>
+
+```typescript
+public readonly comprehendMedicalJobType: string;
+```
+
+- *Type:* string
+
+---
+
+##### `comprehendMedicalRoleName`<sup>Optional</sup> <a name="comprehendMedicalRoleName" id="amazon-textract-idp-cdk-constructs.TextractComprehendMedicalProps.property.comprehendMedicalRoleName"></a>
+
+```typescript
+public readonly comprehendMedicalRoleName: string;
+```
+
+- *Type:* string
+
+---
+
+##### `inputPolicyStatements`<sup>Optional</sup> <a name="inputPolicyStatements" id="amazon-textract-idp-cdk-constructs.TextractComprehendMedicalProps.property.inputPolicyStatements"></a>
+
+```typescript
+public readonly inputPolicyStatements: PolicyStatement[];
+```
+
+- *Type:* aws-cdk-lib.aws_iam.PolicyStatement[]
+
+List of PolicyStatements to attach to the Lambda function for S3 GET and LIST.
+
+---
+
+##### `lambdaLogLevel`<sup>Optional</sup> <a name="lambdaLogLevel" id="amazon-textract-idp-cdk-constructs.TextractComprehendMedicalProps.property.lambdaLogLevel"></a>
+
+```typescript
+public readonly lambdaLogLevel: string;
+```
+
+- *Type:* string
+
+---
+
+##### `lambdaMemoryMB`<sup>Optional</sup> <a name="lambdaMemoryMB" id="amazon-textract-idp-cdk-constructs.TextractComprehendMedicalProps.property.lambdaMemoryMB"></a>
+
+```typescript
+public readonly lambdaMemoryMB: number;
+```
+
+- *Type:* number
+
+memory of Lambda function (may need to increase for larger documents).
+
+---
+
+##### `lambdaTimeout`<sup>Optional</sup> <a name="lambdaTimeout" id="amazon-textract-idp-cdk-constructs.TextractComprehendMedicalProps.property.lambdaTimeout"></a>
+
+```typescript
+public readonly lambdaTimeout: number;
+```
+
+- *Type:* number
+
+---
+
+##### `s3InputBucket`<sup>Optional</sup> <a name="s3InputBucket" id="amazon-textract-idp-cdk-constructs.TextractComprehendMedicalProps.property.s3InputBucket"></a>
+
+```typescript
+public readonly s3InputBucket: string;
+```
+
+- *Type:* string
+
+---
+
+##### `s3InputPrefix`<sup>Optional</sup> <a name="s3InputPrefix" id="amazon-textract-idp-cdk-constructs.TextractComprehendMedicalProps.property.s3InputPrefix"></a>
+
+```typescript
+public readonly s3InputPrefix: string;
+```
+
+- *Type:* string
+
+prefix for the incoming document.
+
+Will be used to create role
+
+---
+
+##### `textractComprehendMedicalFunction`<sup>Optional</sup> <a name="textractComprehendMedicalFunction" id="amazon-textract-idp-cdk-constructs.TextractComprehendMedicalProps.property.textractComprehendMedicalFunction"></a>
+
+```typescript
+public readonly textractComprehendMedicalFunction: IFunction;
+```
+
+- *Type:* aws-cdk-lib.aws_lambda.IFunction
 
 ---
 
